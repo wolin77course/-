@@ -351,12 +351,12 @@ var DB = [];
 var curTab    = 'all';
 var curRegion = '';
 
-var REGION_ORDER = ['地中海','南亚 / 犍陀罗','波斯 / 中东 / 蒙古','中国','朝鲜','日本','西洋近代','美洲'];
+var REGION_ORDER = ['地中海','南亚 / 犍陀罗','波斯 / 中东 / 蒙古','中国','朝鲜','日本','西洋近代'];
 var REGION_MAP   = {
   all: REGION_ORDER,
-  ceramics: ['地中海','波斯 / 中东 / 蒙古','中国','朝鲜','日本','西洋近代','美洲'],
+  ceramics: ['地中海','波斯 / 中东 / 蒙古','中国','朝鲜','日本','西洋近代'],
   buddha:   ['南亚 / 犍陀罗','朝鲜','日本'],
-  paintings:['南亚 / 犍陀罗','日本','西洋近代'],
+  paintings:['南亚 / 犍陀罗','日本'],
   architecture:['日本'],
   japan_modern:['日本']
 };
@@ -620,7 +620,7 @@ function rb(r){ if(!r||!r.level)return ''; var l=r.level; return bd(l,RBG[l]||'#
 function cb(it){
   var b='',p=it.provenance||'',n=it.name||'',m=it.material||'';
   if(it.cat==='ceramics'){
-    var rm={'地中海':['#FAEEDA','#633806'],'南亚 / 犍陀罗':['#FAD9A1','#6B3800'],'波斯 / 中东 / 蒙古':['#E1F5EE','#085041'],'中国':['#FAD9A1','#6B3800'],'朝鲜':['#9FE1CB','#04342C'],'日本':['#EEEDFE','#3C3489'],'西洋近代':['#D3D1C7','#444441'],'美洲':['#FBEAF0','#72243E']};
+    var rm={'地中海':['#FAEEDA','#633806'],'南亚 / 犍陀罗':['#FAD9A1','#6B3800'],'波斯 / 中东 / 蒙古':['#E1F5EE','#085041'],'中国':['#FAD9A1','#6B3800'],'朝鲜':['#9FE1CB','#04342C'],'日本':['#EEEDFE','#3C3489'],'西洋近代':['#D3D1C7','#444441']};
     var rc=rm[it.region]||['#D3D1C7','#444441']; b+=bd(it.region,rc[0],rc[1]);
     if(m.includes('黑绘'))b+=bd('黑绘','#D3D1C7','#444441');
     else if(m.includes('红绘'))b+=bd('红绘','#EEEDFE','#3C3489');
@@ -666,14 +666,13 @@ function cb(it){
     if((it.provenance||'').includes('柳宗悦'))b+=bd('柳宗悦','#1A1A2E','#E8D5FF');
     if((it.provenance||'').includes('土门')||(it.provenance||'').includes('土門'))b+=bd('土门拳','#EEEDFE','#3C3489');
   }else{
-    if(it.region==='西洋近代'){
-      b+=bd('西洋绘画','#D3D1C7','#444441');
-      var a=it.artist||'';
-      if(a.includes('Zając')||a.includes('扎扬茨'))b+=bd('波兰','#E6F1FB','#042C53');
-      else if(a.includes('蕗谷')||a.includes('虹儿'))b+=bd('大正近代','#FBEAF0','#72243E');
+    var a=it.artist||'';
+    // 铃木大拙专属标签
+    if(a.includes('铃木大拙')||a.includes('鈴木大拙')||a.includes('大拙')){
+      b+=bd('铃木大拙','#1A1A2E','#E8D5FF');
+      b+=bd('禅学','#EEEDFE','#3C3489');
     }else{
       b+=bd('书画','#FBEAF0','#72243E');
-      var a=it.artist||'';
       if(a.includes('白隱'))b+=bd('白隐','#1A1A2E','#E8D5FF');
       else if(a.includes('良宽')||a.includes('良寛'))b+=bd('良宽','#FFF3C4','#7A4F00');
       else if(a.includes('北斎')||a.includes('北斋'))b+=bd('北斋','#FBEAF0','#72243E');
@@ -681,10 +680,13 @@ function cb(it){
       else if(a.includes('応挙'))b+=bd('応举','#FAD9A1','#6B3800');
       else if(a.includes('光琳'))b+=bd('光琳','#EAF3DE','#27500A');
       else if(a.includes('梦二')||a.includes('夢二'))b+=bd('梦二','#FBEAF0','#72243E');
-      else if(a.includes('蕗谷')||a.includes('虹儿'))b+=bd('虹儿','#FBEAF0','#72243E');
-      if(p.includes('土门')||p.includes('土門'))b+=bd('土门拳','#EEEDFE','#3C3489');
-      if(n.includes('真伪待'))b+=bd('真伪待定','#FFF3C4','#7A4F00');
+      else if(a.includes('仙厓')||a.includes('仙崖'))b+=bd('仙厓','#FFF3C4','#7A4F00');
+      else if(a.includes('芦雪')||a.includes('廬雪'))b+=bd('芦雪','#E1F5EE','#085041');
+      else if(a.includes('広重')||a.includes('广重'))b+=bd('广重','#E6F1FB','#042C53');
+      else if(a.includes('白隱')||a.includes('白隐'))b+=bd('白隐','#1A1A2E','#E8D5FF');
     }
+    if(p.includes('土门')||p.includes('土門'))b+=bd('土门拳','#EEEDFE','#3C3489');
+    if(n.includes('真伪待'))b+=bd('真伪待定','#FFF3C4','#7A4F00');
   }
   return b;
 }

@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青之寂寥 · 私人殿堂 v30</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:#1a1a1a;background:#f5f4f0;font-size:14px}
+.hdr{background:#fff;border-bottom:1px solid #e8e6e0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px}
+.hdr h1{font-size:17px;font-weight:500}
+.sub{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:2px}
+#cnt{font-size:12px;color:#888}
+.stats{display:flex;gap:12px;flex-wrap:wrap;padding:10px 20px;background:#fff;border-bottom:1px solid #e8e6e0;font-size:11px;color:#888}
+.stat strong{color:#1a1a1a;font-size:13px;margin-right:3px}
+.tabs{display:flex;border-bottom:1px solid #e8e6e0;background:#fff;padding:0 20px;overflow-x:auto}
+.tab{padding:10px 12px;font-size:12px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0}
+.tab.on{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+.sub-tabs{display:flex;gap:6px;padding:10px 20px 8px;background:#faf9f7;border-bottom:1px solid #ece9e3;flex-wrap:wrap;align-items:center}
+.sub-tab{padding:4px 10px;font-size:11px;cursor:pointer;border:1px solid #ddd;border-radius:20px;background:#fff;color:#666;white-space:nowrap;transition:all .15s}
+.sub-tab.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:500}
+.sub-tab-lbl{font-size:10px;color:#aaa;letter-spacing:.05em;margin-right:4px;flex-shrink:0}
+.body{padding:16px 20px;max-width:1200px;margin:0 auto}
+.tb{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tb input{font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;outline:none;flex:1;min-width:140px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:13px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative}
+.card:hover{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.card-no{position:absolute;top:8px;right:9px;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em}
+.cn{font-size:12px;font-weight:500;margin:5px 0 3px;line-height:1.4;padding-right:40px}
+.cm{font-size:11px;color:#888}
+.ct{font-size:10px;color:#aaa;margin-top:3px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.badge{font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500;display:inline-block;margin:0 2px 2px 0}
+.sec{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:#888;padding:5px 0 3px;border-bottom:1px solid #e8e6e0;margin:12px 0 7px}
+.back-btn{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:#666;cursor:pointer;padding:6px 0;border:none;background:none;margin-bottom:12px}
+.back-btn:hover{color:#1a1a1a}
+.dcard{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:13px 15px;margin-bottom:9px;overflow:hidden;min-width:0}
+.dcard h3{font-size:10px;font-weight:500;color:#888;letter-spacing:.07em;text-transform:uppercase;padding-bottom:5px;border-bottom:1px solid #e8e6e0;margin-bottom:7px}
+.detail-no{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;color:#888;background:#f0eee9;border:1px solid #ddd;border-radius:6px;padding:3px 9px;margin-bottom:8px}
+.kv{display:flex;gap:10px;padding:3px 0;border-bottom:1px solid #f0eeea}
+.kv:last-child{border-bottom:none}
+.k{font-size:10px;color:#999;min-width:62px;flex-shrink:0;padding-top:1px}
+.v{font-size:11px;font-weight:500;line-height:1.6;overflow-wrap:break-word;word-break:break-all;min-width:0}
+.rbar{border-radius:10px;padding:8px 12px;margin-bottom:9px;font-size:11px;border:1px solid;line-height:1.6}
+.notes-box{background:#f8f7f4;border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.78;margin-top:7px;color:#333;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-all;overflow:hidden}
+.ai-block{margin-bottom:9px}
+.ai-lbl{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:#888;margin-bottom:3px}
+.ai-p{font-size:11px;line-height:1.75;color:#333;margin:0;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-all}
+.empty{text-align:center;padding:3rem 1rem;color:#aaa;font-size:13px}
+.ico-block{background:linear-gradient(135deg,#faf8f4 0%,#f5f2ea 100%);border:1px solid #e0d8c8;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.ico-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#7a6b4e;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.ico-lbl::before{content:"◈";font-size:11px}
+.ico-p{font-size:11px;line-height:1.85;color:#2d2a24;margin:0;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-all}
+.val-block{background:linear-gradient(135deg,#eef7ee 0%,#e8f4e8 100%);border:1px solid #b8d4b8;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.val-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#2d6b2d;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.val-p{font-size:11px;line-height:1.75;color:#1a3d1a;margin:0;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-all}
+.refs-block{background:#f5f5f8;border:1px solid #dddde8;border-radius:10px;padding:11px 14px;margin-bottom:9px}
+.refs-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#4a4a7a;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.refs-p{font-size:10.5px;line-height:1.7;color:#333355;margin:0;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-all}
+
+/* 配置面板 */
+.cfg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center}
+.cfg-overlay.open{display:flex}
+.cfg-box{background:#fff;border-radius:16px;padding:28px 28px 24px;width:min(520px,92vw);box-shadow:0 8px 40px rgba(0,0,0,.18)}
+.cfg-box h2{font-size:15px;font-weight:600;margin-bottom:4px}
+.cfg-box p{font-size:12px;color:#888;line-height:1.6;margin-bottom:18px}
+.cfg-field{margin-bottom:14px}
+.cfg-field label{display:block;font-size:11px;font-weight:600;color:#555;margin-bottom:5px;letter-spacing:.04em}
+.cfg-field input{width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:8px;font-size:12px;font-family:monospace;color:#1a1a1a;outline:none}
+.cfg-field input:focus{border-color:#1a1a1a}
+.cfg-hint{font-size:10px;color:#aaa;margin-top:4px}
+.cfg-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none}
+.btn-primary{background:#1a1a1a;color:#fff}
+.btn-secondary{background:#f0eeea;color:#444}
+.btn-primary:hover{background:#333}
+.cfg-status{font-size:11px;margin-top:10px;padding:8px 12px;border-radius:8px;display:none}
+.cfg-status.ok{background:#e8f4e8;color:#2d6b2d;display:block}
+.cfg-status.err{background:#fde8e8;color:#8b1a1a;display:block}
+
+/* 设置按钮 */
+.hdr-cfg-btn{font-size:11px;padding:5px 12px;border:1px solid #ddd;border-radius:20px;background:#fff;color:#666;cursor:pointer;white-space:nowrap}
+.hdr-cfg-btn:hover{border-color:#999;color:#1a1a1a}
+
+/* 加载状态 */
+.loading{text-align:center;padding:3rem 1rem;color:#aaa;font-size:13px}
+.loading::after{content:'';display:inline-block;width:16px;height:16px;border:2px solid #ddd;border-top-color:#888;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.photo-wrap{margin-bottom:9px}
+.photo-wrap img{width:100%;border-radius:10px;border:1px solid #e8e6e0;max-height:320px;object-fit:contain;background:#f8f7f4}
+
+/* ── AI 录入面板 ── */
+.entry-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.entry-overlay.open{display:flex}
+.entry-box{background:#fff;border-radius:16px;width:min(680px,96vw);box-shadow:0 12px 48px rgba(0,0,0,.2);margin:auto;display:flex;flex-direction:column;max-height:calc(100vh - 40px)}
+.entry-hdr{padding:20px 24px 16px;border-bottom:1px solid #e8e6e0;flex-shrink:0}
+.entry-hdr h2{font-size:15px;font-weight:600;margin-bottom:2px}
+.entry-hdr p{font-size:11px;color:#999;line-height:1.5}
+.entry-body{padding:20px 24px;overflow-y:auto;flex:1}
+.entry-ftr{padding:14px 24px;border-top:1px solid #e8e6e0;display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;background:#faf9f7;border-radius:0 0 16px 16px}
+
+/* 输入区 */
+.entry-input-wrap{border:1.5px solid #e0ddd7;border-radius:12px;background:#faf9f7;transition:border-color .15s;margin-bottom:14px}
+.entry-input-wrap:focus-within{border-color:#1a1a1a}
+.entry-textarea{width:100%;min-height:100px;padding:12px 14px;font-size:13px;line-height:1.7;border:none;background:transparent;resize:vertical;outline:none;color:#1a1a1a;font-family:inherit}
+.entry-imgs{display:flex;gap:8px;flex-wrap:wrap;padding:0 12px 10px}
+.entry-img-thumb{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:1px solid #e0ddd7}
+.entry-img-thumb img{width:100%;height:100%;object-fit:cover}
+.entry-img-del{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,.55);border-radius:50%;border:none;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.entry-input-actions{display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid #e8e6e0}
+.entry-attach-btn{font-size:11px;color:#888;cursor:pointer;padding:4px 8px;border:1px solid #ddd;border-radius:6px;background:#fff;transition:all .15s}
+.entry-attach-btn:hover{border-color:#999;color:#1a1a1a}
+.entry-next-no{font-size:10px;color:#aaa;margin-left:auto}
+
+/* AI生成结果 */
+.entry-stage{display:none}
+.entry-stage.visible{display:block}
+.stage-lbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.stage-lbl::after{content:'';flex:1;height:1px;background:#e8e6e0}
+.ai-gen-status{font-size:12px;color:#888;padding:20px;text-align:center;background:#faf9f7;border-radius:10px;border:1px solid #e8e6e0}
+.ai-gen-status.thinking::after{content:'';display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#888;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
+
+/* 字段预览表 */
+.field-table{width:100%;border-collapse:collapse;font-size:12px}
+.field-table tr{border-bottom:1px solid #f0eeea}
+.field-table tr:last-child{border-bottom:none}
+.field-table td{padding:5px 4px;vertical-align:top}
+.field-table td:first-child{width:110px;font-size:10px;color:#999;font-weight:500;padding-top:7px;letter-spacing:.03em;flex-shrink:0}
+.field-editable{width:100%;font-size:12px;line-height:1.6;padding:4px 7px;border:1px solid transparent;border-radius:6px;background:transparent;color:#1a1a1a;font-family:inherit;resize:vertical;outline:none;transition:border-color .15s,background .15s}
+.field-editable:hover{background:#faf9f7;border-color:#e0ddd7}
+.field-editable:focus{background:#fff;border-color:#1a1a1a}
+.field-tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:5px;font-weight:400}
+.field-tag.req{background:#fde8e8;color:#8b1a1a}
+.field-tag.ai{background:#e8f0fd;color:#1a3a8b}
+
+/* 写入进度 */
+.write-progress{background:#f8f7f4;border:1px solid #e8e6e0;border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.8;color:#555}
+.write-ok{color:#2d6b2d;font-weight:500}
+.write-err{color:#8b1a1a}
+.write-pending{color:#aaa}
+
+/* 评级选择器 */
+.rating-picker{display:flex;gap:5px;flex-wrap:wrap}
+.rating-opt{padding:3px 10px;font-size:11px;font-weight:600;border-radius:20px;cursor:pointer;border:1.5px solid transparent;transition:all .15s;letter-spacing:.04em}
+.rating-opt.sel{box-shadow:0 0 0 2px #1a1a1a}
+
+/* 成功弹窗 */
+.success-banner{background:linear-gradient(135deg,#e8f4e8,#d4edda);border:1px solid #b8d4b8;border-radius:12px;padding:16px 20px;text-align:center;margin-bottom:14px}
+.success-banner h3{font-size:14px;color:#1a4d1a;margin-bottom:4px}
+.success-banner p{font-size:11px;color:#2d6b2d;line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- 配置面板 -->
+<div class="cfg-overlay" id="cfgOverlay">
+  <div class="cfg-box">
+    <h2>连接 Airtable 数据库</h2>
+    <p>首次使用请填写以下三项，保存后数据将从你的 Airtable 实时读取。<br>信息仅存储在你的浏览器本地，不会上传到任何服务器。</p>
+
+    <div class="cfg-field">
+      <label>API TOKEN</label>
+      <input id="cfg-token" type="password" placeholder="patXXXXXXXXXXXXXX...">
+      <div class="cfg-hint">Airtable → 账户设置 → Developer hub → Personal access tokens → 创建时勾选 <strong>data.records:read</strong> 和 <strong>data.records:write</strong>（录入功能需要写入权限）</div>
+    </div>
+    <div class="cfg-field">
+      <label>BASE ID</label>
+      <input id="cfg-base" type="text" placeholder="appXXXXXXXXXXXXXX">
+      <div class="cfg-hint">打开你的 Airtable Base，浏览器地址栏中 airtable.com/<b>appXXX</b>/tblXXX 第一段</div>
+    </div>
+    <div class="cfg-field">
+      <label>TABLE ID（或表名）</label>
+      <input id="cfg-table" type="text" placeholder="tblXXXXXXXXXXXXXX 或 藏品">
+      <div class="cfg-hint">地址栏中第二段 tblXXX，或直接填中文表名「藏品」</div>
+    </div>
+
+    <div id="cfg-status" class="cfg-status"></div>
+
+    <div class="cfg-actions">
+      <button class="btn btn-secondary" onclick="closeCfg()">取消</button>
+      <button class="btn btn-primary" onclick="testAndSave()">测试连接并保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI 录入面板 -->
+<div class="entry-overlay" id="entryOverlay">
+  <div class="entry-box">
+    <div class="entry-hdr">
+      <h2>✦ 录入新藏品</h2>
+      <p id="entry-hdr-desc">第一步：在 Claude 对话中描述藏品 → 复制生成的录入草稿 → 粘贴到下方</p>
+    </div>
+
+    <!-- Step 1: 粘贴区 -->
+    <div class="entry-body" id="entry-step1">
+      <div class="stage-lbl">粘贴 Claude 生成的录入内容</div>
+      <div class="entry-input-wrap">
+        <textarea class="entry-textarea" id="entry-paste" rows="10" placeholder="将 Claude 生成的录入草稿粘贴到这里。
+
+支持两种格式：
+
+① 【字段名】格式（推荐）：
+【accession_no】QZJ-062
+【name】松花堂昭乗筆…
+【cat】paintings
+…
+
+② 纯 JSON 格式也可直接粘贴"></textarea>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:500;color:#666;margin-bottom:6px">图片上传（可选）</div>
+        <div id="img-upload-area" style="border:1.5px dashed #ddd;border-radius:10px;padding:12px;background:#faf9f7;cursor:pointer" onclick="document.getElementById('img-file-input').click()">
+          <div id="img-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0"></div>
+          <div id="img-placeholder" style="font-size:12px;color:#aaa;text-align:center;padding:8px 0">点击或拖拽图片到此处上传（支持多张）</div>
+        </div>
+        <input type="file" id="img-file-input" accept="image/*" multiple style="display:none" onchange="handleImgSelect(this)">
+        <div id="img-upload-status" style="font-size:11px;color:#888;margin-top:5px"></div>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:4px;line-height:1.7">
+        ✦ 下一个编号：<strong id="entry-next-no" style="color:#555">计算中…</strong>　·　粘贴后点「解析预览」检查字段，再写入 Airtable
+      </div>
+    </div>
+
+    <!-- Step 2: 字段预览编辑 -->
+    <div class="entry-body" id="entry-step2" style="display:none">
+      <div id="ai-gen-output"></div>
+    </div>
+
+    <!-- Step 3: 写入进度 -->
+    <div class="entry-body" id="entry-step3" style="display:none">
+      <div id="write-output"></div>
+    </div>
+
+    <div class="entry-ftr">
+      <button class="btn btn-secondary" id="entry-btn-cancel" onclick="closeEntry()">取消</button>
+      <button class="btn btn-secondary" id="entry-btn-back" onclick="entryBack()" style="display:none">← 返回修改</button>
+      <button class="btn btn-primary" id="entry-btn-main" onclick="entryNext()">解析预览 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 顶栏 -->
+<div class="hdr">
+  <div><div class="sub">个人典藏 · v30 · Airtable 实时版</div><h1>青之寂寥 · 私人殿堂</h1></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="cnt" style="font-size:12px;color:#888"></span>
+    <button class="hdr-cfg-btn" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a" onclick="openEntry()">＋ 录入新藏品</button>
+    <button class="hdr-cfg-btn" onclick="openCfg()">⚙ 数据库设置</button>
+  </div>
+</div>
+
+<div class="stats" id="stats-bar">
+  <div class="stat" id="stat-total"><strong>—</strong>件藏品</div>
+  <div class="stat" id="stat-sss-plus">SSS+:<strong>—</strong></div>
+  <div class="stat" id="stat-sss">SSS:<strong>—</strong></div>
+  <div class="stat" id="stat-ss-plus">SS+:<strong>—</strong></div>
+  <div class="stat" id="stat-ss">SS:<strong>—</strong></div>
+  <div class="stat" id="stat-s">S+/S:<strong>—</strong></div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="go('all',this)">所有藏品</button>
+  <button class="tab" onclick="go('ceramics',this)">陶瓷·漆器</button>
+  <button class="tab" onclick="go('buddha',this)">佛造像</button>
+  <button class="tab" onclick="go('paintings',this)">书画</button>
+  <button class="tab" onclick="go('architecture',this)">工艺·建筑构件</button>
+</div>
+
+<div class="sub-tabs" id="sub-tabs-bar">
+  <span class="sub-tab-lbl">地域</span>
+  <button class="sub-tab on" onclick="setRegion('',this)">全部</button>
+</div>
+
+<div class="body">
+  <div id="v-all">
+    <div class="tb">
+      <input id="q" placeholder="搜索名称、编号、时期、产地、来源…" oninput="render()">
+    </div>
+    <div id="g-all"><div class="loading">正在从 Airtable 加载数据</div></div>
+  </div>
+  <div id="v-ceramics" style="display:none"><div id="g-ceramics"></div></div>
+  <div id="v-buddha" style="display:none"><div id="g-buddha"></div></div>
+  <div id="v-paintings" style="display:none"><div id="g-paintings"></div></div>
+  <div id="v-architecture" style="display:none"><div id="g-architecture"></div></div>
+  <div id="v-detail" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <button class="back-btn" style="margin-bottom:0" onclick="back()">← 返回列表</button>
+      <button style="font-size:11px;padding:5px 12px;border:1px solid #ddd;border-radius:20px;background:#fff;color:#666;cursor:pointer" onclick="openEdit()">✎ 编辑此藏品</button>
+    </div>
+    <div id="detail"></div>
+  </div>
+
+  <!-- 编辑面板 -->
+  <div id="edit-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
+    <div style="background:#fff;border-radius:16px;width:min(680px,96vw);margin:auto;box-shadow:0 12px 48px rgba(0,0,0,.2)">
+      <div style="padding:18px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e6e0">
+        <div style="font-size:14px;font-weight:500">编辑藏品信息</div>
+        <button onclick="closeEdit()" style="border:none;background:none;font-size:18px;color:#aaa;cursor:pointer">×</button>
+      </div>
+      <div id="edit-body" style="padding:16px 20px;max-height:calc(100vh - 160px);overflow-y:auto"></div>
+      <div style="padding:12px 20px;border-top:1px solid #e8e6e0;display:flex;gap:8px;justify-content:flex-end;align-items:center">
+        <div id="edit-status" style="font-size:11px;flex:1;display:none"></div>
+        <button onclick="closeEdit()" style="padding:8px 16px;border:1px solid #ddd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer">取消</button>
+        <button onclick="saveEdit()" style="padding:8px 16px;border:none;border-radius:8px;background:#1a1a1a;color:#fff;font-size:13px;cursor:pointer">保存到 Airtable</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 配置存取 ──────────────────────────────────────────
+var CFG_KEY = 'qzj_airtable_cfg';
+
+function loadCfg(){
+  try{ return JSON.parse(localStorage.getItem(CFG_KEY)||'{}'); }catch(e){ return {}; }
+}
+function saveCfg(token,base,table){
+  localStorage.setItem(CFG_KEY, JSON.stringify({token,base,table}));
+}
+
+function openCfg(){
+  var c = loadCfg();
+  document.getElementById('cfg-token').value = c.token||'';
+  document.getElementById('cfg-base').value  = c.base||'';
+  document.getElementById('cfg-table').value = c.table||'';
+  document.getElementById('cfg-status').className = 'cfg-status';
+  document.getElementById('cfgOverlay').classList.add('open');
+}
+function closeCfg(){ document.getElementById('cfgOverlay').classList.remove('open'); }
+
+async function testAndSave(){
+  var token = document.getElementById('cfg-token').value.trim();
+  var base  = document.getElementById('cfg-base').value.trim();
+  var table = document.getElementById('cfg-table').value.trim();
+  var st = document.getElementById('cfg-status');
+  st.className='cfg-status'; st.textContent='正在测试连接…'; st.style.display='block';
+  try{
+    var url = 'https://api.airtable.com/v0/'+base+'/'+encodeURIComponent(table)+'?maxRecords=1';
+    var res = await fetch(url,{headers:{'Authorization':'Bearer '+token}});
+    if(!res.ok) throw new Error('HTTP '+res.status+' — 请检查 Token、Base ID、表名是否正确');
+    saveCfg(token,base,table);
+    st.className='cfg-status ok'; st.textContent='✓ 连接成功，正在加载数据…';
+    setTimeout(function(){ closeCfg(); loadFromAirtable(); },800);
+  }catch(e){
+    st.className='cfg-status err'; st.textContent='✗ '+e.message;
+  }
+}
+
+// ── Airtable 数据加载 ──────────────────────────────────
+var DB = [];
+var curTab    = 'all';
+var curRegion = '';
+
+var REGION_ORDER = ['地中海','南亚 / 犍陀罗','波斯 / 中东 / 蒙古','中国','朝鲜','日本','西洋近代'];
+var REGION_MAP   = {
+  all: REGION_ORDER,
+  ceramics: ['地中海','波斯 / 中东 / 蒙古','中国','朝鲜','日本','西洋近代'],
+  buddha:   ['南亚 / 犍陀罗','朝鲜','日本'],
+  paintings:['南亚 / 犍陀罗','日本'],
+  architecture:['日本'],
+  japan_modern:['日本']
+};
+
+async function loadFromAirtable(){
+  var c = loadCfg();
+  if(!c.token||!c.base||!c.table){
+    document.getElementById('g-all').innerHTML =
+      '<p class="empty">请点击右上角「⚙ 数据库设置」填写 Airtable 连接信息</p>';
+    return;
+  }
+  document.getElementById('g-all').innerHTML = '<div class="loading">正在从 Airtable 加载数据</div>';
+
+  var allRecords = [];
+  var offset = '';
+  try{
+    while(true){
+      var url = 'https://api.airtable.com/v0/'+c.base+'/'+encodeURIComponent(c.table)
+        +'?pageSize=100'+(offset?'&offset='+offset:'');
+      var res = await fetch(url,{headers:{'Authorization':'Bearer '+c.token}});
+      if(!res.ok) throw new Error('Airtable 返回 HTTP '+res.status);
+      var data = await res.json();
+      allRecords = allRecords.concat(data.records||[]);
+    if(allRecords.length===1&&data.records.length>0){console.log("Airtable fields:",Object.keys(data.records[0].fields||{}));}
+      if(data.offset){ offset=data.offset; }else{ break; }
+    }
+    // 将 Airtable records 转换为 DB 格式
+    DB = allRecords.map(function(rec){
+      var f = rec.fields||{};
+      // Airtable主字段（第一列）有时key名就是字段名，直接取
+      // Airtable主字段直接在fields里，按字段名取
+      var ano = f['accession_no']||f['Accession_no']||f['ACCESSION_NO']||'';
+      var nm  = f['name']||f['Name']||'（无名）';
+      // 如果ano为空，遍历fields找QZJ开头的值
+      if(!ano){ Object.values(f).forEach(function(v){ if(typeof v==='string'&&v.startsWith('QZJ-')) ano=v; }); }
+      return {
+        _id:  rec.id,
+        id:   rec.id,
+        accession_no: ano,
+        cat:  f['cat']||f['Cat']||'ceramics',
+        region: f['region']||f['Region']||'',
+        name: nm,
+        period: f.period||'',
+        artist: f.artist||'',
+        deity:  f.deity||'',
+        kiln:   f.kiln||'',
+        material: f.material||'',
+        dims: f.dims||'',
+        provenance: f.provenance||'',
+        notes: f.notes||'',
+        rating: { level: f.rating_level||'', desc: f.rating_desc||'' },
+        photos: (f.photo||[]).map(function(p){ return p.url; }),
+        ai: {
+          iconography: f.iconography||'',
+          craft:     f.craft||'',
+          kiln_info: f.kiln_info||'',
+          history:   f.history||'',
+          refs:      f.refs||'',
+          valuation: f.valuation||''
+        }
+      };
+    });
+
+    // 按编号排序（编号不变，年代排序在render里处理）
+    DB.sort(function(a,b){
+      var na=parseInt((a.accession_no||'').replace(/\D/g,'')||9999);
+      var nb=parseInt((b.accession_no||'').replace(/\D/g,'')||9999);
+      return na-nb;
+    });
+    updateStats();
+    buildSubTabs();
+    render();
+  }catch(e){
+    document.getElementById('g-all').innerHTML =
+      '<p class="empty">加载失败：'+e.message+'<br><small>请检查设置或网络连接</small></p>';
+  }
+}
+
+function updateStats(){
+  var levels = {'SSS+':0,'SSS':0,'SS+':0,'SS':0,'S+':0,'S':0};
+  DB.forEach(function(i){ var l=i.rating.level; if(levels[l]!==undefined) levels[l]++; });
+  document.getElementById('stat-total').innerHTML    = '<strong>'+DB.length+'</strong>件藏品';
+  document.getElementById('stat-sss-plus').innerHTML = 'SSS+:<strong>'+levels['SSS+']+'</strong>';
+  document.getElementById('stat-sss').innerHTML      = 'SSS:<strong>'+levels['SSS']+'</strong>';
+  document.getElementById('stat-ss-plus').innerHTML  = 'SS+:<strong>'+levels['SS+']+'</strong>';
+  document.getElementById('stat-ss').innerHTML       = 'SS:<strong>'+levels['SS']+'</strong>';
+  document.getElementById('stat-s').innerHTML        = 'S+/S:<strong>'+(levels['S+']+(levels['S']||0))+'</strong>';
+  document.getElementById('cnt').textContent         = '共 '+DB.length+' 件';
+}
+
+// ── 年代排序 ──────────────────────────────────────────
+function periodWeight(p){
+  p = (p||'').toLowerCase();
+  // 提取数字年代（优先级最低，作为fallback）
+  var numYear = 9999;
+  var mNum = p.match(/(?:^|[^\d])(\d{3,4})(?:[^\d]|$)/);
+  if(mNum) numYear = parseInt(mNum[1]);
+
+  // 地中海 / 西方古代
+  if(p.includes('公元前')||p.includes('bc')||p.includes('b.c')) return -500;
+  if(p.includes('古希腊')||p.includes('greek')) return -400;
+  if(p.includes('古罗马')||p.includes('roman')) return 100;
+  if(p.includes('拜占庭')||p.includes('byzantine')) return 500;
+  // 伊斯兰 / 波斯
+  if(p.includes('阿拔斯')||p.includes('abbasid')) return 850;
+  if(p.includes('萨曼')||p.includes('samanid')) return 920;
+  if(p.includes('加兹尼')||p.includes('ghaznavid')) return 980;
+  if(p.includes('塞尔柱')||p.includes('seljuk')) return 1100;
+  if(p.includes('阿尤布')||p.includes('ayyubid')) return 1171;
+  if(p.includes('马穆鲁克')||p.includes('mamluk')) return 1250;
+  if(p.includes('伊儿汗')||p.includes('ilkhanid')) return 1260;
+  if(p.includes('帖木儿')||p.includes('timurid')) return 1380;
+  if(p.includes('萨法维')||p.includes('safavid')) return 1520;
+  if(p.includes('卡扎尔')||p.includes('qajar')) return 1796;
+  // 犍陀罗 / 南亚
+  if(p.includes('贵霜')||p.includes('kushan')) return 50;
+  if(p.includes('犍陀罗')||p.includes('gandhara')) return 200;
+  if(p.includes('笈多')||p.includes('gupta')) return 320;
+  // 中国
+  if(p.includes('新石器')||p.includes('仰韶')||p.includes('马家窑')||p.includes('龙山')||p.includes('良渚')) return -3000;
+  if(p.includes('夏')) return -2000;
+  if(p.includes('商代')||p.includes('商朝')||(p.includes('商')&&p.includes('青铜'))) return -1300;
+  if(p.includes('西周')) return -1000;
+  if(p.includes('春秋')) return -770;
+  if(p.includes('战国')&&!p.includes('日本')&&!p.includes('応仁')&&!p.includes('戦国')) return -475;
+  if(p.includes('秦代')||p.includes('秦朝')) return -221;
+  if(p.includes('西汉')||p.includes('前汉')) return -180;
+  if(p.includes('东汉')||p.includes('后汉')) return 50;
+  if(p.includes('三国')||p.includes('魏晋')) return 220;
+  if(p.includes('南北朝')&&(p.includes('日本')||p.includes('時代')||p.includes('时代'))) return 1336;
+  if(p.includes('南北朝')&&!p.includes('室町')) return 400;
+  if(p.includes('隋代')||p.includes('隋朝')) return 580;
+  if(p.includes('唐代')||p.includes('唐朝')) return 650;
+  if(p.includes('五代')) return 920;
+  if(p.includes('北宋')) return 960;
+  if(p.includes('辽代')||p.includes('辽朝')) return 950;
+  if(p.includes('金代')||p.includes('金朝')) return 1115;
+  if(p.includes('南宋')) return 1127;
+  if(p.includes('元代')||p.includes('元朝')||(p.includes('元')&&p.includes('青花'))) return 1271;
+  if(p.includes('明代')||p.includes('明朝')) return 1368;
+  if(p.includes('清代')||p.includes('清朝')) return 1644;
+  // 朝鲜
+  if(p.includes('新罗')||p.includes('统一新罗')) return 660;
+  if(p.includes('高丽')) return 935;
+  if(p.includes('李朝')||p.includes('朝鲜王朝')||p.includes('朝鲜时代')) return 1392;
+  // 日本（关键：优先匹配具体时代名，不用数字）
+  if(p.includes('飞鸟')||p.includes('飛鳥')) return 593;
+  if(p.includes('奈良時代')||p.includes('奈良时代')) return 710;
+  if(p.includes('平安')) return 794;
+  if(p.includes('鎌倉')||p.includes('镰仓')) return 1185;
+  if(p.includes('室町')||p.includes('足利')) return 1338;
+  if(p.includes('応仁')||p.includes('戦国時代')) return 1467;
+  if(p.includes('安土桃山')||p.includes('桃山')) return 1573;
+  if(p.includes('江户')||p.includes('江戸')) return 1603;
+  if(p.includes('寬永')||p.includes('宽永')) return 1624;
+  if(p.includes('元禄')||p.includes('元祿')) return 1688;
+  if(p.includes('宝永')||p.includes('寶永')||p.includes('享保')||p.includes('延享')||p.includes('宝暦')) return 1704;
+  if(p.includes('明和')||p.includes('安永')||p.includes('天明')||p.includes('寛政')) return 1760;
+  if(p.includes('文化')||p.includes('文政')||p.includes('天保')||p.includes('弘化')) return 1800;
+  if(p.includes('嘉永')||p.includes('安政')||p.includes('幕末')) return 1850;
+  if(p.includes('明治')) return 1868;
+  if(p.includes('大正')) return 1912;
+  if(p.includes('昭和')) return 1926;
+  if(p.includes('平成')) return 1989;
+  // 円山応挙、仙厓等江户画家特征词
+  if(p.includes('応挙')||p.includes('応举')||p.includes('円山')) return 1750;
+  if(p.includes('仙厓')||p.includes('白隱')||p.includes('白隱')) return 1750;
+  // 西洋近代
+  if(p.includes('17世纪')||p.includes('17世紀')) return 1620;
+  if(p.includes('18世纪')||p.includes('18世紀')) return 1720;
+  if(p.includes('19世纪')||p.includes('19世紀')) return 1820;
+  if(p.includes('20世纪')||p.includes('20世紀')) return 1920;
+  // 最后用数字year，但忽略像「宝永1704」这样的年号+年份组合（已被上面捕捉）
+  return numYear;
+}
+
+// 年代分组标签
+function periodLabel(p){
+  p = (p||'').toLowerCase();
+  // 地中海
+  if(p.includes('公元前')||p.includes('bc')||p.includes('b.c')) return '上古';
+  if(p.includes('古希腊')) return '古希腊';
+  if(p.includes('古罗马')||p.includes('roman')) return '古罗马';
+  if(p.includes('拜占庭')) return '拜占庭';
+  // 波斯 / 伊斯兰
+  if(p.includes('阿拔斯')) return '阿拔斯朝';
+  if(p.includes('萨曼')) return '萨曼朝';
+  if(p.includes('塞尔柱')||p.includes('seljuk')) return '塞尔柱朝';
+  if(p.includes('阿尤布')||p.includes('ayyubid')) return '阿尤布朝';
+  if(p.includes('马穆鲁克')||p.includes('mamluk')) return '马穆鲁克朝';
+  if(p.includes('伊儿汗')) return '伊儿汗国';
+  if(p.includes('帖木儿')) return '帖木儿朝';
+  if(p.includes('萨法维')) return '萨法维朝';
+  if(p.includes('卡扎尔')) return '卡扎尔朝';
+  // 南亚
+  if(p.includes('贵霜')) return '贵霜王朝';
+  if(p.includes('犍陀罗')) return '犍陀罗';
+  if(p.includes('笈多')) return '笈多王朝';
+  // 中国（顺序关键：先精确后宽泛）
+  if(p.includes('新石器')||p.includes('仰韶')||p.includes('马家窑')||p.includes('龙山')||p.includes('良渚')) return '新石器时代';
+  if(p.includes('夏')) return '夏代';
+  if(p.includes('商代')||p.includes('商朝')||(p.includes('商')&&p.includes('青铜'))) return '商代';
+  if(p.includes('西周')) return '西周';
+  if(p.includes('春秋')) return '春秋';
+  if(p.includes('战国')&&!p.includes('日本')&&!p.includes('応仁')&&!p.includes('戦国')) return '战国';
+  if(p.includes('秦代')||p.includes('秦朝')) return '秦代';
+  if(p.includes('西汉')||p.includes('前汉')) return '西汉';
+  if(p.includes('东汉')||p.includes('后汉')) return '东汉';
+  if(p.includes('三国')||p.includes('魏晋')) return '魏晋';
+  if(p.includes('南北朝')&&(p.includes('日本')||p.includes('時代')||p.includes('时代'))) return '南北朝时代';
+  if(p.includes('南北朝')&&!p.includes('室町')) return '南北朝';
+  if(p.includes('隋')) return '隋代';
+  if(p.includes('唐代')||p.includes('唐朝')) return '唐代';
+  if(p.includes('五代')) return '五代';
+  if(p.includes('北宋')) return '北宋';
+  if(p.includes('辽')) return '辽代';
+  if(p.includes('金代')||p.includes('金朝')) return '金代';
+  if(p.includes('南宋')) return '南宋';
+  if(p.includes('宋代')||p.includes('宋朝')||(p.includes('宋')&&!p.includes('北宋')&&!p.includes('南宋'))) return '宋代';
+  if(p.includes('元代')||p.includes('元朝')||(p.includes('元')&&p.includes('青花'))) return '元代';
+  if(p.includes('明代')||p.includes('明朝')) return '明代';
+  if(p.includes('清代')||p.includes('清朝')) return '清代';
+  // 朝鲜
+  if(p.includes('新罗')||p.includes('统一新罗')) return '新罗';
+  if(p.includes('高丽')) return '高丽';
+  if(p.includes('李朝')||p.includes('朝鲜王朝')||p.includes('朝鲜时代')) return '朝鲜王朝';
+  // 日本（优先具体时代名）
+  if(p.includes('飞鸟')||p.includes('飛鳥')) return '飞鸟时代';
+  if(p.includes('奈良')) return '奈良时代';
+  if(p.includes('平安')) return '平安时代';
+  if(p.includes('鎌倉')||p.includes('镰仓')) return '镰仓时代';
+  if(p.includes('室町')||p.includes('足利')) return '室町时代';
+  if(p.includes('応仁')||p.includes('戦国時代')) return '战国时代（日）';
+  if(p.includes('安土桃山')||p.includes('桃山')) return '安土桃山时代';
+  // 江户细分
+  if(p.includes('寬永')||p.includes('宽永')||p.includes('江户时代前期')) return '江户时代';
+  if(p.includes('元禄')||p.includes('元祿')) return '江户时代';
+  if(p.includes('宝永')||p.includes('寶永')||p.includes('享保')) return '江户时代';
+  if(p.includes('文化')||p.includes('文政')||p.includes('天保')||p.includes('幕末')||p.includes('嘉永')) return '江户时代';
+  if(p.includes('江户')||p.includes('江戸')) return '江户时代';
+  if(p.includes('応挙')||p.includes('応举')||p.includes('円山')||p.includes('仙厓')||p.includes('白隱')) return '江户时代';
+  if(p.includes('明治')) return '明治时代';
+  if(p.includes('大正')) return '大正时代';
+  if(p.includes('昭和')) return '昭和时代';
+  if(p.includes('平成')) return '平成时代';
+  // 西洋近代
+  if(p.includes('17世纪')||p.includes('17世紀')) return '17世纪';
+  if(p.includes('18世纪')||p.includes('18世紀')) return '18世纪';
+  if(p.includes('19世纪')||p.includes('19世紀')) return '19世纪';
+  if(p.includes('20世纪')||p.includes('20世紀')) return '20世纪';
+  return '';
+}
+// ── 徽章 / 评级 ──────────────────────────────────────
+var RBG = {'SSS+':'#1A1A2E','SSS':'#FAECE7','SS+':'#FAEEDA','SS':'#EAF3DE','S+':'#E6F1FB','S':'#EEEDFE'};
+var RTX = {'SSS+':'#E8D5FF','SSS':'#4A1B0C','SS+':'#633806','SS':'#173404','S+':'#042C53','S':'#26215C'};
+var RBD = {'SSS+':'#7B4FA0','SSS':'#D85A30','SS+':'#C4912A','SS':'#639922','S+':'#378ADD','S':'#7F77DD'};
+
+function bd(t,bg,c){ return '<span class="badge" style="background:'+bg+';color:'+c+'">'+t+'</span>'; }
+function rb(r){ if(!r||!r.level)return ''; var l=r.level; return bd(l,RBG[l]||'#eee',RTX[l]||'#333'); }
+
+function cb(it){
+  var b='',p=it.provenance||'',n=it.name||'',m=it.material||'';
+  if(it.cat==='ceramics'){
+    var rm={'地中海':['#FAEEDA','#633806'],'南亚 / 犍陀罗':['#FAD9A1','#6B3800'],'波斯 / 中东 / 蒙古':['#E1F5EE','#085041'],'中国':['#FAD9A1','#6B3800'],'朝鲜':['#9FE1CB','#04342C'],'日本':['#EEEDFE','#3C3489'],'西洋近代':['#D3D1C7','#444441']};
+    var rc=rm[it.region]||['#D3D1C7','#444441']; b+=bd(it.region,rc[0],rc[1]);
+    if(m.includes('黑绘'))b+=bd('黑绘','#D3D1C7','#444441');
+    else if(m.includes('红绘'))b+=bd('红绘','#EEEDFE','#3C3489');
+    else if(m.includes('铜绿釉'))b+=bd('铜绿釉','#5DCAA5','#04342C');
+    else if(m.includes('鹧鸪斑'))b+=bd('吉州窑','#FAD9A1','#6B3800');
+    else if(m.includes('长石釉'))b+=bd('志野','#FFF3C4','#7A4F00');
+    else if(m.includes('織部')||n.includes('织部'))b+=bd('织部','#EAF3DE','#27500A');
+    else if(m.includes('搔落')||m.includes('Sgraffito'))b+=bd('Sgraffito','#D3D1C7','#444441');
+    else if(m.includes('玻璃'))b+=bd('古代玻璃','#D3EAF5','#0A4060');
+    else if(m.includes('米纳依')||n.includes('米纳依'))b+=bd('米纳依','#FAEEDA','#633806');
+    else if(n.includes('鸡冠壶'))b+=bd('辽代','#FAD9A1','#6B3800');
+    if((it.notes||'').includes('银化'))b+=bd('银化','#FCEBEB','#791F1F');
+    if(p.includes('柳宗悦'))b+=bd('柳宗悦','#1A1A2E','#E8D5FF');
+    if(p.includes('市川清'))b+=bd('市川清','#EAF3DE','#27500A');
+    if(p.includes('加藤卓男'))b+=bd('加藤卓男','#FAD9A1','#6B3800');
+    if(p.includes('荒川'))b+=bd('荒川豊蔵','#FAECE7','#4A1B0C');
+    if(p.includes('満岡')||p.includes('陶思誠'))b+=bd('満岡忠誠','#EAF3DE','#27500A');
+    if(p.includes('土门')||p.includes('土門'))b+=bd('土门拳','#EEEDFE','#3C3489');
+    if(p.includes('徳川')||p.includes('德川'))b+=bd('德川家','#1A1A2E','#E8D5FF');
+    if(p.includes('鲁山人')||n.includes('鲁山人'))b+=bd('鲁山人','#FAD9A1','#6B3800');
+  }else if(it.cat==='buddha'){
+    b+=bd('佛造像','#EEEDFE','#3C3489');
+    if(n.includes('犍陀罗'))b+=bd('犍陀罗','#FAD9A1','#6B3800');
+    if((it.artist||'').includes('円空'))b+=bd('円空佛','#FAECE7','#4A1B0C');
+    if(it.region==='朝鲜')b+=bd('新罗','#9FE1CB','#04342C');
+    if(n.includes('金铜')||n.includes('金銅'))b+=bd('金铜佛','#FAD9A1','#6B3800');
+    if(p.includes('法隆寺'))b+=bd('法隆寺','#FAECE7','#4A1B0C');
+    if(p.includes('土门')||p.includes('土門'))b+=bd('土门拳','#EEEDFE','#3C3489');
+  }else if(it.cat==='architecture'){
+    b+=bd('工艺·建筑','#F1EFE8','#444441');
+    if(n.includes('唐招提寺'))b+=bd('唐招提寺','#FAECE7','#4A1B0C');
+    if(p.includes('土门')||p.includes('土門'))b+=bd('土门拳','#EEEDFE','#3C3489');
+  }else if(it.cat==='japan_modern'){
+    b+=bd('日本近代','#FFF3C4','#7A4F00');
+    var a=it.artist||'',n2=it.name||'';
+    if(a.includes('鲁山人')||n2.includes('鲁山人'))b+=bd('鲁山人','#FAD9A1','#6B3800');
+    else if(a.includes('加藤卓男')||n2.includes('加藤卓男'))b+=bd('加藤卓男','#FAECE7','#4A1B0C');
+    else if(a.includes('荒川')||n2.includes('荒川'))b+=bd('荒川豊蔵','#FAECE7','#4A1B0C');
+    else if(a.includes('河井')||n2.includes('河井'))b+=bd('河井寬次郎','#EAF3DE','#27500A');
+    else if(a.includes('濱田')||a.includes('浜田')||n2.includes('濱田'))b+=bd('濱田庄司','#E6F1FB','#042C53');
+    else if(a.includes('富本')||n2.includes('富本'))b+=bd('富本憲吉','#EEEDFE','#3C3489');
+    else if(a.includes('北大路')||n2.includes('北大路'))b+=bd('北大路魯山人','#FAD9A1','#6B3800');
+    if((it.provenance||'').includes('柳宗悦'))b+=bd('柳宗悦','#1A1A2E','#E8D5FF');
+    if((it.provenance||'').includes('土门')||(it.provenance||'').includes('土門'))b+=bd('土门拳','#EEEDFE','#3C3489');
+  }else{
+    b+=bd('书画','#FBEAF0','#72243E');
+    var a=it.artist||'';
+    if(a.includes('白隱'))b+=bd('白隐','#1A1A2E','#E8D5FF');
+    else if(a.includes('良宽')||a.includes('良寛'))b+=bd('良宽','#FFF3C4','#7A4F00');
+    else if(a.includes('北斎')||a.includes('北斋'))b+=bd('北斋','#FBEAF0','#72243E');
+    else if(a.includes('大観'))b+=bd('大观','#E1F5EE','#085041');
+    else if(a.includes('応挙'))b+=bd('応举','#FAD9A1','#6B3800');
+    else if(a.includes('光琳'))b+=bd('光琳','#EAF3DE','#27500A');
+    else if(a.includes('梦二')||a.includes('夢二'))b+=bd('梦二','#FBEAF0','#72243E');
+    if(p.includes('土门')||p.includes('土門'))b+=bd('土门拳','#EEEDFE','#3C3489');
+    if(n.includes('真伪待'))b+=bd('真伪待定','#FFF3C4','#7A4F00');
+  }
+  return b;
+}
+
+// ── 卡片 / 渲染 ──────────────────────────────────────
+function mk(it){
+  var sub=it.cat==='paintings'?(it.artist||''):it.cat==='buddha'?(it.deity||it.artist||''):it.cat==='architecture'?(it.period||''):it.cat==='japan_modern'?(it.artist||''):(it.kiln||'');
+  return '<div class="card" onclick="sd(\''+it._id+'\')">'+
+    '<span class="card-no">'+(it.accession_no||'')+'</span>'+
+    '<div>'+rb(it.rating)+cb(it)+'</div>'+
+    '<div class="cn">'+esc(it.name)+'</div>'+
+    '<div class="cm">'+(it.period||'')+(sub&&sub!==it.period?' · '+sub.slice(0,18):'')+'</div>'+
+    '<div class="ct">'+esc((it.notes||'').slice(0,75))+'</div>'+
+    '</div>';
+}
+
+function buildSubTabs(){
+  var bar=document.getElementById('sub-tabs-bar');
+  var regions=REGION_MAP[curTab]||REGION_ORDER;
+  var available=new Set();
+  DB.forEach(function(i){
+    var fc=curTab==='all'?null:curTab;
+    if(!fc||i.cat===fc) available.add(i.region);
+  });
+  var html='<span class="sub-tab-lbl">地域</span>';
+  html+='<button class="sub-tab'+(curRegion===''?' on':'')+'" onclick="setRegion(\'\',this)">全部</button>';
+  regions.forEach(function(r){
+    if(available.has(r)){
+      var cnt=DB.filter(function(i){var fc=curTab==='all'?null:curTab;return(!fc||i.cat===fc)&&i.region===r;}).length;
+      html+='<button class="sub-tab'+(curRegion===r?' on':'')+'" onclick="setRegion(\''+r+'\',this)">'+r+' <small style="opacity:.5">'+cnt+'</small></button>';
+    }
+  });
+  bar.innerHTML=html;
+}
+
+function setRegion(r,btn){
+  curRegion=r;
+  document.querySelectorAll('.sub-tab').forEach(function(b){b.classList.remove('on');});
+  if(btn) btn.classList.add('on');
+  render();
+}
+
+function render(){
+  var q=(document.getElementById('q')||{value:''}).value.toLowerCase();
+  var fc={all:null,ceramics:'ceramics',buddha:'buddha',paintings:'paintings',architecture:'architecture',japan_modern:'japan_modern'}[curTab];
+  var items=DB.filter(function(i){
+    if(fc&&i.cat!==fc) return false;
+    if(curRegion&&i.region!==curRegion) return false;
+    if(q&&!(i.name+(i.artist||i.deity||'')+(i.kiln||'')+(i.period||'')+(i.region||'')+(i.provenance||'')+(i.notes||'')+(i.accession_no||'')).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  var el=document.getElementById('g-'+curTab);
+  if(!el){document.getElementById('cnt').textContent='共 '+DB.length+' 件';return;}
+  var html='';
+  if(!q && !curRegion){
+    // 无地域筛选：按地域分组显示（原始逻辑）
+    if(curTab==='all'){
+      var catGroups=[
+        {cat:'ceramics',label:'陶瓷·漆器',regions:REGION_MAP.ceramics},
+        {cat:'buddha',label:'佛造像',regions:REGION_MAP.buddha},
+        {cat:'paintings',label:'书画',regions:REGION_MAP.paintings},
+        {cat:'architecture',label:'工艺·建筑构件',regions:REGION_MAP.architecture}
+      ];
+      catGroups.forEach(function(cg){
+        var catItems=items.filter(function(i){return i.cat===cg.cat;});
+        if(!catItems.length) return;
+        cg.regions.forEach(function(r){
+          var ri=catItems.filter(function(i){return i.region===r;});
+          if(ri.length) html+='<div class="sec">'+cg.label+' · '+r+'（'+ri.length+' 件）</div><div class="grid">'+ri.map(mk).join('')+'</div>';
+        });
+      });
+    } else {
+      var regs=REGION_MAP[curTab]||[];
+      regs.forEach(function(r){
+        var ri=items.filter(function(i){return i.region===r;});
+        if(ri.length) html+='<div class="sec">'+r+'（'+ri.length+' 件）</div><div class="grid">'+ri.map(mk).join('')+'</div>';
+      });
+      if(!html) html=items.length?'<div class="grid">'+items.map(mk).join('')+'</div>':'<p class="empty">暂无藏品</p>';
+    }
+  } else if(curRegion && !q){
+    // 有地域筛选：按年代排序并分组
+    items.sort(function(a,b){ return periodWeight(a.period)-periodWeight(b.period); });
+    var groups={}, groupOrder=[];
+    items.forEach(function(i){
+      var lbl = periodLabel(i.period);
+      if(!lbl) lbl = curRegion;
+      if(!groups[lbl]){ groups[lbl]=[]; groupOrder.push(lbl); }
+      groups[lbl].push(i);
+    });
+    groupOrder.forEach(function(lbl){
+      var gi=groups[lbl];
+      html+='<div class="sec">'+curRegion+' · '+lbl+'（'+gi.length+' 件）</div><div class="grid">'+gi.map(mk).join('')+'</div>';
+    });
+    if(!html) html='<p class="empty">暂无藏品</p>';
+  } else {
+    // 搜索结果
+    html+=items.length?'<div class="grid">'+items.map(mk).join('')+'</div>':'<p class="empty">暂无藏品</p>';
+  }
+  el.innerHTML=html||'<p class="empty">暂无藏品</p>';
+}
+
+function go(tab,btn){
+  curTab=tab; curRegion='';
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');}); btn.classList.add('on');
+  ['all','ceramics','buddha','paintings','architecture','detail'].forEach(function(t){
+    var el=document.getElementById('v-'+t); if(el) el.style.display=(t===tab)?'block':'none';
+  });
+  document.getElementById('sub-tabs-bar').style.display=(tab==='detail')?'none':'flex';
+  buildSubTabs(); render();
+}
+// ── 编辑写回功能 ──────────────────────────────────────
+var editItem = null;
+
+var EDIT_FIELDS = [
+  {key:'name',       label:'藏品名称',   type:'text'},
+  {key:'period',     label:'时期',       type:'text'},
+  {key:'artist',     label:'作者',       type:'text'},
+  {key:'deity',      label:'尊格/题材',  type:'text'},
+  {key:'kiln',       label:'窑口/产地',  type:'text'},
+  {key:'material',   label:'材质',       type:'text'},
+  {key:'dims',       label:'尺寸',       type:'text'},
+  {key:'provenance', label:'来源',       type:'textarea'},
+  {key:'notes',      label:'藏品详述',   type:'textarea'},
+  {key:'rating_level',label:'评级',      type:'text'},
+  {key:'rating_desc', label:'评级说明',  type:'textarea'},
+  {key:'iconography', label:'图像志',    type:'textarea'},
+  {key:'craft',       label:'工艺特征',  type:'textarea'},
+  {key:'history',     label:'历史背景',  type:'textarea'},
+  {key:'refs',        label:'参考文献',  type:'textarea'},
+];
+
+function openEdit(){
+  if(!editItem) return;
+  var body = document.getElementById('edit-body');
+  var html = '';
+  EDIT_FIELDS.forEach(function(f){
+    var val = '';
+    if(f.key==='rating_level') val = editItem.rating&&editItem.rating.level||'';
+    else if(f.key==='rating_desc') val = editItem.rating&&editItem.rating.desc||'';
+    else if(['iconography','craft','history','refs'].indexOf(f.key)>=0) val = editItem.ai&&editItem.ai[f.key]||'';
+    else val = editItem[f.key]||'';
+    var inputHtml = f.type==='textarea'
+      ? '<textarea id="ef_'+f.key+'" rows="4" style="width:100%;font-size:12px;padding:7px 9px;border:1px solid #ddd;border-radius:8px;resize:vertical;font-family:inherit;line-height:1.6">'+escHtml(val)+'</textarea>'
+      : '<input id="ef_'+f.key+'" type="text" value="'+escHtml(val)+'" style="width:100%;font-size:12px;padding:7px 9px;border:1px solid #ddd;border-radius:8px;font-family:inherit">';
+    html += '<div style="margin-bottom:12px"><label style="display:block;font-size:10px;font-weight:600;color:#888;margin-bottom:4px;letter-spacing:.05em">'+f.label+'</label>'+inputHtml+'</div>';
+  });
+  body.innerHTML = html;
+  var ov = document.getElementById('edit-overlay');
+  ov.style.display = 'flex';
+}
+
+function closeEdit(){
+  document.getElementById('edit-overlay').style.display = 'none';
+  document.getElementById('edit-status').style.display = 'none';
+}
+
+function escHtml(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function saveEdit(){
+  if(!editItem) return;
+  var c = loadCfg();
+  if(!c.token||!c.base||!c.table){
+    showEditStatus('请先配置 Airtable 连接信息','err'); return;
+  }
+  var fields = {};
+  EDIT_FIELDS.forEach(function(f){
+    var el = document.getElementById('ef_'+f.key);
+    if(!el) return;
+    var val = el.value;
+    if(f.key==='rating_level') fields['rating_level'] = val;
+    else if(f.key==='rating_desc') fields['rating_desc'] = val;
+    else if(['iconography','craft','history','refs'].indexOf(f.key)>=0) fields[f.key] = val;
+    else fields[f.key] = val;
+  });
+  var btn = document.querySelector('#edit-overlay button[onclick="saveEdit()"]');
+  if(btn){ btn.textContent='保存中…'; btn.disabled=true; }
+  showEditStatus('正在保存到 Airtable…','info');
+  try{
+    var url = 'https://api.airtable.com/v0/'+c.base+'/'+encodeURIComponent(c.table)+'/'+editItem._id;
+    // 分批发送：每次最多5个字段，避免长文本被截断
+    var fieldKeys = Object.keys(fields);
+    var batches = [];
+    for(var i=0;i<fieldKeys.length;i+=5){
+      var batch = {};
+      fieldKeys.slice(i,i+5).forEach(function(k){ batch[k]=fields[k]; });
+      batches.push(batch);
+    }
+    var data;
+    for(var b=0;b<batches.length;b++){
+      var res = await fetch(url,{
+        method:'PATCH',
+        headers:{'Authorization':'Bearer '+c.token,'Content-Type':'application/json'},
+        body: JSON.stringify({fields:batches[b]})
+      });
+      if(!res.ok){
+        var err = await res.json();
+        throw new Error((err.error&&err.error.message)||'HTTP '+res.status);
+      }
+      data = await res.json();
+      showEditStatus('保存中… ('+(b+1)+'/'+batches.length+')','info');
+    }
+    // 更新本地DB
+    var idx = DB.findIndex(function(i){return i._id===editItem._id;});
+    if(idx>=0){
+      EDIT_FIELDS.forEach(function(f){
+        var val = fields[f.key];
+        if(f.key==='rating_level') DB[idx].rating.level = val;
+        else if(f.key==='rating_desc') DB[idx].rating.desc = val;
+        else if(['iconography','craft','history','refs'].indexOf(f.key)>=0) DB[idx].ai[f.key] = val;
+        else DB[idx][f.key] = val;
+      });
+    }
+    showEditStatus('✓ 已保存','ok');
+    setTimeout(function(){
+      closeEdit();
+      sd(editItem._id); // 刷新详情页
+    },800);
+  }catch(e){
+    showEditStatus('✗ 保存失败：'+e.message,'err');
+  }finally{
+    if(btn){ btn.textContent='保存到 Airtable'; btn.disabled=false; }
+  }
+}
+
+function showEditStatus(msg,type){
+  var el = document.getElementById('edit-status');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.color = type==='ok'?'#2d6b2d':type==='err'?'#8b1a1a':'#555';
+}
+
+function renderDetail(it){
+  var r=it.rating||{},lvl=r.level||'',ai=it.ai||{};
+  var catLabel={ceramics:'陶瓷·漆器',buddha:'佛造像',paintings:'书画',architecture:'工艺·建筑构件',japan_modern:'日本近代陶艺'}[it.cat]||it.cat;
+
+  var photoHtml='';
+  if(it.photos&&it.photos.length){
+    photoHtml='<div class="photo-wrap"><img src="'+it.photos[0]+'" alt="藏品图片" onerror="this.style.display=\'none\'"></div>';
+  }
+
+  var icoHtml=ai.iconography?'<div class="ico-block"><div class="ico-lbl">图像志 · Iconography</div><p class="ico-p">'+esc(ai.iconography)+'</p></div>':'';
+  var aiKeys=it.cat==='buddha'?[['craft','雕刻工艺'],['kiln_info','产地背景'],['history','历史背景']]:
+    it.cat==='paintings'?[['craft','技法与风格'],['history','历史流传']]:
+    it.cat==='architecture'?[['craft','建造工艺'],['history','历史背景']]:
+    it.cat==='japan_modern'?[['craft','技法与釉药'],['kiln_info','窑口与工房'],['history','艺术家背景']]:
+    [['craft','工艺特征'],['kiln_info','窑口产地'],['history','历史背景']];
+  var aiHtml=aiKeys.filter(function(x){return ai[x[0]];}).map(function(x){
+    return '<div class="ai-block"><div class="ai-lbl">'+x[1]+'</div><p class="ai-p">'+esc(ai[x[0]])+'</p></div>';
+  }).join('');
+  var refsHtml=ai.refs?'<div class="refs-block"><div class="refs-lbl">专业参考著作 · 研究者目录</div><p class="refs-p">'+esc(ai.refs)+'</p></div>':'';
+
+  document.getElementById('detail').innerHTML=
+    photoHtml
+    +'<div class="detail-no">'+esc(it.accession_no)+'</div>'
+    +'<div style="margin-bottom:12px">'
+    +'<div style="margin-bottom:5px">'+rb(it.rating)+cb(it)
+    +'<span class="badge" style="background:#f0eee9;color:#888;border:1px solid #ddd">'+esc(catLabel)+'</span>'
+    +'<span class="badge" style="background:#e8f0f8;color:#2a4a6a">'+esc(it.region)+'</span>'
+    +'</div>'
+    +'<h2 style="font-size:15px;font-weight:500;line-height:1.35">'+esc(it.name)+'</h2>'
+    +'<div style="font-size:11px;color:#888;margin-top:3px">'+esc(it.period||'')+'</div></div>'
+    +(lvl?'<div class="rbar" style="background:'+RBG[lvl]+';border-color:'+RBD[lvl]+';color:'+RTX[lvl]+'"><strong>'+lvl+'</strong>  '+esc(r.desc||'')+'</div>':'')
+    +'<div class="dcard"><h3>基本信息</h3>'
+    +(it.deity?'<div class="kv"><span class="k">尊格/题材</span><span class="v">'+esc(it.deity)+'</span></div>':'')
+    +(it.artist?'<div class="kv"><span class="k">作者</span><span class="v">'+esc(it.artist)+'</span></div>':'')
+    +(it.kiln?'<div class="kv"><span class="k">窑口/产地</span><span class="v">'+esc(it.kiln)+'</span></div>':'')
+    +'<div class="kv"><span class="k">材质</span><span class="v">'+esc(it.material||'—')+'</span></div>'
+    +'<div class="kv"><span class="k">尺寸</span><span class="v">'+esc(it.dims||'—')+'</span></div>'
+    +'<div class="kv"><span class="k">时期</span><span class="v">'+esc(it.period||'—')+'</span></div>'
+    +'<div class="kv"><span class="k">来源</span><span class="v">'+esc(it.provenance||'—')+'</span></div>'
+    +'<div class="kv"><span class="k">藏品编号</span><span class="v" style="font-weight:700;letter-spacing:.04em">'+esc(it.accession_no)+'</span></div>'
+    +'</div>'
+    +(it.notes?'<div class="dcard"><h3>藏品详述</h3><div class="notes-box">'+esc(it.notes)+'</div></div>':'')
+    +icoHtml
+    +(aiHtml?'<div class="dcard" style="background:#f8f7f4"><h3>✦ AI 研究补录</h3>'+aiHtml+'</div>':'')
+    +refsHtml;
+  window.scrollTo(0,0);
+}
+
+function back(){
+  document.getElementById('v-detail').style.display='none';
+  document.getElementById('v-'+curTab).style.display='block';
+  document.getElementById('sub-tabs-bar').style.display='flex';
+}
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function sd(rid){
+  var it=DB.find(function(i){return i._id===rid;}); if(!it) return;
+  editItem = it;
+  // 点开详情时重新从Airtable拉取完整单条记录（防止长文本被截断）
+  var c=loadCfg();
+  if(c.token&&c.base&&c.table){
+    fetch('https://api.airtable.com/v0/'+c.base+'/'+encodeURIComponent(c.table)+'/'+rid,
+      {headers:{'Authorization':'Bearer '+c.token}})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data.fields) return;
+      var f=data.fields;
+      it.notes       = f.notes||it.notes||'';
+      it.provenance  = f.provenance||it.provenance||'';
+      it.ai.iconography = f.iconography||it.ai.iconography||'';
+      it.ai.craft    = f.craft||it.ai.craft||'';
+      it.ai.kiln_info= f.kiln_info||it.ai.kiln_info||'';
+      it.ai.history  = f.history||it.ai.history||'';
+      it.ai.refs     = f.refs||it.ai.refs||'';
+      it.rating.desc = f.rating_desc||it.rating.desc||'';
+      // 刷新详情页显示
+      renderDetail(it);
+    }).catch(function(){});
+  }
+  ['all','ceramics','buddha','paintings','architecture'].forEach(function(t){document.getElementById('v-'+t).style.display='none';});
+  document.getElementById('sub-tabs-bar').style.display='none';
+  document.getElementById('v-detail').style.display='block';
+  var r=it.rating||{},lvl=r.level||'',ai=it.ai||{};
+  var catLabel={ceramics:'陶瓷·漆器',buddha:'佛造像',paintings:'书画',architecture:'工艺·建筑构件',japan_modern:'日本近代陶艺'}[it.cat]||it.cat;
+
+  var photoHtml='';
+  if(it.photos&&it.photos.length){
+    photoHtml='<div class="photo-wrap"><img src="'+it.photos[0]+'" alt="藏品图片" onerror="this.style.display=\'none\'"></div>';
+  }
+
+  var icoHtml=ai.iconography?'<div class="ico-block"><div class="ico-lbl">图像志 · Iconography</div><p class="ico-p">'+esc(ai.iconography)+'</p></div>':'';
+  var aiKeys=it.cat==='buddha'?[['craft','雕刻工艺'],['kiln_info','产地背景'],['history','历史背景']]:
+    it.cat==='paintings'?[['craft','技法与风格'],['history','历史流传']]:
+    it.cat==='architecture'?[['craft','建造工艺'],['history','历史背景']]:
+    it.cat==='japan_modern'?[['craft','技法与釉药'],['kiln_info','窑口与工房'],['history','艺术家背景']]:
+    [['craft','工艺特征'],['kiln_info','窑口产地'],['history','历史背景']];
+  var aiHtml=aiKeys.filter(function(x){return ai[x[0]];}).map(function(x){
+    return '<div class="ai-block"><div class="ai-lbl">'+x[1]+'</div><p class="ai-p">'+esc(ai[x[0]])+'</p></div>';
+  }).join('');
+  var refsHtml=ai.refs?'<div class="refs-block"><div class="refs-lbl">专业参考著作 · 研究者目录</div><p class="refs-p">'+esc(ai.refs)+'</p></div>':'';
+
+    renderDetail(it);
+
+}
+
+// ── 录入功能（粘贴解析模式）──────────────────────────
+var entryStep = 1;
+var generatedFields = {};
+
+// 所有字段定义
+var ALL_FIELDS = [
+  {key:'accession_no', label:'编号',       short:true,  req:true},
+  {key:'name',         label:'名称',       short:true,  req:true},
+  {key:'cat',          label:'分类',       short:true,  req:true},
+  {key:'region',       label:'地域',       short:true,  req:true},
+  {key:'period',       label:'时期',       short:true},
+  {key:'artist',       label:'作者',       short:true},
+  {key:'deity',        label:'尊格/题材',  short:true},
+  {key:'kiln',         label:'窑口/产地',  short:true},
+  {key:'material',     label:'材质',       short:true},
+  {key:'dims',         label:'尺寸',       short:true},
+  {key:'provenance',   label:'来源',       short:true},
+  {key:'rating_level', label:'评级',       short:true,  req:true},
+  {key:'notes',        label:'藏品详述',   short:false},
+  {key:'rating_desc',  label:'评级说明',   short:false},
+  {key:'iconography',  label:'图像志',     short:false},
+  {key:'craft',        label:'工艺特征',   short:false},
+  {key:'kiln_info',    label:'窑口研究',   short:false},
+  {key:'history',      label:'历史背景',   short:false},
+  {key:'refs',         label:'参考著作',   short:false},
+];
+
+var RBG2={'SSS+':'#1A1A2E','SSS':'#FAECE7','SS+':'#FAEEDA','SS':'#EAF3DE','S+':'#E6F1FB','S':'#EEEDFE'};
+var RTX2={'SSS+':'#E8D5FF','SSS':'#4A1B0C','SS+':'#633806','SS':'#173404','S+':'#042C53','S':'#26215C'};
+
+// ── 图片上传功能 ─────────────────────────────────────
+var pendingImages = []; // [{file, previewUrl}]
+var uploadedPhotoUrls = []; // 上传成功的URL列表
+
+function handleImgSelect(input){
+  var files = Array.from(input.files);
+  files.forEach(function(file){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      pendingImages.push({file:file, previewUrl:e.target.result});
+      renderImgPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value='';
+}
+
+function renderImgPreview(){
+  var prev = document.getElementById('img-preview');
+  var ph = document.getElementById('img-placeholder');
+  if(!prev) return;
+  prev.innerHTML = pendingImages.map(function(img,i){
+    return '<div style="position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid #e0ddd7">'
+      +'<img src="'+img.previewUrl+'" style="width:100%;height:100%;object-fit:cover">'
+      +'<button onclick="removeImg('+i+')" style="position:absolute;top:2px;right:2px;width:16px;height:16px;background:rgba(0,0,0,.55);border:none;border-radius:50%;color:#fff;font-size:10px;cursor:pointer;line-height:1;padding:0">×</button>'
+      +'</div>';
+  }).join('');
+  if(ph) ph.style.display = pendingImages.length ? 'none' : 'block';
+}
+
+function removeImg(i){
+  pendingImages.splice(i,1);
+  renderImgPreview();
+}
+
+// 拖拽支持
+document.addEventListener('DOMContentLoaded', function(){
+  var area = document.getElementById('img-upload-area');
+  if(!area) return;
+  area.addEventListener('dragover', function(e){ e.preventDefault(); area.style.borderColor='#1a1a1a'; });
+  area.addEventListener('dragleave', function(){ area.style.borderColor='#ddd'; });
+  area.addEventListener('drop', function(e){
+    e.preventDefault(); area.style.borderColor='#ddd';
+    var files = Array.from(e.dataTransfer.files).filter(function(f){ return f.type.startsWith('image/'); });
+    files.forEach(function(file){
+      var reader = new FileReader();
+      reader.onload = function(ev){ pendingImages.push({file:file, previewUrl:ev.target.result}); renderImgPreview(); };
+      reader.readAsDataURL(file);
+    });
+  });
+});
+
+async function uploadImagesToAirtable(recordId, token, base, table){
+  if(!pendingImages.length) return;
+  var st = document.getElementById('img-upload-status');
+  if(st) st.textContent = '正在上传图片（'+pendingImages.length+'张）…';
+
+  var successCount = 0;
+  for(var i=0; i<pendingImages.length; i++){
+    var img = pendingImages[i];
+    try{
+      // 使用 Airtable Content API 直接上传附件
+      var uploadUrl = 'https://content.airtable.com/v0/'+base+'/'+recordId+'/photo/uploadAttachment';
+      var formData = new FormData();
+      formData.append('file', img.file, img.file.name);
+      var res = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer '+token},
+        body: formData
+      });
+      if(res.ok){
+        successCount++;
+        if(st) st.textContent = '正在上传图片 '+(i+1)+'/'+pendingImages.length+'…';
+      } else {
+        var err = await res.json().catch(function(){return {};});
+        console.warn('图片上传失败', err);
+      }
+    }catch(e){
+      console.warn('图片上传异常', e);
+    }
+  }
+
+  if(st){
+    if(successCount === pendingImages.length){
+      st.textContent = '✓ '+successCount+' 张图片已上传';
+    } else if(successCount > 0){
+      st.textContent = '✓ '+successCount+'/'+pendingImages.length+' 张上传成功，其余请在 Airtable 手动上传';
+    } else {
+      st.textContent = '⚠ 图片上传失败，请在 Airtable 中手动上传至 photo 字段';
+    }
+  }
+}
+
+function openEntry(){
+  entryStep = 1;
+  generatedFields = {};
+  document.getElementById('entry-paste').value = '';
+  document.getElementById('ai-gen-output').innerHTML = '';
+  pendingImages = [];
+  uploadedPhotoUrls = [];
+  var prev=document.getElementById('img-preview'); if(prev) prev.innerHTML='';
+  var ph=document.getElementById('img-placeholder'); if(ph) ph.style.display='block';
+  var st=document.getElementById('img-upload-status'); if(st) st.textContent='';
+  document.getElementById('write-output').innerHTML = '';
+  showEntryStep(1);
+  // 计算下一个编号
+  var maxNo = 0;
+  DB.forEach(function(i){
+    var n = parseInt((i.accession_no||'').replace(/\D/g,''));
+    if(n > maxNo) maxNo = n;
+  });
+  document.getElementById('entry-next-no').textContent = 'QZJ-' + String(maxNo+1).padStart(3,'0');
+  document.getElementById('entryOverlay').classList.add('open');
+}
+
+function closeEntry(){
+  document.getElementById('entryOverlay').classList.remove('open');
+}
+
+function showEntryStep(n){
+  entryStep = n;
+  document.getElementById('entry-step1').style.display = n===1 ? 'block' : 'none';
+  document.getElementById('entry-step2').style.display = n===2 ? 'block' : 'none';
+  document.getElementById('entry-step3').style.display = n===3 ? 'block' : 'none';
+  var btnBack   = document.getElementById('entry-btn-back');
+  var btnMain   = document.getElementById('entry-btn-main');
+  var btnCancel = document.getElementById('entry-btn-cancel');
+  btnMain.style.display = 'inline-block';
+  btnMain.disabled = false;
+  if(n===1){
+    btnBack.style.display = 'none';
+    btnMain.textContent = '解析预览 →';
+    btnCancel.textContent = '取消';
+  } else if(n===2){
+    btnBack.style.display = 'inline-block';
+    btnMain.textContent = '→ 写入 Airtable';
+    btnCancel.textContent = '取消';
+  } else {
+    btnBack.style.display = 'none';
+    btnMain.style.display = 'none';
+    btnCancel.textContent = '关闭';
+  }
+}
+
+function entryNext(){
+  if(entryStep === 1){
+    parsePastedContent();
+  } else if(entryStep === 2){
+    runWriteToAirtable();
+  }
+}
+
+function entryBack(){
+  showEntryStep(1);
+}
+
+// ── 解析粘贴的【字段】格式或 JSON ──
+function parsePastedContent(){
+  var raw = document.getElementById('entry-paste').value.trim();
+  if(!raw){ alert('请先粘贴 Claude 生成的录入内容'); return; }
+
+  var fields = {};
+
+  // 尝试 JSON 解析
+  var jsonAttempt = raw.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+  if(jsonAttempt.startsWith('{')){
+    try{
+      fields = JSON.parse(jsonAttempt);
+    }catch(e){
+      // JSON解析失败，继续尝试【】格式
+    }
+  }
+
+  // 如果JSON未成功，尝试解析【字段名】值 格式
+  if(!fields.name){
+    var fieldKeys = {
+      'accession_no':['accession_no','编号'],
+      'name':['name','名称'],
+      'cat':['cat','分类'],
+      'region':['region','地域'],
+      'period':['period','时期'],
+      'artist':['artist','作者'],
+      'deity':['deity','尊格','尊格/题材','尊格题材'],
+      'kiln':['kiln','窑口','窑口/产地','窑口产地'],
+      'material':['material','材质'],
+      'dims':['dims','尺寸'],
+      'provenance':['provenance','来源'],
+      'notes':['notes','藏品详述','notes详述'],
+      'rating_level':['rating_level','评级'],
+      'rating_desc':['rating_desc','评级说明'],
+      'iconography':['iconography','图像志'],
+      'craft':['craft','工艺特征','工艺'],
+      'kiln_info':['kiln_info','窑口研究','窑口产地研究'],
+      'history':['history','历史背景'],
+      'refs':['refs','参考著作','专业参考著作','参考著作与研究者目录'],
+      'valuation':['valuation','估价参考','拍卖估价参考'],
+    };
+
+    // 构建反向映射
+    var keyMap = {};
+    Object.keys(fieldKeys).forEach(function(k){
+      fieldKeys[k].forEach(function(alias){ keyMap[alias.toLowerCase()] = k; });
+    });
+
+    // 按【...】分割
+    // 支持格式：【字段名】内容  （内容到下一个【前结束）
+    var pattern = /【([^】]+)】([\s\S]*?)(?=【[^】]+】|$)/g;
+    var match;
+    while((match = pattern.exec(raw)) !== null){
+      var rawKey = match[1].trim().toLowerCase();
+      var val = match[2].trim();
+      var mappedKey = keyMap[rawKey] || rawKey.replace(/[\s\/·]/g,'_');
+      fields[mappedKey] = val;
+    }
+  }
+
+  if(!fields.name && !fields.accession_no){
+    alert('解析失败：未能识别出藏品字段。\n请确认格式为【字段名】内容，或完整JSON。');
+    return;
+  }
+
+  // 清理【待补充】等占位符，但保留内容
+  Object.keys(fields).forEach(function(k){
+    if(typeof fields[k]==='string') fields[k] = fields[k].replace(/^\【待补充\】$/, '').trim();
+  });
+
+  generatedFields = fields;
+  showEntryStep(2);
+  renderFieldEditor(fields, document.getElementById('ai-gen-output'));
+}
+
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderFieldEditor(fields, container){
+  var ratingLevels = ['SSS+','SSS','SS+','SS','S+','S'];
+  var curRating = fields.rating_level || '';
+
+  // 评级选择器
+  var ratingHtml = '<div style="margin-bottom:14px"><div class="stage-lbl">评级</div><div class="rating-picker">';
+  ratingLevels.forEach(function(lv){
+    var isSel = curRating === lv;
+    ratingHtml += '<span class="rating-opt'+(isSel?' sel':'')+'" '
+      +'style="background:'+RBG2[lv]+';color:'+RTX2[lv]+';border-color:'+(isSel?'#1a1a1a':'transparent')+'" '
+      +'onclick="selectRating(\''+lv+'\',this)">'+lv+'</span>';
+  });
+  ratingHtml += '</div></div>';
+
+  // 基本字段
+  var shortHtml = '<div class="stage-lbl">基本信息</div><table class="field-table">';
+  ALL_FIELDS.filter(function(f){ return f.short && f.key!=='rating_level'; }).forEach(function(f){
+    var val = fields[f.key]||'';
+    var tag = f.req ? '<span class="field-tag req">必填</span>' : '';
+    shortHtml += '<tr><td>'+f.label+tag+'</td><td>'
+      +'<textarea class="field-editable" data-key="'+f.key+'" rows="1" oninput="updateField(this)">'+escHtml(val)+'</textarea>'
+      +'</td></tr>';
+  });
+  shortHtml += '</table>';
+
+  // 长文本字段
+  var longHtml = '<div class="stage-lbl" style="margin-top:14px">详细内容 <span style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:#bbb">（可直接编辑）</span></div><table class="field-table">';
+  ALL_FIELDS.filter(function(f){ return !f.short; }).forEach(function(f){
+    var val = fields[f.key]||'';
+    var rows = val ? Math.min(Math.max(Math.ceil(val.length/55), 2), 12) : 2;
+    longHtml += '<tr><td>'+f.label+'</td><td>'
+      +'<textarea class="field-editable" data-key="'+f.key+'" rows="'+rows+'" oninput="updateField(this)">'+escHtml(val)+'</textarea>'
+      +'</td></tr>';
+  });
+  longHtml += '</table>';
+
+  container.innerHTML = ratingHtml + shortHtml + longHtml;
+
+  // 自动调整所有textarea高度
+  setTimeout(function(){
+    container.querySelectorAll('.field-editable').forEach(function(el){
+      el.style.height='auto';
+      el.style.height=el.scrollHeight+'px';
+    });
+  }, 50);
+}
+
+function updateField(el){
+  var key = el.getAttribute('data-key');
+  generatedFields[key] = el.value;
+  el.style.height='auto';
+  el.style.height=el.scrollHeight+'px';
+}
+
+function selectRating(lv, el){
+  generatedFields.rating_level = lv;
+  document.querySelectorAll('.rating-opt').forEach(function(b){
+    b.classList.remove('sel');
+    b.style.borderColor='transparent';
+  });
+  el.classList.add('sel');
+  el.style.borderColor='#1a1a1a';
+}
+
+async function runWriteToAirtable(){
+  var c = loadCfg();
+  if(!c.token||!c.base||!c.table){
+    alert('请先在「数据库设置」中填写 Airtable 连接信息');
+    return;
+  }
+  showEntryStep(3);
+  var out = document.getElementById('write-output');
+  out.innerHTML = '<div class="write-progress">正在写入 Airtable…</div>';
+
+  var f = generatedFields;
+  var aFields = {};
+  ALL_FIELDS.forEach(function(fd){
+    var v = f[fd.key]||'';
+    if(v && v!=='—') aFields[fd.key] = v;
+  });
+
+  // 写入策略：先POST不含主字段的数据，再PATCH补填accession_no
+  async function tryPost(fields){
+    var url = 'https://api.airtable.com/v0/'+c.base+'/'+encodeURIComponent(c.table);
+    var accNo = fields['accession_no'];
+    // 第一次POST去掉accession_no
+    var f1 = Object.assign({},fields);
+    delete f1['accession_no'];
+    var res = await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+c.token,'Content-Type':'application/json'},body:JSON.stringify({fields:f1})});
+    var data = await res.json();
+    if(!res.ok) throw new Error(data.error&&data.error.message?data.error.message:'HTTP '+res.status);
+    // 第二步：用PATCH补填accession_no主字段
+    if(accNo && data.id){
+      var patchUrl = 'https://api.airtable.com/v0/'+c.base+'/'+encodeURIComponent(c.table)+'/'+data.id;
+      var pRes = await fetch(patchUrl,{method:'PATCH',headers:{'Authorization':'Bearer '+c.token,'Content-Type':'application/json'},body:JSON.stringify({fields:{'accession_no':accNo}})});
+      if(!pRes.ok){
+        var pErr = await pRes.json().catch(function(){return {};});
+        console.warn('编号写入失败：', pErr);
+      }
+    }
+    return data;
+  }
+
+  try{
+    var data = await tryPost(aFields);
+
+    out.innerHTML =
+      '<div class="success-banner">'
+      +'<h3>✓ 写入成功</h3>'
+      +'<p>藏品编号 <strong>'+escHtml(f.accession_no||'')+'</strong> 已录入 Airtable<br>'
+      +'记录 ID：<span style="font-family:monospace;font-size:10px">'+escHtml(data.id)+'</span></p>'
+      +'</div>'
+      +'<div class="write-progress">'
+      +'<div class="write-ok">✓ 所有文字字段已写入</div>'
+      +'<div class="write-ok" style="margin-top:4px">✓ 图片将在写入后自动上传</div>'
+      +'</div>';
+
+    document.getElementById('entry-btn-cancel').textContent = '关闭';
+    var cfg2 = loadCfg();
+    if(pendingImages.length > 0 && data.id){
+      await uploadImagesToAirtable(data.id, cfg2.token, cfg2.base, cfg2.table);
+    }
+    setTimeout(function(){ loadFromAirtable(); }, 1200);
+
+  }catch(e){
+    out.innerHTML =
+      '<div class="write-progress">'
+      +'<div class="write-err">✗ 写入失败：'+escHtml(e.message)+'</div>'
+      +'<div style="margin-top:8px;font-size:11px;color:#888">请确认 Token 已勾选 data.records:write 权限</div>'
+      +'</div>';
+    document.getElementById('entry-btn-back').style.display='inline-block';
+    document.getElementById('entry-btn-main').style.display='inline-block';
+    document.getElementById('entry-btn-main').textContent='↺ 重试';
+  }
+}
+
+// ── 启动 ─────────────────────────────────────────────
+(function(){
+  // Token 不内置，首次使用请点击右上角「⚙ 数据库设置」输入连接信息
+  loadFromAirtable();
+})();
+</script>
+</body>
+</html>

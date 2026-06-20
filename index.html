@@ -971,23 +971,32 @@ function sd(rid){
   // 点开详情时重新从Airtable拉取完整单条记录（防止长文本被截断）
   var c=loadCfg();
   if(c.token&&c.base&&c.table){
-    fetch('https://api.airtable.com/v0/'+c.base+'/'+encodeURIComponent(c.table)+'/'+rid,
-      {headers:{'Authorization':'Bearer '+c.token}})
+    var fullUrl='https://api.airtable.com/v0/'+c.base+'/'+encodeURIComponent(c.table)+'/'+rid;
+    fetch(fullUrl,{headers:{'Authorization':'Bearer '+c.token}})
     .then(function(r){return r.json();})
-    .then(function(data){
-      if(!data.fields) return;
-      var f=data.fields;
-      it.notes       = f.notes||it.notes||'';
-      it.provenance  = f.provenance||it.provenance||'';
-      it.ai.iconography = f.iconography||it.ai.iconography||'';
-      it.ai.craft    = f.craft||it.ai.craft||'';
-      it.ai.kiln_info= f.kiln_info||it.ai.kiln_info||'';
-      it.ai.history  = f.history||it.ai.history||'';
-      it.ai.refs     = f.refs||it.ai.refs||'';
-      it.rating.desc = f.rating_desc||it.rating.desc||'';
-      // 刷新详情页显示
-      renderDetail(it);
-    }).catch(function(){});
+    .then(function(resp){
+      if(!resp.fields) return;
+      var f=resp.fields;
+      // 直接更新DB中对应记录的所有长文本字段
+      var dbItem=DB.find(function(i){return i._id===rid;});
+      if(!dbItem) return;
+      if(f.notes!==undefined)        dbItem.notes=f.notes;
+      if(f.provenance!==undefined)   dbItem.provenance=f.provenance;
+      if(f.iconography!==undefined)  dbItem.ai.iconography=f.iconography;
+      if(f.craft!==undefined)        dbItem.ai.craft=f.craft;
+      if(f.kiln_info!==undefined)    dbItem.ai.kiln_info=f.kiln_info;
+      if(f.history!==undefined)      dbItem.ai.history=f.history;
+      if(f.refs!==undefined)         dbItem.ai.refs=f.refs;
+      if(f.rating_desc!==undefined)  dbItem.rating.desc=f.rating_desc;
+      if(f.name!==undefined)         dbItem.name=f.name;
+      if(f.period!==undefined)       dbItem.period=f.period;
+      if(f.artist!==undefined)       dbItem.artist=f.artist;
+      if(f.material!==undefined)     dbItem.material=f.material;
+      if(f.dims!==undefined)         dbItem.dims=f.dims;
+      // 用最新数据重新渲染详情页
+      editItem=dbItem;
+      renderDetail(dbItem);
+    }).catch(function(e){console.log('单条拉取失败:',e);});
   }
   ['all','ceramics','buddha','paintings','architecture'].forEach(function(t){document.getElementById('v-'+t).style.display='none';});
   document.getElementById('sub-tabs-bar').style.display='none';
@@ -1416,7 +1425,7 @@ async function runWriteToAirtable(){
 
 // ── 启动 ─────────────────────────────────────────────
 (function(){
-  // Token 不内置，首次使用请点击右上角「⚙ 数据库设置」输入连接信息
+  // Token不内置，请点击右上角「⚙ 数据库设置」输入
   loadFromAirtable();
 })();
 </script>

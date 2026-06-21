@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美的精神史 · 写作数据库</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f5f4f0;color:#1a1a1a;font-size:13px;height:100vh;overflow:hidden}
+#hdr{position:fixed;top:0;left:0;right:0;height:48px;background:#1A1A2E;color:#E8D5FF;display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100}
+#hdr-title{font-size:14px;font-weight:500}
+#hdr-sub{font-size:10px;opacity:.6;margin-top:1px}
+#hdr-btns{display:flex;gap:8px;flex-shrink:0}
+.hbtn{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:inherit;white-space:nowrap}
+.hbtn-g{background:rgba(255,255,255,.15);color:#E8D5FF}.hbtn-g:hover{background:rgba(255,255,255,.25)}
+.hbtn-l{background:#E8D5FF;color:#1A1A2E}.hbtn-l:hover{background:#fff}
+.page{display:none;position:fixed;top:48px;left:0;right:0;bottom:0;overflow-y:auto}
+.page.active{display:block}
+#page-cfg{background:#f5f4f0;padding:20px}
+.cfg-wrap{max-width:540px;margin:0 auto}
+.back-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.back-btn{padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#444;font-family:inherit}
+.back-btn:hover{border-color:#999}
+.ccard{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:18px 20px;margin-bottom:12px}
+.ccard h2{font-size:14px;font-weight:600;margin-bottom:4px}
+.ccard p{font-size:11px;color:#888;line-height:1.6;margin-bottom:12px}
+.lbl{display:block;font-size:10px;font-weight:600;color:#555;margin:10px 0 4px;letter-spacing:.04em}
+.inp{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;outline:none;transition:border-color .15s}
+.inp:focus{border-color:#1A1A2E}
+.hint{font-size:10px;color:#aaa;margin-top:3px}
+.cfg-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.btn-pri{background:#1A1A2E;color:#E8D5FF;padding:8px 20px;border-radius:7px;font-size:12px;cursor:pointer;border:none;font-family:inherit;font-weight:500}
+.btn-pri:hover{background:#2d2d4e}
+.btn-pri:disabled{opacity:.5;cursor:not-allowed}
+.btn-sec{background:#f0eeea;color:#444;padding:8px 16px;border-radius:7px;font-size:12px;cursor:pointer;border:none;font-family:inherit}
+#page-main{background:#f5f4f0}
+#page-main.active{display:flex}
+#sidebar{width:250px;min-width:250px;background:#fff;border-right:1px solid #e8e6e0;display:flex;flex-direction:column;height:calc(100vh - 48px);position:fixed;top:48px;left:0}
+#sb-hdr{padding:10px 14px;border-bottom:1px solid #e8e6e0;display:flex;justify-content:space-between;align-items:center}
+#sb-hdr span{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#888}
+#sb-search{padding:8px 12px;border-bottom:1px solid #e8e6e0}
+#sb-search input{width:100%;padding:6px 9px;border:1px solid #e0ddd7;border-radius:6px;font-size:11px;font-family:inherit;outline:none;background:#faf9f7}
+#sb-search input:focus{border-color:#1A1A2E}
+#rec-list{flex:1;overflow-y:auto}
+.ri{padding:10px 14px;border-bottom:1px solid #f0eeea;cursor:pointer;transition:background .1s}
+.ri:hover{background:#faf9f7}
+.ri.on{background:#f0eef8;border-left:3px solid #1A1A2E;padding-left:11px}
+.ri-no{font-size:9px;font-family:monospace;color:#aaa;margin-bottom:2px}
+.ri-title{font-size:12px;font-weight:500;margin-bottom:2px}
+.ri-sub{font-size:10px;color:#888;line-height:1.4}
+.ri-st{display:inline-block;font-size:9px;padding:1px 6px;border-radius:10px;margin-top:4px;font-weight:500}
+.empty-list{text-align:center;padding:24px 14px;color:#aaa;font-size:11px;line-height:1.8}
+#main-area{margin-left:250px;flex:1;display:flex;flex-direction:column;height:calc(100vh - 48px);overflow:hidden}
+#main-hdr{padding:10px 20px;background:#fff;border-bottom:1px solid #e8e6e0;display:none;align-items:center;justify-content:space-between;flex-shrink:0;flex-wrap:wrap;gap:6px}
+#main-info{display:flex;align-items:center;gap:8px}
+#main-no{font-size:10px;font-family:monospace;color:#888;background:#f0eeea;padding:2px 8px;border-radius:4px}
+#main-title-el{font-size:14px;font-weight:500}
+#main-acts{display:flex;gap:5px;flex-wrap:wrap}
+.ma{padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid #e0ddd7;background:#fff;color:#444;font-family:inherit;transition:all .15s;white-space:nowrap}
+.ma:hover{border-color:#999}
+.ma.pri{background:#1A1A2E;color:#E8D5FF;border-color:#1A1A2E}
+.ma.dan{background:#fde8e8;color:#8b1a1a;border-color:#f5c6c6}
+#main-body{flex:1;overflow-y:auto;padding:16px 20px}
+.empty-main{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#aaa;text-align:center;gap:8px;padding:40px}
+.empty-main h3{font-size:14px;font-weight:500;color:#888}
+.empty-main p{font-size:11px;line-height:1.7}
+#page-edit{background:#f5f4f0;padding:20px;padding-bottom:60px}
+.edit-wrap{max-width:720px;margin:0 auto}
+.edit-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.edit-top-l{display:flex;align-items:center;gap:10px}
+#ept{font-size:14px;font-weight:500}
+.ecard{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:14px 18px;margin-bottom:10px}
+.import-box{background:linear-gradient(135deg,#f0eef8,#e8e4f5);border:1px solid #AFA9EC;border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.import-box h3{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7B4FA0;margin-bottom:6px}
+.import-box p{font-size:11px;color:#555;line-height:1.7;margin-bottom:8px}
+.import-acts{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.sdiv{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#aaa;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid #e8e6e0}
+.sdiv:first-child{margin-top:0}
+.ef{margin-bottom:10px}
+.ef-lbl{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#888;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ef-req{font-size:8px;font-weight:400;letter-spacing:0;text-transform:none;background:#fde8e8;color:#8b1a1a;padding:1px 5px;border-radius:3px}
+.ef-inp{width:100%;padding:7px 10px;border:1px solid #e0ddd7;border-radius:6px;font-size:11px;font-family:inherit;background:#fff;color:#1a1a1a;outline:none;transition:border-color .15s;line-height:1.7}
+.ef-inp:focus{border-color:#1A1A2E}
+textarea.ef-inp{resize:vertical}
+.st-opts{display:flex;gap:6px;flex-wrap:wrap}
+.st-opt{padding:4px 12px;border-radius:20px;font-size:10px;cursor:pointer;border:1.5px solid transparent;transition:all .15s;font-weight:500}
+.st-opt.sel{border-color:#1A1A2E!important}
+.kf-btn{font-size:10px;padding:3px 9px;border-radius:5px;cursor:pointer;border:1px solid #e0ddd7;background:#fff;color:#666;font-family:inherit;transition:all .15s}
+.kf-btn:hover{border-color:#999;color:#1a1a1a}
+.kf-btn.dan{border-color:#f5c6c6;color:#8b1a1a;background:#fde8e8}
+.arg-version{background:#f0eef8;border:1px solid #AFA9EC;border-radius:8px;padding:10px 13px;margin-bottom:8px}
+.arg-v-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.arg-v-label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#7B4FA0}
+.arg-v-del{font-size:9px;padding:1px 7px;border-radius:4px;cursor:pointer;border:1px solid #f5c6c6;background:#fde8e8;color:#8b1a1a}
+.arg-v-content{font-size:11px;line-height:1.85;color:#1a1a1a;white-space:pre-wrap;word-break:break-word}
+.arg-v-new{background:#EAF3DE;border-color:#b8d4b8}
+.arg-v-new .arg-v-label{color:#27500A}
+.arg-diff{background:#fff;border:1px solid #e8e6e0;border-radius:6px;padding:8px 10px;margin-top:6px;font-size:10px;color:#555;line-height:1.7}
+.arg-diff-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:4px}
+.new-arg-input{border:1.5px solid #2d6b2d!important;background:#f8fff8!important}
+.distilled-card{background:linear-gradient(135deg,#EAF3DE,#d4edda);border:1px solid #2d6b2d;border-radius:8px;padding:10px 13px;margin-bottom:10px}
+.distilled-lbl{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#1a4d1a;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
+.distilled-content{font-size:11px;line-height:1.85;color:#1a1a1a;white-space:pre-wrap;word-break:break-word}
+.writing-zone{background:#fff;border:1px solid #e8e6e0;border-radius:10px;overflow:hidden;margin-bottom:8px}
+.wz-hdr{padding:8px 14px;background:#faf9f7;border-bottom:1px solid #e8e6e0;display:flex;align-items:center;justify-content:space-between}
+.wz-lbl{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#888}
+.wz-acts{display:flex;gap:6px}
+.wz-btn{font-size:10px;padding:3px 9px;border-radius:5px;cursor:pointer;border:1px solid #e0ddd7;background:#fff;color:#666;font-family:inherit}
+.wz-btn:hover{border-color:#999}
+.wz-btn.grn{background:#2d6b2d;color:#fff;border-color:#2d6b2d}
+.wz-btn.grn:hover{background:#1a4d1a}
+.wz-editor{width:100%;min-height:160px;padding:14px 16px;border:none;font-size:12px;font-family:inherit;line-height:1.85;color:#1a1a1a;background:#fff;resize:vertical;outline:none}
+.wz-saved{font-size:10px;color:#2d6b2d;padding:4px 14px;background:#f8fff8;border-top:1px solid #e8e6e0;display:none}
+.vtabs{display:flex;gap:0;margin-bottom:14px;border:1px solid #e8e6e0;border-radius:8px;overflow:hidden;width:fit-content}
+.vtab{padding:5px 14px;font-size:11px;cursor:pointer;background:#fff;color:#888;border-right:1px solid #e8e6e0;transition:all .15s}
+.vtab:last-child{border-right:none}
+.vtab.on{background:#1A1A2E;color:#E8D5FF}
+.fc{background:#fff;border:1px solid #e8e6e0;border-radius:10px;padding:12px 16px;margin-bottom:8px}
+.fc-lbl{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#888;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
+.fc-val{font-size:11px;line-height:1.85;color:#1a1a1a;white-space:pre-wrap;word-break:break-word}
+.fc-empty{font-size:11px;color:#bbb;font-style:italic}
+.cpy-btn{font-size:9px;padding:2px 7px;border-radius:4px;background:#f0eeea;color:#666;border:none;cursor:pointer}
+.cpy-btn:hover{background:#1A1A2E;color:#E8D5FF}
+.cpy-btn.ok{background:#e8f4e8;color:#2d6b2d}
+.orig-block{background:#f0eef8;border-left:3px solid #1A1A2E;border-radius:0 8px 8px 0;padding:10px 13px;margin-bottom:8px}
+.orig-lbl{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#7B4FA0;margin-bottom:5px}
+.sdiv-r{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#aaa;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid #e8e6e0}
+.launcher{background:linear-gradient(135deg,#1A1A2E,#2d2d4e);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.launcher h3{font-size:10px;font-weight:600;color:#E8D5FF;opacity:.7;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.launcher p{font-size:11px;color:#E8D5FF;opacity:.8;line-height:1.7;margin-bottom:10px}
+.lbtns{display:flex;gap:6px;flex-wrap:wrap}
+.lbtn{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:inherit}
+.lbtn-m{background:#E8D5FF;color:#1A1A2E}.lbtn-m:hover{background:#fff}
+.lbtn-s{background:rgba(255,255,255,.1);color:#E8D5FF;border:1px solid rgba(255,255,255,.2)}.lbtn-s:hover{background:rgba(255,255,255,.2)}
+.pp{background:#f8f7f4;border:1px solid #e8e6e0;border-radius:8px;padding:10px 12px;font-size:10px;line-height:1.8;color:#555;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow-y:auto;margin-top:8px;display:none}
+#toast{position:fixed;bottom:20px;right:20px;background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:9999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<div id="hdr">
+  <div>
+    <div id="hdr-title">美的精神史 · 写作数据库</div>
+    <div id="hdr-sub">未连接 Airtable</div>
+  </div>
+  <div id="hdr-btns">
+    <button class="hbtn hbtn-g" onclick="showPage('cfg')">⚙ 数据库设置</button>
+    <button class="hbtn hbtn-l" onclick="newRecord()">＋ 新建议题</button>
+  </div>
+</div>
+
+<div class="page" id="page-cfg">
+  <div class="cfg-wrap">
+    <div class="back-row">
+      <button class="back-btn" onclick="showPage('main')">← 返回</button>
+      <span style="font-size:14px;font-weight:500">数据库设置</span>
+    </div>
+    <div class="ccard">
+      <h2>连接 Airtable 写作数据库</h2>
+      <p>填写后数据将实时从 Airtable 读取和写入，信息仅存储在本地浏览器。</p>
+      <label class="lbl">API TOKEN</label>
+      <input class="inp" id="cfg-token" type="password" placeholder="patXXXXXXXXXXXXXX">
+      <div class="hint">需勾选 data.records:read 和 data.records:write</div>
+      <label class="lbl">BASE ID</label>
+      <input class="inp" id="cfg-base" type="text" placeholder="appXXXXXXXXXXXXXX">
+      <label class="lbl">写作数据库 TABLE ID</label>
+      <input class="inp" id="cfg-table" type="text" placeholder="tblXXXXXXXXXXXXXX">
+      <label class="lbl">书稿框架说明（自动嵌入对话启动文本）</label>
+      <textarea class="inp" id="cfg-framework" rows="5" placeholder="我在写一本以个人收藏为基础的「美的精神史」……"></textarea>
+      <div id="cfg-msg" style="font-size:11px;padding:8px 12px;border-radius:7px;margin-top:10px;display:none"></div>
+      <div class="cfg-acts">
+        <button class="btn-sec" onclick="showPage('main')">取消</button>
+        <button class="btn-pri" onclick="testAndSave()">测试连接并保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-main">
+  <div id="sidebar">
+    <div id="sb-hdr">
+      <span>议题列表</span>
+      <span id="rec-count" style="font-size:11px;color:#aaa;font-weight:400">0 条</span>
+    </div>
+    <div id="sb-search"><input type="text" placeholder="搜索议题…" oninput="filterList(this.value)"></div>
+    <div id="rec-list"><div class="empty-list">请先配置 Airtable 连接<br>点击右上角「⚙ 数据库设置」</div></div>
+  </div>
+  <div id="main-area">
+    <div id="main-hdr">
+      <div id="main-info">
+        <span id="main-no"></span>
+        <span id="main-title-el"></span>
+      </div>
+      <div id="main-acts">
+        <button class="ma" onclick="goEdit()">✎ 编辑 / 更新</button>
+        <button class="ma" onclick="copyPrompt()">⎘ 复制启动文本</button>
+        <button class="ma dan" onclick="deleteRecord()">删除</button>
+      </div>
+    </div>
+    <div id="main-body">
+      <div class="empty-main">
+        <h3>选择议题或新建记录</h3>
+        <p>每条记录对应一个写作议题<br>包含器物组、知识背景、原创论点与正文片段</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-edit">
+  <div class="edit-wrap">
+    <div class="edit-top">
+      <div class="edit-top-l">
+        <button class="back-btn" onclick="cancelEdit()">← 返回</button>
+        <span id="ept">新建议题</span>
+      </div>
+      <button class="btn-pri" onclick="saveRecord()">✓ 保存到 Airtable</button>
+    </div>
+    <div class="import-box" id="import-box">
+      <h3>⎘ 从 Claude 一键导入 / 更新</h3>
+      <p>将 Claude 生成的议题记录文本粘贴到下方，点「解析并填入」自动识别所有字段。<br>
+      知识背景字段可选择「追加」或「替换」；原创论点将自动保留历史版本。</p>
+      <textarea class="ef-inp" id="import-text" rows="5" placeholder="粘贴 Claude 生成的【字段名】格式内容…"></textarea>
+      <div class="import-acts">
+        <button class="btn-pri" onclick="parseImport()">解析并填入字段</button>
+        <button class="btn-sec" onclick="toggleImport()">折叠</button>
+        <span id="parse-msg" style="font-size:11px;color:#2d6b2d;display:none"></span>
+      </div>
+    </div>
+    <div id="edit-form"></div>
+  </div>
+</div>
+
+<script>
+var CFG_KEY = 'qzj_wdb_v5';
+var RECORDS = [];
+var currentId = null;
+var viewMode = 'read';
+var editData = {};
+var argVersions = [];
+
+var ST = [
+  {v:'碎片', bg:'#f0eeea', c:'#666'},
+  {v:'发展中', bg:'#FAEEDA', c:'#633806'},
+  {v:'成熟', bg:'#EAF3DE', c:'#27500A'},
+  {v:'已整合', bg:'#1A1A2E', c:'#E8D5FF'}
+];
+
+var FIELDS = [
+  {key:'fragment_no', label:'议题编号', type:'text', req:1},
+  {key:'chapter_theme', label:'议题标题', type:'text', req:1},
+  {key:'chapter_sub', label:'议题副题', type:'text'},
+  {key:'civilization_axis', label:'文明坐标', type:'text'},
+  {key:'status', label:'状态', type:'status'},
+  {key:'related_objects', label:'器物组', type:'kb', rows:5},
+  {key:'philosophical_context', label:'哲学宗教文化背景', type:'kb', rows:10},
+  {key:'craft_context', label:'工艺技术研究', type:'kb', rows:5},
+  {key:'arthistory_context', label:'艺术史与日常文化研究', type:'kb', rows:5},
+  {key:'academic_refs', label:'权威文献目录', type:'kb', rows:5},
+  {key:'original_arguments', label:'藏主原创论点', type:'arg'},
+  {key:'distilled_argument', label:'精炼论点（最终版）', type:'distilled'},
+  {key:'text', label:'正文片段', type:'writing'},
+  {key:'argument', label:'论证方向', type:'writing'},
+  {key:'connections', label:'跨议题关联', type:'ta', rows:4}
+];
+
+var ALIAS = {
+  'fragment_no': ['fragment_no','议题编号','编号'],
+  'chapter_theme': ['chapter_theme','议题标题','标题','章节议题'],
+  'chapter_sub': ['chapter_sub','议题副题','副题'],
+  'civilization_axis': ['civilization_axis','文明坐标'],
+  'status': ['status','状态'],
+  'related_objects': ['related_objects','器物组','器物对照组'],
+  'philosophical_context': ['philosophical_context','哲学宗教文化背景'],
+  'craft_context': ['craft_context','工艺技术研究'],
+  'arthistory_context': ['arthistory_context','艺术史与日常文化研究'],
+  'academic_refs': ['academic_refs','权威文献目录'],
+  'original_arguments': ['original_arguments','藏主原创论点','原创论点'],
+  'distilled_argument': ['distilled_argument','精炼论点'],
+  'text': ['text','正文片段'],
+  'argument': ['argument','论证方向'],
+  'connections': ['connections','跨议题关联','跨议题关联线索']
+};
+
+function loadCfg() { try { return JSON.parse(localStorage.getItem(CFG_KEY) || '{}'); } catch(e) { return {}; } }
+function saveCfgData(o) { localStorage.setItem(CFG_KEY, JSON.stringify(o)); }
+
+function showPage(n) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  var pg = document.getElementById('page-' + n);
+  if (pg) pg.classList.add('active');
+  if (n === 'cfg') {
+    var c = loadCfg();
+    document.getElementById('cfg-token').value = c.token || '';
+    document.getElementById('cfg-base').value = c.base || '';
+    document.getElementById('cfg-table').value = c.table || '';
+    document.getElementById('cfg-framework').value = c.framework || '';
+    var m = document.getElementById('cfg-msg');
+    m.style.display = 'none';
+  }
+}
+
+async function testAndSave() {
+  var token = document.getElementById('cfg-token').value.trim();
+  var base = document.getElementById('cfg-base').value.trim();
+  var table = document.getElementById('cfg-table').value.trim();
+  var framework = document.getElementById('cfg-framework').value.trim();
+  var m = document.getElementById('cfg-msg');
+  m.style.cssText = 'display:block;font-size:11px;padding:8px 12px;border-radius:7px;margin-top:10px;background:#e8f0fd;color:#1a3a8b';
+  m.textContent = '正在测试连接…';
+  try {
+    var res = await fetch('https://api.airtable.com/v0/' + base + '/' + encodeURIComponent(table) + '?maxRecords=1',
+      {headers: {'Authorization': 'Bearer ' + token}});
+    if (!res.ok) { var d = await res.json(); throw new Error(d.error ? d.error.message : 'HTTP ' + res.status); }
+    saveCfgData({token: token, base: base, table: table, framework: framework});
+    m.style.cssText = 'display:block;font-size:11px;padding:8px 12px;border-radius:7px;margin-top:10px;background:#e8f4e8;color:#2d6b2d';
+    m.textContent = '✓ 连接成功！';
+    setTimeout(function() { showPage('main'); loadRecords(); }, 700);
+  } catch(e) {
+    m.style.cssText = 'display:block;font-size:11px;padding:8px 12px;border-radius:7px;margin-top:10px;background:#fde8e8;color:#8b1a1a';
+    m.textContent = '✗ ' + e.message;
+  }
+}
+
+async function loadRecords() {
+  var c = loadCfg();
+  if (!c.token || !c.base || !c.table) return;
+  document.getElementById('hdr-sub').textContent = '加载中…';
+  var all = [], offset = '';
+  try {
+    while (true) {
+      var url = 'https://api.airtable.com/v0/' + c.base + '/' + encodeURIComponent(c.table) + '?pageSize=100' + (offset ? '&offset=' + offset : '');
+      var res = await fetch(url, {headers: {'Authorization': 'Bearer ' + c.token}});
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+      (data.records || []).forEach(function(r) {
+        var obj = {_id: r.id};
+        var f = r.fields || {};
+        Object.keys(f).forEach(function(k) { obj[k] = f[k]; });
+        all.push(obj);
+      });
+      if (data.offset) { offset = data.offset; } else { break; }
+    }
+    RECORDS = all.sort(function(a, b) {
+      var na = parseInt((a.fragment_no || '').replace(/\D/g, '')) || 999;
+      var nb = parseInt((b.fragment_no || '').replace(/\D/g, '')) || 999;
+      return na - nb;
+    });
+    document.getElementById('hdr-sub').textContent = RECORDS.length + ' 条议题记录';
+    renderList(RECORDS);
+    if (currentId) { var r = RECORDS.find(function(x) { return x._id === currentId; }); if (r) renderMain(r); }
+  } catch(e) {
+    document.getElementById('hdr-sub').textContent = '加载失败：' + e.message;
+    toast('加载失败：' + e.message);
+  }
+}
+
+function renderList(recs) {
+  var el = document.getElementById('rec-list');
+  document.getElementById('rec-count').textContent = recs.length + ' 条';
+  if (!recs.length) { el.innerHTML = '<div class="empty-list">暂无记录<br>点击「＋ 新建议题」</div>'; return; }
+  el.innerHTML = recs.map(function(r) {
+    var st = r.status || '碎片';
+    var so = ST.find(function(o) { return o.v === st; }) || ST[0];
+    return '<div class="ri' + (r._id === currentId ? ' on' : '') + '" onclick="selRec(\'' + r._id + '\')">'
+      + '<div class="ri-no">' + (r.fragment_no || '—') + '</div>'
+      + '<div class="ri-title">' + (r.chapter_theme || '（未命名）') + '</div>'
+      + '<div class="ri-sub">' + (r.chapter_sub || r.civilization_axis || '') + '</div>'
+      + '<span class="ri-st" style="background:' + so.bg + ';color:' + so.c + '">' + st + '</span>'
+      + '</div>';
+  }).join('');
+}
+
+function filterList(q) {
+  q = q.toLowerCase();
+  renderList(q ? RECORDS.filter(function(r) {
+    return (r.fragment_no || '').toLowerCase().includes(q) || (r.chapter_theme || '').toLowerCase().includes(q);
+  }) : RECORDS);
+}
+
+function selRec(id) {
+  currentId = id; viewMode = 'read';
+  renderList(RECORDS);
+  var r = RECORDS.find(function(x) { return x._id === id; });
+  if (r) renderMain(r);
+}
+
+// ── 查看模式 ──────────────────────────────────
+function renderMain(rec) {
+  document.getElementById('main-hdr').style.display = 'flex';
+  document.getElementById('main-no').textContent = rec.fragment_no || '—';
+  document.getElementById('main-title-el').textContent = rec.chapter_theme || '（未命名）';
+  var h = '<div class="vtabs">'
+    + '<div class="vtab' + (viewMode === 'read' ? ' on' : '') + '" onclick="setView(\'read\')">查看</div>'
+    + '<div class="vtab' + (viewMode === 'write' ? ' on' : '') + '" onclick="setView(\'write\')">✍ 写作区</div>'
+    + '<div class="vtab' + (viewMode === 'launch' ? ' on' : '') + '" onclick="setView(\'launch\')">对话启动</div>'
+    + '</div>';
+  if (viewMode === 'launch') { h += buildLauncher(rec); }
+  else if (viewMode === 'write') { h += buildWriteView(rec); }
+  else {
+    h += sdivR('基本信息');
+    h += fc('文明坐标', rec.civilization_axis);
+    if (rec.status) {
+      var so = ST.find(function(o) { return o.v === rec.status; }) || ST[0];
+      h += '<div class="fc"><div class="fc-lbl">状态</div><span class="ri-st" style="background:' + so.bg + ';color:' + so.c + ';font-size:11px;padding:3px 10px">' + rec.status + '</span></div>';
+    }
+    h += fc('器物组', rec.related_objects);
+    h += sdivR('知识背景');
+    h += fc('哲学宗教文化背景', rec.philosophical_context);
+    h += fc('工艺技术研究', rec.craft_context);
+    h += fc('艺术史与日常文化研究', rec.arthistory_context);
+    h += fc('权威文献目录', rec.academic_refs);
+    h += sdivR('藏主原创论点');
+    h += renderArgView(rec.original_arguments);
+    // 精炼论点
+    if (rec.distilled_argument) {
+      h += sdivR('精炼论点 · 当前最终版');
+      var uid = 'dv' + Math.random().toString(36).slice(2,7);
+      h += '<div class="distilled-card">'
+        + '<div class="distilled-lbl"><span>✦ 当前精炼版本</span>'
+        + '<button class="cpy-btn" onclick="cpyFld(\'' + uid + '\',this)">复制</button></div>'
+        + '<div class="distilled-content" id="' + uid + '">' + esc(rec.distilled_argument) + '</div>'
+        + '</div>';
+    }
+    h += sdivR('写作区');
+    h += fc('正文片段', rec.text);
+    h += fc('论证方向', rec.argument);
+    h += fc('跨议题关联', rec.connections);
+  }
+  document.getElementById('main-body').innerHTML = h;
+}
+
+function sdivR(t) { return '<div class="sdiv-r">' + t + '</div>'; }
+
+function fc(label, val) {
+  var uid = 'fc' + Math.random().toString(36).slice(2,7);
+  var cb = val ? '<button class="cpy-btn" onclick="cpyFld(\'' + uid + '\',this)">复制</button>' : '';
+  var content = val ? '<div class="fc-val" id="' + uid + '">' + esc(val) + '</div>' : '<div class="fc-empty">（未填写）</div>';
+  return '<div class="fc"><div class="fc-lbl">' + label + cb + '</div>' + content + '</div>';
+}
+
+function cpyFld(id, btn) {
+  var el = document.getElementById(id); if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(function() {
+    btn.classList.add('ok'); btn.textContent = '✓';
+    setTimeout(function() { btn.classList.remove('ok'); btn.textContent = '复制'; }, 1500);
+  });
+}
+
+function renderArgView(raw) {
+  if (!raw) return '<div class="fc"><div class="fc-empty">（未填写）</div></div>';
+  var versions = parseArgVersions(raw);
+  if (versions.length <= 1) {
+    return '<div class="orig-block"><div class="orig-lbl">当前版本</div><div class="fc-val">' + esc(raw) + '</div></div>';
+  }
+  return versions.map(function(v, i) {
+    var isLatest = i === versions.length - 1;
+    return '<div class="orig-block" style="' + (isLatest ? 'background:#EAF3DE;border-color:#b8d4b8' : '') + '">'
+      + '<div class="orig-lbl" style="' + (isLatest ? 'color:#27500A' : '') + '">'
+      + (isLatest ? '最新版本 · ' : '历史版本 · ') + v.label + '</div>'
+      + '<div class="fc-val">' + esc(v.content) + '</div>'
+      + (v.diff ? '<div class="arg-diff"><div class="arg-diff-lbl">与前版差异</div>' + esc(v.diff) + '</div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+function parseArgVersions(raw) {
+  var parts = raw.split(/===版本\d+===/);
+  var headers = raw.match(/===版本\d+===/g) || [];
+  if (parts.length <= 1) return [{label:'v1', content:raw.trim(), diff:''}];
+  return parts.slice(1).map(function(p, i) {
+    var lines = p.trim().split('\n');
+    var diff = ''; var content = p.trim();
+    var diffIdx = lines.findIndex(function(l) { return l.startsWith('[差异]'); });
+    if (diffIdx >= 0) { diff = lines[diffIdx].replace('[差异]','').trim(); content = lines.slice(0,diffIdx).join('\n').trim(); }
+    return {label: (headers[i] || '').replace(/===/g,'').trim(), content: content, diff: diff};
+  });
+}
+
+// ── 写作区视图 ──────────────────────────────────
+function buildWriteView(rec) {
+  return '<div style="margin-bottom:6px;font-size:11px;color:#888">在此直接撰写和修改，点「保存」即写入 Airtable。</div>'
+    + wzField('text', '正文片段', rec.text || '')
+    + wzField('argument', '论证方向', rec.argument || '')
+    + '<div class="fc"><div class="fc-lbl">跨议题关联 <button class="wz-btn" onclick="saveWzField(\'connections\')">保存</button></div>'
+    + '<textarea class="ef-inp" id="wz-connections" rows="4" oninput="wzDirty(\'connections\')">' + esc2(rec.connections || '') + '</textarea></div>';
+}
+
+function wzField(key, label, val) {
+  return '<div class="writing-zone">'
+    + '<div class="wz-hdr"><span class="wz-lbl">' + label + '</span>'
+    + '<div class="wz-acts">'
+    + '<button class="wz-btn" onclick="cpyWz(\'wz-' + key + '\')">复制</button>'
+    + '<button class="wz-btn grn" id="wz-save-' + key + '" onclick="saveWzField(\'' + key + '\')">保存</button>'
+    + '</div></div>'
+    + '<textarea class="wz-editor" id="wz-' + key + '" oninput="wzDirty(\'' + key + '\')">' + esc2(val) + '</textarea>'
+    + '<div class="wz-saved" id="wz-saved-' + key + '">✓ 已保存到 Airtable</div>'
+    + '</div>';
+}
+
+function wzDirty(key) {
+  var btn = document.getElementById('wz-save-' + key);
+  if (btn) { btn.textContent = '● 保存'; btn.style.background = '#C4912A'; }
+}
+
+function cpyWz(id) {
+  var el = document.getElementById(id);
+  if (el) navigator.clipboard.writeText(el.value).then(function() { toast('✓ 已复制'); });
+}
+
+async function saveWzField(key) {
+  if (!currentId) return;
+  var c = loadCfg();
+  var el = document.getElementById('wz-' + key);
+  if (!el) return;
+  var val = el.value;
+  try {
+    var fields = {}; fields[key] = val;
+    var res = await fetch('https://api.airtable.com/v0/' + c.base + '/' + encodeURIComponent(c.table) + '/' + currentId,
+      {method:'PATCH', headers:{'Authorization':'Bearer ' + c.token, 'Content-Type':'application/json'}, body:JSON.stringify({fields:fields})});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var rec = RECORDS.find(function(r) { return r._id === currentId; });
+    if (rec) rec[key] = val;
+    var btn = document.getElementById('wz-save-' + key);
+    if (btn) { btn.textContent = '保存'; btn.style.background = ''; }
+    var saved = document.getElementById('wz-saved-' + key);
+    if (saved) { saved.style.display = 'block'; setTimeout(function() { saved.style.display = 'none'; }, 2000); }
+    toast('✓ 已保存');
+  } catch(e) { toast('保存失败：' + e.message); }
+}
+
+function setView(v) {
+  viewMode = v;
+  var r = RECORDS.find(function(x) { return x._id === currentId; });
+  if (r) renderMain(r);
+}
+
+// ── 启动器 ──────────────────────────────────────
+function buildLauncher(rec) {
+  var c = loadCfg();
+  var prompt = buildPrompt(rec, c.framework || '');
+  return '<div class="launcher"><h3>Claude 对话启动文本</h3>'
+    + '<p>复制以下内容粘贴到新的 Claude 对话，即可继续深入研究此议题。</p>'
+    + '<div class="lbtns"><button class="lbtn lbtn-m" onclick="copyPrompt()">一键复制启动文本</button>'
+    + '<button class="lbtn lbtn-s" onclick="togglePP()">预览</button></div>'
+    + '<div class="pp" id="pp">' + esc(prompt) + '</div></div>'
+    + sdivR('各字段单独复制')
+    + fc('哲学宗教文化背景', rec.philosophical_context)
+    + fc('藏主原创论点', rec.original_arguments)
+    + fc('精炼论点', rec.distilled_argument)
+    + fc('正文片段', rec.text)
+    + fc('跨议题关联', rec.connections);
+}
+
+function togglePP() { var el = document.getElementById('pp'); if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
+
+function buildPrompt(rec, fw) {
+  var L = ['【青之寂寥·美的精神史 写作研究启动】','','【书稿框架】', fw || '（请在设置中填写）','','【当前议题】',
+    '编号：' + (rec.fragment_no || ''), '标题：' + (rec.chapter_theme || '')];
+  if (rec.chapter_sub) L.push('副题：' + rec.chapter_sub);
+  if (rec.civilization_axis) L.push('文明坐标：' + rec.civilization_axis);
+  L.push('状态：' + (rec.status || '发展中'));
+  if (rec.related_objects) L.push('','【器物组】', rec.related_objects);
+  if (rec.distilled_argument) L.push('','【精炼论点（当前最终版）】', rec.distilled_argument);
+  else if (rec.original_arguments) L.push('','【已有原创论点】', getLatestArg(rec.original_arguments));
+  if (rec.text) L.push('','【已有正文片段】', rec.text);
+  if (rec.connections) L.push('','【跨议题关联线索】', rec.connections);
+  L.push('','【本次研究方向】','（请在此说明今天想探讨的具体问题）','',
+    '请先提供此议题相关领域的专家与著作地图，等待我提问后再深入展开。知识背景请客观呈现，不做阐释。');
+  return L.join('\n');
+}
+
+function getLatestArg(raw) {
+  if (!raw) return '';
+  var versions = parseArgVersions(raw);
+  return versions[versions.length - 1] ? versions[versions.length - 1].content : raw;
+}
+
+function copyPrompt() {
+  if (!currentId) return;
+  var c = loadCfg();
+  var rec = RECORDS.find(function(r) { return r._id === currentId; });
+  if (!rec) return;
+  navigator.clipboard.writeText(buildPrompt(rec, c.framework || '')).then(function() { toast('✓ 启动文本已复制'); });
+}
+
+// ── 编辑模式 ──────────────────────────────────────
+function goEdit() {
+  var rec = RECORDS.find(function(r) { return r._id === currentId; });
+  if (!rec) return;
+  editData = {};
+  Object.keys(rec).forEach(function(k) { editData[k] = rec[k]; });
+  argVersions = rec.original_arguments ? parseArgVersions(rec.original_arguments) : [];
+  document.getElementById('ept').textContent = '编辑：' + (rec.chapter_theme || rec.fragment_no || '');
+  document.getElementById('import-box').style.display = 'block';
+  document.getElementById('import-text').value = '';
+  document.getElementById('parse-msg').style.display = 'none';
+  renderEditForm();
+  showPage('edit');
+}
+
+function newRecord() {
+  editData = {status:'碎片'}; argVersions = []; currentId = null;
+  document.getElementById('ept').textContent = '新建议题';
+  document.getElementById('import-box').style.display = 'block';
+  document.getElementById('import-text').value = '';
+  document.getElementById('parse-msg').style.display = 'none';
+  renderEditForm(); showPage('edit');
+}
+
+function cancelEdit() { showPage('main'); }
+function toggleImport() {
+  var b = document.getElementById('import-box');
+  b.style.display = b.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderEditForm() {
+  var h = '';
+  // 基本信息
+  h += '<div class="ecard"><div class="sdiv">基本信息</div>';
+  FIELDS.filter(function(f) { return f.type === 'text' || f.type === 'status'; }).forEach(function(f) {
+    if (f.type === 'status') {
+      h += '<div class="ef"><div class="ef-lbl">状态</div><div class="st-opts">';
+      ST.forEach(function(o) {
+        var sel = (editData.status || '碎片') === o.v;
+        h += '<span class="st-opt' + (sel ? ' sel' : '') + '" style="background:' + o.bg + ';color:' + o.c + ';border-color:' + (sel ? '#1A1A2E' : 'transparent') + '" onclick="setSt(\'' + o.v + '\',this)">' + o.v + '</span>';
+      });
+      h += '</div></div>';
+    } else {
+      var req = f.req ? '<span class="ef-req">必填</span>' : '';
+      h += '<div class="ef"><div class="ef-lbl">' + f.label + req + '</div>'
+        + '<input class="ef-inp" type="text" value="' + esc2(editData[f.key] || '') + '" oninput="editData[\'' + f.key + '\']=this.value" placeholder="' + f.label + '…"></div>';
+    }
+  });
+  h += '</div>';
+  // 器物组
+  h += '<div class="ecard"><div class="sdiv">器物组</div>' + kbField('related_objects', '器物组', 5) + '</div>';
+  // 知识背景
+  h += '<div class="ecard"><div class="sdiv">知识背景（从 Claude 对话复制粘贴）</div>'
+    + '<div style="font-size:10px;color:#888;margin-bottom:8px">可单独清空各字段，或选择追加/替换。</div>'
+    + kbField('philosophical_context', '哲学宗教文化背景', 10)
+    + kbField('craft_context', '工艺技术研究', 5)
+    + kbField('arthistory_context', '艺术史与日常文化研究', 5)
+    + kbField('academic_refs', '权威文献目录', 5) + '</div>';
+  // 原创论点
+  h += '<div class="ecard"><div class="sdiv">藏主原创论点 · 版本管理</div>' + renderArgEdit() + '</div>';
+  // 精炼论点
+  h += '<div class="ecard"><div class="sdiv">精炼论点 · 当前最终版</div>';
+  h += '<div style="font-size:10px;color:#888;margin-bottom:10px;line-height:1.6">点「✦ 生成精炼版」，AI 从所有历史版本中提炼核心论点。<strong>每次生成自动覆盖上一条</strong>，始终保持只有一条最新精炼版。所有历史版本在上方完整保留。</div>';
+  if (editData.distilled_argument) {
+    h += '<div class="distilled-card">'
+      + '<div class="distilled-lbl"><span>✦ 当前精炼版本</span></div>'
+      + '<div class="distilled-content">' + esc(editData.distilled_argument) + '</div>'
+      + '</div>';
+  } else {
+    h += '<div style="font-size:11px;color:#bbb;font-style:italic;padding:10px;background:#faf9f7;border-radius:6px;border:1px dashed #ddd;margin-bottom:10px">尚未生成精炼版本</div>';
+  }
+  h += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">'
+    + '<button class="btn-pri" id="distill-btn" onclick="generateDistilled()">✦ 生成精炼版</button>'
+    + '<span id="distill-status" style="font-size:11px;color:#7B4FA0;display:none">AI 正在提炼…</span>'
+    + '</div>';
+  h += '<div class="ef"><div class="ef-lbl">精炼版内容（可手动修改）</div>'
+    + '<textarea class="ef-inp" id="ef-distilled" rows="6" oninput="editData[\'distilled_argument\']=this.value" placeholder="点「生成精炼版」或手动填写…">'
+    + esc2(editData.distilled_argument || '') + '</textarea></div>';
+  h += '</div>';
+  // 写作区
+  h += '<div class="ecard"><div class="sdiv">写作区（直接撰写）</div>'
+    + '<div style="font-size:10px;color:#888;margin-bottom:8px">正文片段和论证方向可在此直接撰写，保存时写入 Airtable。</div>'
+    + efTA('text', '正文片段', 8)
+    + efTA('argument', '论证方向', 4)
+    + efTA('connections', '跨议题关联', 4) + '</div>';
+  document.getElementById('edit-form').innerHTML = h;
+}
+
+function kbField(key, label, rows) {
+  return '<div class="ef"><div class="ef-lbl">' + label
+    + '<div style="display:flex;gap:4px;margin-left:auto">'
+    + '<button class="kf-btn" onclick="kbAppend(\'' + key + '\')">追加</button>'
+    + '<button class="kf-btn dan" onclick="kbClear(\'' + key + '\')">清空</button>'
+    + '</div></div>'
+    + '<textarea class="ef-inp" id="ef-' + key + '" rows="' + rows + '" oninput="editData[\'' + key + '\']=this.value">'
+    + esc2(editData[key] || '') + '</textarea></div>';
+}
+
+function kbClear(key) {
+  if (!confirm('确认清空「' + key + '」字段？')) return;
+  editData[key] = '';
+  var el = document.getElementById('ef-' + key);
+  if (el) el.value = '';
+  toast('已清空，请点「保存」写入 Airtable');
+}
+
+function kbAppend(key) {
+  var clipboard = prompt('请粘贴要追加的内容：', '');
+  if (!clipboard) return;
+  var cur = editData[key] || '';
+  editData[key] = cur + (cur ? '\n\n---\n\n' : '') + clipboard;
+  var el = document.getElementById('ef-' + key);
+  if (el) el.value = editData[key];
+  toast('✓ 已追加，请检查后点「保存」');
+}
+
+function renderArgEdit() {
+  var h = '<div style="font-size:10px;color:#888;margin-bottom:10px;line-height:1.6">每次讨论的论点自动保留历史版本，可删除不需要的历史版本。</div>';
+  if (argVersions.length > 0) {
+    argVersions.forEach(function(v, i) {
+      var isLatest = i === argVersions.length - 1;
+      h += '<div class="arg-version' + (isLatest ? ' arg-v-new' : '') + '" id="arg-v-' + i + '">'
+        + '<div class="arg-v-hdr">'
+        + '<span class="arg-v-label">' + (isLatest ? '当前版本' : '历史版本 ' + i) + ' · ' + v.label + '</span>'
+        + (isLatest ? '' : '<button class="arg-v-del" onclick="delArgVersion(' + i + ')">删除此版本</button>')
+        + '</div>'
+        + '<div class="arg-v-content">' + esc(v.content) + '</div>'
+        + (v.diff ? '<div class="arg-diff"><div class="arg-diff-lbl">与前版差异</div>' + esc(v.diff) + '</div>' : '')
+        + '</div>';
+    });
+  }
+  h += '<div class="ef" style="margin-top:10px">'
+    + '<div class="ef-lbl" style="color:#2d6b2d">＋ 新增版本'
+    + '<button class="kf-btn" onclick="addArgVersion()" style="background:#EAF3DE;color:#27500A;border-color:#b8d4b8;margin-left:auto">确认新增版本</button>'
+    + '</div>'
+    + '<textarea class="ef-inp new-arg-input" id="new-arg-input" rows="6" placeholder="粘贴本次讨论新产生的原创论点…"></textarea>'
+    + '<div class="ef-lbl" style="margin-top:8px;justify-content:space-between">'
+    + '<span>与前版的主要差异</span>'
+    + '<button class="kf-btn" id="ai-diff-btn" onclick="aiSummarizeDiff()" style="background:#E8D5FF;color:#1A1A2E;border-color:#AFA9EC;margin-left:8px">AI 自动总结差异</button>'
+    + '</div>'
+    + '<div id="ai-diff-status" style="font-size:10px;color:#7B4FA0;margin-bottom:4px;display:none">正在分析…</div>'
+    + '<input class="ef-inp" id="new-arg-diff" type="text" placeholder="点「AI 自动总结差异」或手动填写…">'
+    + '</div>';
+  return h;
+}
+
+function addArgVersion() {
+  var content = document.getElementById('new-arg-input').value.trim();
+  if (!content) { alert('请先填写新版本内容'); return; }
+  var diff = document.getElementById('new-arg-diff').value.trim();
+  var label = 'v' + (argVersions.length + 1) + ' · ' + new Date().toLocaleDateString('zh-CN');
+  argVersions.push({label:label, content:content, diff:diff});
+  editData.original_arguments = serializeArgVersions(argVersions);
+  renderEditForm();
+  toast('✓ 新版本已添加，请点「保存」写入 Airtable');
+}
+
+function delArgVersion(idx) {
+  if (!confirm('确认删除第 ' + (idx + 1) + ' 个历史版本？')) return;
+  argVersions.splice(idx, 1);
+  editData.original_arguments = serializeArgVersions(argVersions);
+  renderEditForm();
+  toast('已删除版本');
+}
+
+function serializeArgVersions(versions) {
+  if (!versions.length) return '';
+  return versions.map(function(v, i) {
+    return '===版本' + (i + 1) + '===\n' + (v.diff ? '[差异]' + v.diff + '\n' : '') + v.content;
+  }).join('\n\n');
+}
+
+async function aiSummarizeDiff() {
+  var newContent = document.getElementById('new-arg-input').value.trim();
+  if (!newContent) { alert('请先填写新版本论点内容'); return; }
+  var oldContent = argVersions.length > 0 ? argVersions[argVersions.length - 1].content : '';
+  if (!oldContent) { document.getElementById('new-arg-diff').value = '初始版本，无前版对照。'; return; }
+  var btn = document.getElementById('ai-diff-btn');
+  var status = document.getElementById('ai-diff-status');
+  btn.disabled = true; status.style.display = 'block';
+  try {
+    var prompt = '以下是同一个写作议题的两个版本的原创论点。请用2-4句中文总结：(1)新版新增了哪些论点或角度；(2)哪些论点得到了深化或修正；(3)是否有旧版论点被调整或删除。语言简洁，不超过100字。\n\n【旧版本】\n' + oldContent + '\n\n【新版本】\n' + newContent;
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-6', max_tokens:300, messages:[{role:'user', content:prompt}]})
+    });
+    if (!res.ok) throw new Error('API 返回 ' + res.status);
+    var data = await res.json();
+    var summary = (data.content || []).map(function(c) { return c.text || ''; }).join('').trim();
+    if (summary) { document.getElementById('new-arg-diff').value = summary; toast('✓ AI 差异总结已填入'); }
+  } catch(e) { toast('AI 分析暂不可用，请手动填写'); }
+  finally { btn.disabled = false; status.style.display = 'none'; }
+}
+
+async function generateDistilled() {
+  if (!argVersions.length && !editData.original_arguments) { alert('请先添加至少一个原创论点版本'); return; }
+  var btn = document.getElementById('distill-btn');
+  var status = document.getElementById('distill-status');
+  btn.disabled = true; status.style.display = 'inline';
+  var allVersions = '';
+  if (argVersions.length) {
+    argVersions.forEach(function(v, i) { allVersions += '【版本' + (i+1) + ' · ' + v.label + '】\n' + v.content + '\n\n'; });
+  } else { allVersions = editData.original_arguments || ''; }
+  var prompt = '以下是同一个写作议题在多次讨论中积累的原创论点版本。请从中提炼出最有价值、最精炼的核心论点，生成一个简洁有力的综合版本。要求：(1)保留所有版本中最具原创性和论证力度的论点；(2)删除重复和冗余内容；(3)用清晰的层次结构呈现（可用序号或小标题）；(4)总长度控制在400字以内；(5)语言风格保持学术性，但简洁有力。\n\n以下是所有版本内容：\n\n' + allVersions;
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-6', max_tokens:1000, messages:[{role:'user', content:prompt}]})
+    });
+    if (!res.ok) throw new Error('API 返回 ' + res.status);
+    var data = await res.json();
+    var result = (data.content || []).map(function(c) { return c.text || ''; }).join('').trim();
+    if (result) {
+      editData.distilled_argument = result;
+      var el = document.getElementById('ef-distilled');
+      if (el) el.value = result;
+      toast('✓ 精炼版已生成，请检查后点「保存」写入 Airtable');
+    }
+  } catch(e) { toast('生成失败，请手动填写：' + e.message); }
+  finally { btn.disabled = false; status.style.display = 'none'; }
+}
+
+function efTA(key, label, rows) {
+  return '<div class="ef"><div class="ef-lbl">' + label + '</div>'
+    + '<textarea class="ef-inp" rows="' + (rows || 4) + '" oninput="editData[\'' + key + '\']=this.value" placeholder="' + label + '…">'
+    + esc2(editData[key] || '') + '</textarea></div>';
+}
+
+function setSt(v, el) {
+  editData.status = v;
+  document.querySelectorAll('.st-opt').forEach(function(b) { b.classList.remove('sel'); b.style.borderColor = 'transparent'; });
+  el.classList.add('sel'); el.style.borderColor = '#1A1A2E';
+}
+
+// ── 一键导入 ──────────────────────────────────────
+function parseImport() {
+  var raw = document.getElementById('import-text').value.trim();
+  if (!raw) { alert('请先粘贴文本'); return; }
+  var keyMap = {};
+  Object.keys(ALIAS).forEach(function(k) {
+    ALIAS[k].forEach(function(a) { keyMap[a.toLowerCase().replace(/[\s\/]/g, '_')] = k; });
+  });
+  var parsed = {}; var count = 0;
+  var pattern = /【([^】]+)】([\s\S]*?)(?=【[^】]+】|$)/g;
+  var m;
+  while ((m = pattern.exec(raw)) !== null) {
+    var rk = m[1].trim(); var val = m[2].trim();
+    var nk = rk.toLowerCase().replace(/[\s\/]/g, '_');
+    var mk = keyMap[nk];
+    if (!mk) { Object.keys(keyMap).forEach(function(k) { if (nk.includes(k) || k.includes(nk)) mk = keyMap[k]; }); }
+    if (val && mk) { parsed[mk] = val; count++; }
+  }
+  if (!count) { alert('未识别到字段。请确认格式：【字段名】内容'); return; }
+  // 原创论点特殊处理：作为新版本追加
+  if (parsed.original_arguments) {
+    var newArg = parsed.original_arguments;
+    delete parsed.original_arguments;
+    var isDup = argVersions.length > 0 && argVersions[argVersions.length-1].content === newArg;
+    if (!isDup) {
+      argVersions.push({label:'v' + (argVersions.length+1) + ' · 导入 · ' + new Date().toLocaleDateString('zh-CN'), content:newArg, diff:''});
+      editData.original_arguments = serializeArgVersions(argVersions);
+    }
+  }
+  // 知识字段询问追加还是替换
+  var kbKeys = ['philosophical_context','craft_context','arthistory_context','academic_refs','related_objects'];
+  kbKeys.forEach(function(k) {
+    if (parsed[k] && editData[k] && editData[k].trim()) {
+      var choice = confirm('「' + k + '」字段已有内容。\n\n确定 = 替换为新内容\n取消 = 追加到末尾');
+      if (!choice) parsed[k] = editData[k] + '\n\n---\n\n' + parsed[k];
+    }
+  });
+  Object.keys(parsed).forEach(function(k) { editData[k] = parsed[k]; });
+  renderEditForm();
+  var msg = document.getElementById('parse-msg');
+  msg.style.cssText = 'display:inline;font-size:11px;color:#2d6b2d;margin-left:4px';
+  msg.textContent = '✓ 已识别并填入 ' + count + ' 个字段';
+  document.getElementById('import-text').value = '';
+}
+
+// ── 保存 / 删除 ──────────────────────────────────
+async function saveRecord() {
+  var c = loadCfg();
+  if (!c.token || !c.base || !c.table) { toast('请先配置 Airtable'); return; }
+  var fields = {};
+  FIELDS.forEach(function(f) {
+    if (f.type === 'arg') {
+      if (editData.original_arguments) fields.original_arguments = editData.original_arguments;
+    } else if (f.type === 'distilled') {
+      var el = document.getElementById('ef-distilled');
+      var val = el ? el.value : (editData.distilled_argument || '');
+      fields.distilled_argument = val;
+    } else {
+      var v = editData[f.key] || '';
+      if (v) fields[f.key] = v;
+    }
+  });
+  if (argVersions.length) fields.original_arguments = serializeArgVersions(argVersions);
+  var isNew = !editData._id;
+  try {
+    var res, data;
+    if (isNew) {
+      res = await fetch('https://api.airtable.com/v0/' + c.base + '/' + encodeURIComponent(c.table),
+        {method:'POST', headers:{'Authorization':'Bearer ' + c.token, 'Content-Type':'application/json'}, body:JSON.stringify({fields:fields})});
+    } else {
+      res = await fetch('https://api.airtable.com/v0/' + c.base + '/' + encodeURIComponent(c.table) + '/' + editData._id,
+        {method:'PATCH', headers:{'Authorization':'Bearer ' + c.token, 'Content-Type':'application/json'}, body:JSON.stringify({fields:fields})});
+    }
+    if (!res.ok) { var e = await res.json(); throw new Error(e.error ? e.error.message : 'HTTP ' + res.status); }
+    data = await res.json();
+    currentId = data.id;
+    toast('✓ 已保存到 Airtable');
+    await loadRecords();
+    showPage('main');
+    var rec = RECORDS.find(function(r) { return r._id === currentId; });
+    if (rec) renderMain(rec);
+  } catch(e) { toast('保存失败：' + e.message); }
+}
+
+async function deleteRecord() {
+  if (!currentId) return;
+  var rec = RECORDS.find(function(r) { return r._id === currentId; });
+  if (!confirm('确认删除「' + (rec ? (rec.chapter_theme || rec.fragment_no) : '此记录') + '」？')) return;
+  var c = loadCfg();
+  try {
+    var res = await fetch('https://api.airtable.com/v0/' + c.base + '/' + encodeURIComponent(c.table) + '/' + currentId,
+      {method:'DELETE', headers:{'Authorization':'Bearer ' + c.token}});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    toast('已删除'); currentId = null;
+    document.getElementById('main-hdr').style.display = 'none';
+    document.getElementById('main-body').innerHTML = '<div class="empty-main"><h3>记录已删除</h3></div>';
+    await loadRecords();
+  } catch(e) { toast('删除失败：' + e.message); }
+}
+
+function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc2(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+(function() {
+  showPage('main');
+  var c = loadCfg();
+  if (c.token && c.base && c.table) loadRecords();
+})();
+</script>
+</body>
+</html>

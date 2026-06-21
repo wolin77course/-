@@ -655,10 +655,10 @@ function renderEditForm() {
   } else {
     h += '<div style="font-size:11px;color:#bbb;font-style:italic;padding:10px;background:#faf9f7;border-radius:6px;border:1px dashed #ddd;margin-bottom:10px">尚未生成精炼版本</div>';
   }
-  h += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">'
-    + '<button class="btn-pri" id="distill-btn" onclick="generateDistilled()">✦ 生成精炼版</button>'
-    + '<span id="distill-status" style="font-size:11px;color:#7B4FA0;display:none">AI 正在提炼…</span>'
-    + '</div>';
+  h += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">'
+    + '<button class="kf-btn" onclick="copyAllArgVersions()" style="background:#E8D5FF;color:#1A1A2E;border-color:#AFA9EC;padding:5px 12px">⎘ 复制所有版本内容 → 发给 Claude 生成精炼版</button>'
+    + '</div>'
+    + '<div style="font-size:10px;color:#aaa;margin-bottom:8px;line-height:1.6">复制后粘贴到 Claude 对话，说「请帮我生成精炼版」，将 Claude 的回复粘贴到下方文本框，再点「保存精炼版到 Airtable」。</div>';
   h += '<div class="ef"><div class="ef-lbl">精炼版内容（可手动修改）</div>'
     + '<textarea class="ef-inp" id="ef-distilled" rows="6" oninput="editData[\'distilled_argument\']=this.value" placeholder="点「生成精炼版」或手动填写…">'
     + esc2(editData.distilled_argument || '') + '</textarea></div>';
@@ -779,33 +779,47 @@ async function aiSummarizeDiff() {
   finally { btn.disabled = false; status.style.display = 'none'; }
 }
 
-async function generateDistilled() {
-  if (!argVersions.length && !editData.original_arguments) { alert('请先添加至少一个原创论点版本'); return; }
-  var btn = document.getElementById('distill-btn');
-  var status = document.getElementById('distill-status');
-  btn.disabled = true; status.style.display = 'inline';
-  var allVersions = '';
+function copyAllArgVersions() {
+  if (!argVersions.length && !editData.original_arguments) {
+    alert('请先添加至少一个原创论点版本'); return;
+  }
+  var allVersions = '请根据以下我在多次讨论中积累的原创论点版本，提炼出最有价值的核心论点，生成一个简洁有力的综合版本。要求：(1)保留所有版本中最具原创性和论证力度的论点；(2)删除重复和冗余内容；(3)用清晰的层次结构呈现（可用序号或小标题）；(4)总长度控制在400字以内；(5)语言风格保持学术性，但简洁有力。
+
+';
   if (argVersions.length) {
-    argVersions.forEach(function(v, i) { allVersions += '【版本' + (i+1) + ' · ' + v.label + '】\n' + v.content + '\n\n'; });
-  } else { allVersions = editData.original_arguments || ''; }
-  var prompt = '以下是同一个写作议题在多次讨论中积累的原创论点版本。请从中提炼出最有价值、最精炼的核心论点，生成一个简洁有力的综合版本。要求：(1)保留所有版本中最具原创性和论证力度的论点；(2)删除重复和冗余内容；(3)用清晰的层次结构呈现（可用序号或小标题）；(4)总长度控制在400字以内；(5)语言风格保持学术性，但简洁有力。\n\n以下是所有版本内容：\n\n' + allVersions;
-  try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({model:'claude-sonnet-4-6', max_tokens:1000, messages:[{role:'user', content:prompt}]})
+    argVersions.forEach(function(v, i) {
+      allVersions += '【版本' + (i+1) + ' · ' + v.label + '】
+' + v.content + '
+
+';
     });
-    if (!res.ok) throw new Error('API 返回 ' + res.status);
-    var data = await res.json();
-    var result = (data.content || []).map(function(c) { return c.text || ''; }).join('').trim();
-    if (result) {
-      editData.distilled_argument = result;
-      var el = document.getElementById('ef-distilled');
-      if (el) el.value = result;
-      toast('✓ 精炼版已生成，请检查后点「保存」写入 Airtable');
-    }
-  } catch(e) { toast('生成失败，请手动填写：' + e.message); }
-  finally { btn.disabled = false; status.style.display = 'none'; }
+  } else {
+    allVersions += editData.original_arguments || '';
+  }
+  navigator.clipboard.writeText(allVersions).then(function() {
+    toast('✓ 已复制所有版本内容，请粘贴到 Claude 对话');
+  });
+}
+
+async function saveDistilledOnly() {
+  if (!currentId) { toast('请先选择一条记录'); return; }
+  var c = loadCfg();
+  var el = document.getElementById('ef-distilled');
+  if (!el || !el.value.trim()) { alert('请先填写精炼版内容'); return; }
+  var val = el.value.trim();
+  editData.distilled_argument = val;
+  try {
+    var fields = {distilled_argument: val};
+    var res = await fetch('https://api.airtable.com/v0/' + c.base + '/' + encodeURIComponent(c.table) + '/' + currentId,
+      {method:'PATCH', headers:{'Authorization':'Bearer ' + c.token, 'Content-Type':'application/json'},
+      body: JSON.stringify({fields: fields})});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var rec = RECORDS.find(function(r) { return r._id === currentId; });
+    if (rec) rec.distilled_argument = val;
+    var msg = document.getElementById('distill-save-msg');
+    if (msg) { msg.style.display = 'inline'; setTimeout(function() { msg.style.display = 'none'; }, 2000); }
+    toast('✓ 精炼版已保存到 Airtable');
+  } catch(e) { toast('保存失败：' + e.message); }
 }
 
 function efTA(key, label, rows) {

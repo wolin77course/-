@@ -788,15 +788,10 @@ function copyAllArgVersions() {
   if (!argVersions.length && !editData.original_arguments) {
     alert('请先添加至少一个原创论点版本'); return;
   }
-  var allVersions = '请根据以下我在多次讨论中积累的原创论点版本，提炼出最有价值的核心论点，生成一个简洁有力的综合版本。要求：(1)保留所有版本中最具原创性和论证力度的论点；(2)删除重复和冗余内容；(3)用清晰的层次结构呈现（可用序号或小标题）；(4)总长度控制在400字以内；(5)语言风格保持学术性，但简洁有力。
-
-';
+  var allVersions = '请根据以下在多次讨论中积累的原创论点版本，提炼出最有价值的核心论点，生成一个简洁有力的综合版本。要求：(1)保留最具原创性和论证力度的论点；(2)删除重复内容；(3)用序号层次呈现；(4)总长度控制在400字以内；(5)语言保持学术性。\n\n';
   if (argVersions.length) {
     argVersions.forEach(function(v, i) {
-      allVersions += '【版本' + (i+1) + ' · ' + v.label + '】
-' + v.content + '
-
-';
+      allVersions += '【版本' + (i+1) + ' · ' + v.label + '】\n' + v.content + '\n\n';
     });
   } else {
     allVersions += editData.original_arguments || '';

@@ -380,8 +380,8 @@ async function loadFromAirtable(){
     while(true){
       var url = 'https://api.airtable.com/v0/'+c.base+'/'+encodeURIComponent(c.table)
         +'?pageSize=100'+(offset?'&offset='+offset:'');
-      var res = await fetch(url,{headers:{'Authorization':'Bearer '+c.token}});
-      if(!res.ok) throw new Error('Airtable 返回 HTTP '+res.status);
+      var res = await fetchWithTimeout(url,{headers:{'Authorization':'Bearer '+c.token}},15000);
+      if(!res.ok) throw new Error('HTTP '+res.status);
       var data = await res.json();
       allRecords = allRecords.concat(data.records||[]);
     if(allRecords.length===1&&data.records.length>0){console.log("Airtable fields:",Object.keys(data.records[0].fields||{}));}
@@ -421,7 +421,7 @@ async function loadFromAirtable(){
           refs:      f.refs||'',
           valuation: f.valuation||''
         },
-        research_notes: f.research_notes||
+        research_notes: f.research_notes||''
       };
     });
 
@@ -435,9 +435,31 @@ async function loadFromAirtable(){
     buildSubTabs();
     render();
   }catch(e){
+    var msg = e.message||'未知错误';
+    var hint = '';
+    if(msg.includes('401')) hint = 'Token 已失效，请重新生成并填入设置';
+    else if(msg.includes('403')) hint = 'Token 权限不足，请确认已授权此 Base';
+    else if(msg.includes('404')) hint = 'Base ID 或表名有误，请重新检查';
+    else if(msg.includes('fetch')||msg.includes('network')||msg.includes('Failed')) hint = '网络连接失败，请检查网络后重试';
+    else hint = '请检查设置或网络连接';
     document.getElementById('g-all').innerHTML =
-      '<p class="empty">加载失败：'+e.message+'<br><small>请检查设置或网络连接</small></p>';
+      '<div style="text-align:center;padding:3rem 1rem">'
+      +'<div style="font-size:32px;margin-bottom:12px">⚠️</div>'
+      +'<div style="font-size:14px;color:#555;margin-bottom:6px">加载失败：'+msg+'</div>'
+      +'<div style="font-size:12px;color:#999;margin-bottom:20px">'+hint+'</div>'
+      +'<button onclick="loadFromAirtable()" style="padding:8px 20px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;margin-right:8px">🔄 重新加载</button>'
+      +'<button onclick="openCfg()" style="padding:8px 20px;background:#f0eeea;color:#444;border:none;border-radius:8px;font-size:13px;cursor:pointer">⚙ 检查设置</button>'
+      +'</div>';
   }
+}
+
+// 带超时的 fetch 封装
+function fetchWithTimeout(url, opts, ms){
+  ms = ms || 15000;
+  return Promise.race([
+    fetch(url, opts),
+    new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('请求超时（'+ms/1000+'秒），请检查网络')); }, ms); })
+  ]);
 }
 
 function updateStats(){

@@ -659,9 +659,14 @@ function renderEditForm() {
     + '<button class="kf-btn" onclick="copyAllArgVersions()" style="background:#E8D5FF;color:#1A1A2E;border-color:#AFA9EC;padding:5px 12px">⎘ 复制所有版本内容 → 发给 Claude 生成精炼版</button>'
     + '</div>'
     + '<div style="font-size:10px;color:#aaa;margin-bottom:8px;line-height:1.6">复制后粘贴到 Claude 对话，说「请帮我生成精炼版」，将 Claude 的回复粘贴到下方文本框，再点「保存精炼版到 Airtable」。</div>';
-  h += '<div class="ef"><div class="ef-lbl">精炼版内容（可手动修改）</div>'
-    + '<textarea class="ef-inp" id="ef-distilled" rows="6" oninput="editData[\'distilled_argument\']=this.value" placeholder="点「生成精炼版」或手动填写…">'
-    + esc2(editData.distilled_argument || '') + '</textarea></div>';
+  h += '<div class="ef"><div class="ef-lbl">精炼版内容（将 Claude 生成的内容粘贴到此处）</div>'
+    + '<textarea class="ef-inp" id="ef-distilled" rows="6" oninput="editData[\'distilled_argument\']=this.value" placeholder="将 Claude 生成的精炼版内容粘贴到此处…">'
+    + esc2(editData.distilled_argument || '') + '</textarea>'
+    + '<div style="display:flex;gap:8px;margin-top:8px;align-items:center">'
+    + '<button class="btn-pri" onclick="saveDistilledOnly()" style="font-size:11px;padding:7px 16px">&#10003; 保存精炼版到 Airtable</button>'
+    + '<span id="distill-save-msg" style="font-size:11px;color:#2d6b2d;display:none">&#10003; 已保存</span>'
+    + '</div>'
+    + '</div>';
   h += '</div>';
   // 写作区
   h += '<div class="ecard"><div class="sdiv">写作区（直接撰写）</div>'

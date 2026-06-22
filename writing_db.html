@@ -142,9 +142,13 @@ textarea.ef-inp{resize:vertical}
 <div id="hdr">
   <div>
     <div id="hdr-title">美的精神史 · 写作数据库</div>
+    <div style="font-size:10px;margin-top:2px;opacity:.5">
+      <a href="index.html" style="color:#E8D5FF;text-decoration:none">← 返回藏品殿堂</a>
+    </div>
     <div id="hdr-sub">未连接 Airtable</div>
   </div>
   <div id="hdr-btns">
+    <a href="index.html" class="hbtn hbtn-g" style="text-decoration:none">← 藏品数据库</a>
     <button class="hbtn hbtn-g" onclick="showPage('cfg')">⚙ 数据库设置</button>
     <button class="hbtn hbtn-l" onclick="newRecord()">＋ 新建议题</button>
   </div>
@@ -706,17 +710,32 @@ function kbAppend(key) {
 }
 
 function renderArgEdit() {
-  var h = '<div style="font-size:10px;color:#888;margin-bottom:10px;line-height:1.6">每次讨论的论点自动保留历史版本，可删除不需要的历史版本。</div>';
+  var h = '<div style="font-size:10px;color:#888;margin-bottom:10px;line-height:1.6">每次讨论的论点自动保留历史版本。可编辑任意版本内容，或删除不需要的历史版本。</div>';
   if (argVersions.length > 0) {
     argVersions.forEach(function(v, i) {
       var isLatest = i === argVersions.length - 1;
       h += '<div class="arg-version' + (isLatest ? ' arg-v-new' : '') + '" id="arg-v-' + i + '">'
         + '<div class="arg-v-hdr">'
-        + '<span class="arg-v-label">' + (isLatest ? '当前版本' : '历史版本 ' + i) + ' · ' + v.label + '</span>'
-        + (isLatest ? '' : '<button class="arg-v-del" onclick="delArgVersion(' + i + ')">删除此版本</button>')
+        + '<span class="arg-v-label">' + (isLatest ? '当前版本' : '历史版本 ' + (i+1)) + ' · ' + v.label + '</span>'
+        + '<div style="display:flex;gap:5px">'
+        + '<button class="kf-btn" onclick="toggleArgEdit(' + i + ')" id="arg-edit-btn-' + i + '" style="background:#E8D5FF;color:#1A1A2E;border-color:#AFA9EC">编辑</button>'
+        + (isLatest ? '' : '<button class="arg-v-del" onclick="delArgVersion(' + i + ')">删除</button>')
         + '</div>'
+        + '</div>'
+        + '<div id="arg-view-' + i + '">'
         + '<div class="arg-v-content">' + esc(v.content) + '</div>'
         + (v.diff ? '<div class="arg-diff"><div class="arg-diff-lbl">与前版差异</div>' + esc(v.diff) + '</div>' : '')
+        + '</div>'
+        + '<div id="arg-edit-' + i + '" style="display:none;margin-top:8px">'
+        + '<div class="ef-lbl" style="margin-bottom:4px">编辑版本内容</div>'
+        + '<textarea class="ef-inp" id="arg-edit-content-' + i + '" rows="6" style="border-color:#AFA9EC">' + esc2(v.content) + '</textarea>'
+        + '<div class="ef-lbl" style="margin:6px 0 4px">差异说明</div>'
+        + '<input class="ef-inp" id="arg-edit-diff-' + i + '" type="text" value="' + esc2(v.diff) + '" placeholder="与前版差异说明…">'
+        + '<div style="display:flex;gap:6px;margin-top:8px">'
+        + '<button class="kf-btn" onclick="saveArgEdit(' + i + ')" style="background:#EAF3DE;color:#27500A;border-color:#b8d4b8">✓ 确认修改</button>'
+        + '<button class="kf-btn" onclick="cancelArgEdit(' + i + ')">取消</button>'
+        + '</div>'
+        + '</div>'
         + '</div>';
     });
   }
@@ -746,12 +765,117 @@ function addArgVersion() {
   toast('✓ 新版本已添加，请点「保存」写入 Airtable');
 }
 
+function toggleArgEdit(i) {
+  var view = document.getElementById('arg-view-' + i);
+  var edit = document.getElementById('arg-edit-' + i);
+  var btn = document.getElementById('arg-edit-btn-' + i);
+  if (edit.style.display === 'none') {
+    edit.style.display = 'block';
+    view.style.display = 'none';
+    btn.textContent = '取消编辑';
+  } else {
+    cancelArgEdit(i);
+  }
+}
+
+function cancelArgEdit(i) {
+  var view = document.getElementById('arg-view-' + i);
+  var edit = document.getElementById('arg-edit-' + i);
+  var btn = document.getElementById('arg-edit-btn-' + i);
+  if (view) view.style.display = 'block';
+  if (edit) edit.style.display = 'none';
+  if (btn) btn.textContent = '编辑';
+}
+
+function saveArgEdit(i) {
+  var contentEl = document.getElementById('arg-edit-content-' + i);
+  var diffEl = document.getElementById('arg-edit-diff-' + i);
+  if (!contentEl) return;
+  var newContent = contentEl.value.trim();
+  if (!newContent) { alert('内容不能为空'); return; }
+  argVersions[i].content = newContent;
+  argVersions[i].diff = diffEl ? diffEl.value.trim() : '';
+  editData.original_arguments = serializeArgVersions(argVersions);
+  renderEditForm();
+  toast('✓ 已修改，请点「保存到 Airtable」写入');
+}
+
+function editArgVersion(idx) {
+  // 隐藏所有其他编辑区
+  argVersions.forEach(function(v, i) {
+    var area = document.getElementById('arg-edit-area-' + i);
+    var display = document.getElementById('arg-content-' + i);
+    if (area) area.style.display = 'none';
+    if (display) display.style.display = 'block';
+  });
+  // 打开当前编辑区
+  var area = document.getElementById('arg-edit-area-' + idx);
+  var display = document.getElementById('arg-content-' + idx);
+  if (area) area.style.display = 'block';
+  if (display) display.style.display = 'none';
+  var ta = document.getElementById('arg-edit-ta-' + idx);
+  if (ta) { ta.value = argVersions[idx].content; ta.focus(); }
+}
+
+function cancelArgVersionEdit(idx) {
+  var area = document.getElementById('arg-edit-area-' + idx);
+  var display = document.getElementById('arg-content-' + idx);
+  if (area) area.style.display = 'none';
+  if (display) display.style.display = 'block';
+}
+
+function saveArgVersionEdit(idx) {
+  var ta = document.getElementById('arg-edit-ta-' + idx);
+  if (!ta) return;
+  var newContent = ta.value.trim();
+  if (!newContent) { alert('内容不能为空'); return; }
+  argVersions[idx].content = newContent;
+  editData.original_arguments = serializeArgVersions(argVersions);
+  var msg = document.getElementById('arg-edit-msg-' + idx);
+  if (msg) { msg.style.display = 'inline'; msg.textContent = '✓ 已修改，请点「保存到 Airtable」写入'; }
+  // 更新显示
+  var display = document.getElementById('arg-content-' + idx);
+  if (display) { display.textContent = newContent; display.style.display = 'block'; }
+  var area = document.getElementById('arg-edit-area-' + idx);
+  if (area) area.style.display = 'none';
+  toast('✓ 已修改，请点顶部「保存到 Airtable」');
+}
+
 function delArgVersion(idx) {
   if (!confirm('确认删除第 ' + (idx + 1) + ' 个历史版本？')) return;
   argVersions.splice(idx, 1);
   editData.original_arguments = serializeArgVersions(argVersions);
   renderEditForm();
   toast('已删除版本');
+}
+
+function editArgVersion(idx) {
+  // 隐藏其他编辑区
+  argVersions.forEach(function(_, i) {
+    var area = document.getElementById('arg-edit-area-' + i);
+    if (area) area.style.display = 'none';
+  });
+  var area = document.getElementById('arg-edit-area-' + idx);
+  var text = document.getElementById('arg-edit-text-' + idx);
+  if (area && text) {
+    text.value = argVersions[idx].content;
+    area.style.display = 'block';
+    text.focus();
+  }
+}
+
+function cancelArgVersionEdit(idx) {
+  var area = document.getElementById('arg-edit-area-' + idx);
+  if (area) area.style.display = 'none';
+}
+
+function saveArgVersionEdit(idx) {
+  var text = document.getElementById('arg-edit-text-' + idx);
+  if (!text || !text.value.trim()) { alert('内容不能为空'); return; }
+  argVersions[idx].content = text.value.trim();
+  editData.original_arguments = serializeArgVersions(argVersions);
+  renderEditForm();
+  toast('✓ 已修改，请点「保存到 Airtable」写入');
 }
 
 function serializeArgVersions(versions) {

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青之寂寥 · 私人殿堂</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;background:#1A1A2E;color:#E8D5FF;min-height:100vh;display:flex;flex-direction:column}
+
+/* 顶栏 */
+.hdr{padding:24px 32px 0;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.hdr-logo{display:flex;flex-direction:column;gap:4px}
+.hdr-sub{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7B6FA0;font-weight:500}
+.hdr-title{font-size:26px;font-weight:300;letter-spacing:.06em;color:#E8D5FF}
+.hdr-desc{font-size:11px;color:#7B6FA0;margin-top:4px;letter-spacing:.04em}
+
+/* 主体 */
+.main{flex:1;padding:32px;display:flex;flex-direction:column;gap:20px;max-width:900px;margin:0 auto;width:100%}
+
+/* 大入口卡片 */
+.entry-card{background:rgba(255,255,255,.05);border:1px solid rgba(232,213,255,.15);border-radius:16px;padding:28px 32px;cursor:pointer;transition:all .2s;text-decoration:none;display:block;position:relative;overflow:hidden}
+.entry-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;border-radius:16px}
+.entry-card:hover{border-color:rgba(232,213,255,.4);background:rgba(255,255,255,.08);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.entry-card-inner{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.entry-icon{font-size:36px;flex-shrink:0;width:60px;height:60px;display:flex;align-items:center;justify-content:center;background:rgba(232,213,255,.08);border-radius:12px}
+.entry-info{flex:1;min-width:200px}
+.entry-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7B6FA0;margin-bottom:6px}
+.entry-name{font-size:18px;font-weight:400;color:#E8D5FF;margin-bottom:6px;letter-spacing:.02em}
+.entry-desc{font-size:12px;color:#9B8FBB;line-height:1.7}
+.entry-meta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.entry-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(232,213,255,.1);color:#C8B5EF;border:1px solid rgba(232,213,255,.15)}
+.entry-arrow{font-size:18px;color:#4A3A6A;flex-shrink:0;transition:color .2s}
+.entry-card:hover .entry-arrow{color:#E8D5FF}
+
+/* 分隔线 */
+.section-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A3A6A;padding:0 4px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;height:1px;background:rgba(232,213,255,.08)}
+
+/* 小工具卡片行 */
+.tools-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tool-card{background:rgba(255,255,255,.04);border:1px solid rgba(232,213,255,.1);border-radius:12px;padding:18px 20px;cursor:pointer;transition:all .2s;text-decoration:none;display:block}
+.tool-card:hover{border-color:rgba(232,213,255,.25);background:rgba(255,255,255,.07)}
+.tool-icon{font-size:20px;margin-bottom:10px}
+.tool-name{font-size:13px;font-weight:500;color:#E8D5FF;margin-bottom:4px}
+.tool-desc{font-size:11px;color:#7B6FA0;line-height:1.6}
+
+/* 底部 */
+.footer{padding:20px 32px;text-align:center;font-size:10px;color:#3A2A5A;letter-spacing:.08em}
+
+/* 装饰 */
+.deco{position:fixed;top:0;right:0;width:400px;height:400px;background:radial-gradient(circle at top right,rgba(123,79,160,.15) 0%,transparent 70%);pointer-events:none;z-index:0}
+.deco2{position:fixed;bottom:0;left:0;width:300px;height:300px;background:radial-gradient(circle at bottom left,rgba(45,106,45,.08) 0%,transparent 70%);pointer-events:none;z-index:0}
+.main,.hdr{position:relative;z-index:1}
+
+/* 统计栏 */
+.stats-row{display:flex;gap:16px;flex-wrap:wrap;padding:16px 20px;background:rgba(255,255,255,.03);border:1px solid rgba(232,213,255,.08);border-radius:10px;margin-bottom:4px}
+.stat-item{display:flex;flex-direction:column;gap:2px}
+.stat-val{font-size:18px;font-weight:300;color:#E8D5FF}
+.stat-lbl{font-size:10px;color:#4A3A6A;letter-spacing:.05em}
+.stat-sep{width:1px;background:rgba(232,213,255,.08);align-self:stretch}
+</style>
+</head>
+<body>
+<div class="deco"></div>
+<div class="deco2"></div>
+
+<div class="hdr">
+  <div class="hdr-logo">
+    <div class="hdr-sub">Private Collection · 私人殿堂</div>
+    <div class="hdr-title">青之寂寥</div>
+    <div class="hdr-desc">器物的观念史与文明史 · 美的精神史写作计划</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- 统计栏（从localStorage读取缓存数据） -->
+  <div class="stats-row" id="stats-row" style="display:none">
+    <div class="stat-item">
+      <div class="stat-val" id="stat-total">—</div>
+      <div class="stat-lbl">件藏品</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-writing">—</div>
+      <div class="stat-lbl">个写作议题</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-val" id="stat-regions">8</div>
+      <div class="stat-lbl">个文明区域</div>
+    </div>
+    <div class="stat-sep"></div>
+    <div class="stat-item">
+      <div class="stat-val">SSS+</div>
+      <div class="stat-lbl">最高评级</div>
+    </div>
+  </div>
+
+  <!-- 主入口 -->
+  <div class="section-label">核心数据库</div>
+
+  <a href="index.html" class="entry-card">
+    <div class="entry-card-inner">
+      <div class="entry-icon">🏛</div>
+      <div class="entry-info">
+        <div class="entry-tag">Collection Database</div>
+        <div class="entry-name">青之寂寥 · 私人殿堂</div>
+        <div class="entry-desc">116件藏品实时数据库。陶瓷、佛造像、书画、建筑构件，横跨地中海、波斯、犍陀罗、中国、朝鲜、日本、西洋近代八个文明区域。支持搜索、地域筛选、录入新藏品、编辑现有条目及藏品研究笔记。</div>
+        <div class="entry-meta">
+          <span class="entry-badge">Airtable 实时同步</span>
+          <span class="entry-badge">研究笔记</span>
+          <span class="entry-badge">图片附件</span>
+        </div>
+      </div>
+      <div class="entry-arrow">→</div>
+    </div>
+  </a>
+
+  <a href="writing_db.html" class="entry-card">
+    <div class="entry-card-inner">
+      <div class="entry-icon">✦</div>
+      <div class="entry-info">
+        <div class="entry-tag">Writing Database</div>
+        <div class="entry-name">美的精神史 · 写作数据库</div>
+        <div class="entry-desc">以器物为证据的人类观念史写作计划。按议题组织知识背景、器物对照组、原创论点版本与正文片段。支持从 Claude 一键导入、原创论点版本管理与差异对比、精炼版生成，以及一键生成对话启动文本。</div>
+        <div class="entry-meta">
+          <span class="entry-badge">议题管理</span>
+          <span class="entry-badge">版本历史</span>
+          <span class="entry-badge">对话启动</span>
+        </div>
+      </div>
+      <div class="entry-arrow">→</div>
+    </div>
+  </a>
+
+  <!-- 工具入口 -->
+  <div class="section-label">辅助工具</div>
+
+  <div class="tools-row">
+    <a href="index.html#entry" class="tool-card" onclick="localStorage.setItem('qzj_open_entry','1');return true;">
+      <div class="tool-icon">＋</div>
+      <div class="tool-name">录入新藏品</div>
+      <div class="tool-desc">粘贴 Claude 生成的录入草稿，自动解析字段，写入 Airtable 藏品数据库。</div>
+    </a>
+    <a href="writing_db.html" class="tool-card">
+      <div class="tool-icon">◈</div>
+      <div class="tool-name">新建写作议题</div>
+      <div class="tool-desc">在写作数据库里建立新的议题记录，配置器物对照组，开始知识背景积累。</div>
+    </a>
+    <div class="tool-card" onclick="copyResearchFlow()">
+      <div class="tool-icon">⎘</div>
+      <div class="tool-name">研究工作流说明</div>
+      <div class="tool-desc">点击复制完整的「器物研究 → Claude 讨论 → 入库」标准工作流程说明。</div>
+    </div>
+  </div>
+
+  <!-- 工作流说明 -->
+  <div style="background:rgba(255,255,255,.03);border:1px solid rgba(232,213,255,.08);border-radius:10px;padding:16px 20px;font-size:11px;color:#4A3A6A;line-height:1.9">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#3A2A5A;margin-bottom:8px">标准研究工作流</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">
+      <div>① 藏品殿堂 → 打开藏品详情<br>→ 「⎘ 复制研究启动文本」</div>
+      <div>② 粘贴到 Claude 对话<br>→ 就单件藏品深入讨论</div>
+      <div>③ 复制讨论结论<br>→ 回到殿堂「✎ 编辑」→ 填入研究笔记</div>
+      <div>④ 写作议题讨论<br>→ 写作数据库「对话启动」→ 新对话继续</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">青之寂寥 · 私人殿堂 · v30 · Airtable 实时版</div>
+
+<script>
+// 从localStorage读取缓存的统计数据
+(function(){
+  try {
+    var cfg = JSON.parse(localStorage.getItem('qzj_airtable_cfg') || '{}');
+    var wCfg = JSON.parse(localStorage.getItem('qzj_wdb_v5') || '{}');
+    if (cfg.token) {
+      // 尝试获取藏品数量
+      fetch('https://api.airtable.com/v0/' + cfg.base + '/' + encodeURIComponent(cfg.table) + '?pageSize=1',
+        {headers: {'Authorization': 'Bearer ' + cfg.token}})
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        // Airtable不直接返回总数，用offset判断
+        // 简单显示已加载数
+        document.getElementById('stats-row').style.display = 'flex';
+      }).catch(function(){});
+    }
+    // 读取写作数据库缓存
+    var wCount = localStorage.getItem('qzj_wdb_count');
+    if (wCount) document.getElementById('stat-writing').textContent = wCount;
+    document.getElementById('stats-row').style.display = 'flex';
+  } catch(e) {}
+})();
+
+function copyResearchFlow() {
+  var text = '【青之寂寥研究工作流】\n\n'
+    + '① 藏品研究（单件）\n'
+    + '   藏品殿堂 → 打开藏品详情 → 点「⎘ 复制研究启动文本」\n'
+    + '   → 粘贴到 Claude 新对话 → 深入讨论\n'
+    + '   → 复制结论 → 回到殿堂「✎ 编辑此藏品」→ 填入「藏主研究笔记」→ 保存\n\n'
+    + '② 写作议题研究（跨藏品）\n'
+    + '   写作数据库 → 选择议题 → 点「对话启动」→「一键复制启动文本」\n'
+    + '   → 粘贴到 Claude 新对话 → 深入讨论\n'
+    + '   → 讨论结束 → 回到写作数据库「✎ 编辑/更新」\n'
+    + '   → 导入新知识背景 / 新增原创论点版本 / 更新精炼论点\n\n'
+    + '③ 录入新藏品\n'
+    + '   Claude 对话生成录入草稿 → 殿堂「＋ 录入新藏品」→ 粘贴解析 → 写入 Airtable';
+  navigator.clipboard.writeText(text).then(function() {
+    alert('✓ 工作流说明已复制');
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青之寂寥 · 艺术史参考文献库</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:#1a1a1a;background:#f5f4f0;font-size:14px}
+.hdr{background:#fff;border-bottom:1px solid #e8e6e0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px}
+.hdr h1{font-size:17px;font-weight:500}
+.hdr-sub{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-top:1px}
+.hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hdr-btn{font-size:11px;padding:5px 12px;border:1px solid #ddd;border-radius:20px;background:#fff;color:#666;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.hdr-btn:hover{border-color:#999;color:#1a1a1a}
+.hdr-btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.hdr-btn.primary:hover{background:#333}
+.stats{display:flex;gap:12px;flex-wrap:wrap;padding:10px 20px;background:#fff;border-bottom:1px solid #e8e6e0;font-size:11px;color:#888}
+.stat strong{color:#1a1a1a;font-size:13px;margin-right:3px}
+.filters{background:#faf9f7;border-bottom:1px solid #ece9e3;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filter-lbl{font-size:10px;color:#aaa;letter-spacing:.05em;flex-shrink:0}
+.ftag{padding:4px 10px;font-size:11px;cursor:pointer;border:1px solid #ddd;border-radius:20px;background:#fff;color:#666;white-space:nowrap;transition:all .15s}
+.ftag.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:500}
+.body{padding:16px 20px;max-width:1100px;margin:0 auto}
+.tb{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tb input{font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;outline:none;flex:1;min-width:160px}
+.tb input:focus{border-color:#1a1a1a}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:13px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative}
+.card:hover{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.card-no{position:absolute;top:8px;right:9px;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em;font-family:monospace}
+.card-type{display:inline-block;font-size:9px;font-weight:600;padding:2px 7px;border-radius:10px;margin-bottom:6px;letter-spacing:.04em}
+.type-catalog{background:#FAEEDA;color:#633806}
+.type-book{background:#EEEDFE;color:#3C3489}
+.type-paper{background:#E1F5EE;color:#085041}
+.type-digital{background:#E6F1FB;color:#042C53}
+.type-other{background:#F1EFE8;color:#444441}
+.card-title{font-size:12px;font-weight:500;margin:4px 0 3px;line-height:1.45;padding-right:38px}
+.card-author{font-size:11px;color:#888;margin-bottom:3px}
+.card-meta{font-size:10px;color:#aaa;line-height:1.5}
+.card-tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:3px}
+.ctag{font-size:9px;padding:2px 6px;border-radius:8px;font-weight:500}
+.ctag-civ{background:#FAD9A1;color:#6B3800}
+.ctag-cat{background:#E8D5FF;color:#3C3489}
+.ctag-qzj{background:#EAF3DE;color:#27500A;font-family:monospace}
+.rating-stars{font-size:11px;color:#C4912A;margin-top:4px}
+.empty{text-align:center;padding:3rem 1rem;color:#aaa;font-size:13px}
+.sec{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:#888;padding:5px 0 3px;border-bottom:1px solid #e8e6e0;margin:12px 0 7px}
+.back-btn{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:#666;cursor:pointer;padding:6px 0;border:none;background:none;margin-bottom:12px}
+.back-btn:hover{color:#1a1a1a}
+.dcard{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:13px 15px;margin-bottom:9px}
+.dcard h3{font-size:10px;font-weight:500;color:#888;letter-spacing:.07em;text-transform:uppercase;padding-bottom:5px;border-bottom:1px solid #e8e6e0;margin-bottom:7px}
+.kv{display:flex;gap:10px;padding:3px 0;border-bottom:1px solid #f0eeea}
+.kv:last-child{border-bottom:none}
+.k{font-size:10px;color:#999;min-width:72px;flex-shrink:0;padding-top:1px}
+.v{font-size:11px;font-weight:500;line-height:1.6;overflow-wrap:break-word;word-break:break-word;min-width:0}
+.notes-box{background:#f8f7f4;border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.78;margin-top:7px;color:#333;white-space:pre-wrap;overflow-wrap:break-word}
+.content-box{background:linear-gradient(135deg,#faf8f4,#f5f2ea);border:1px solid #e0d8c8;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.content-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#7a6b4e;margin-bottom:5px}
+.content-p{font-size:11px;line-height:1.85;color:#2d2a24;white-space:pre-wrap;overflow-wrap:break-word}
+.linked-box{background:#EAF3DE;border:1px solid #b8d4b8;border-radius:10px;padding:10px 14px;margin-bottom:9px}
+.linked-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#27500A;margin-bottom:6px}
+.linked-chips{display:flex;flex-wrap:wrap;gap:5px}
+.linked-chip{font-size:10px;padding:3px 9px;background:#fff;border:1px solid #b8d4b8;border-radius:10px;color:#27500A;font-family:monospace;font-weight:600;cursor:pointer}
+.linked-chip:hover{background:#d4edc4}
+.btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none}
+.btn-primary{background:#1a1a1a;color:#fff}
+.btn-secondary{background:#f0eeea;color:#444}
+.btn-primary:hover{background:#333}
+.btn-danger{background:#fde8e8;color:#8b1a1a;border:1px solid #f5c6c6}
+.loading{text-align:center;padding:3rem;color:#aaa;font-size:13px}
+.loading::after{content:'';display:inline-block;width:16px;height:16px;border:2px solid #ddd;border-top-color:#888;border-radius:50%;animation:spin .7s linear infinite;margin-left:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:20px;right:20px;background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:9999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* 录入/编辑面板 */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.overlay.open{display:flex}
+.overlay-box{background:#fff;border-radius:16px;width:min(700px,96vw);box-shadow:0 12px 48px rgba(0,0,0,.2);margin:auto;display:flex;flex-direction:column;max-height:calc(100vh - 40px)}
+.overlay-hdr{padding:20px 24px 16px;border-bottom:1px solid #e8e6e0;flex-shrink:0;display:flex;justify-content:space-between;align-items:flex-start}
+.overlay-hdr h2{font-size:15px;font-weight:600;margin-bottom:2px}
+.overlay-hdr p{font-size:12px;color:#888}
+.overlay-close{background:none;border:none;font-size:18px;color:#888;cursor:pointer;padding:0 0 0 12px;flex-shrink:0}
+.overlay-body{padding:20px 24px;overflow-y:auto;flex:1}
+.overlay-footer{padding:16px 24px;border-top:1px solid #e8e6e0;display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;flex-wrap:wrap}
+.field-row{margin-bottom:14px}
+.field-row label{display:block;font-size:11px;font-weight:600;color:#555;margin-bottom:5px;letter-spacing:.04em}
+.field-row input,.field-row textarea,.field-row select{width:100%;padding:8px 11px;border:1px solid #ddd;border-radius:8px;font-size:12px;font-family:inherit;color:#1a1a1a;outline:none;background:#fff}
+.field-row input:focus,.field-row textarea:focus,.field-row select:focus{border-color:#1a1a1a}
+.field-row textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field-row .hint{font-size:10px;color:#aaa;margin-top:4px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.field-grid{grid-template-columns:1fr}}
+.star-select{display:flex;gap:6px;margin-top:4px}
+.star-opt{font-size:18px;cursor:pointer;opacity:.3;transition:opacity .15s}
+.star-opt.on{opacity:1}
+
+/* 导入面板 */
+.import-area{background:#f0eef8;border:1px solid #AFA9EC;border-radius:10px;padding:14px;margin-bottom:14px}
+.import-area label{font-size:11px;font-weight:600;color:#3C3489;display:block;margin-bottom:6px}
+.import-area textarea{width:100%;padding:8px 10px;border:1px solid #AFA9EC;border-radius:8px;font-size:11px;font-family:monospace;min-height:100px;resize:vertical;outline:none;background:#fff}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <h1>📚 艺术史参考文献库</h1>
+    <div class="hdr-sub">青之寂寥 · 殿堂知识支撑系统</div>
+  </div>
+  <div class="hdr-right">
+    <a href="https://wolin77course.github.io/-/home.html" class="hdr-btn">← 主页</a>
+    <a href="https://wolin77course.github.io/-/index.html" class="hdr-btn">藏品殿堂</a>
+    <button class="hdr-btn primary" onclick="openEntry()">＋ 录入文献</button>
+    <button class="hdr-btn" onclick="openImport()">⬇ 从Claude导入</button>
+    <button class="hdr-btn" onclick="openCfg()">⚙ 设置</button>
+  </div>
+</div>
+
+<div class="stats" id="stats-bar">
+  <span><strong id="s-total">—</strong> 条文献</span>
+  <span><strong id="s-catalog">—</strong> 图录</span>
+  <span><strong id="s-book">—</strong> 专著</span>
+  <span><strong id="s-paper">—</strong> 论文</span>
+  <span><strong id="s-digital">—</strong> 数字资源</span>
+</div>
+
+<div class="filters" id="filter-bar">
+  <span class="filter-lbl">类型</span>
+  <span class="ftag on" data-f="type" data-v="">全部</span>
+  <span class="ftag" data-f="type" data-v="图录">图录</span>
+  <span class="ftag" data-f="type" data-v="专著">专著</span>
+  <span class="ftag" data-f="type" data-v="论文">论文</span>
+  <span class="ftag" data-f="type" data-v="数字资源">数字资源</span>
+  <span class="ftag" data-f="type" data-v="其他">其他</span>
+  <span class="filter-lbl" style="margin-left:8px">文明</span>
+  <span class="ftag on" data-f="civ" data-v="">全部</span>
+  <span class="ftag" data-f="civ" data-v="伊斯兰">伊斯兰</span>
+  <span class="ftag" data-f="civ" data-v="古希腊">古希腊</span>
+  <span class="ftag" data-f="civ" data-v="犍陀罗">犍陀罗</span>
+  <span class="ftag" data-f="civ" data-v="中国">中国</span>
+  <span class="ftag" data-f="civ" data-v="朝鲜">朝鲜</span>
+  <span class="ftag" data-f="civ" data-v="日本">日本</span>
+  <span class="ftag" data-f="civ" data-v="西洋近代">西洋近代</span>
+  <span class="filter-lbl" style="margin-left:8px">语言</span>
+  <span class="ftag on" data-f="lang" data-v="">全部</span>
+  <span class="ftag" data-f="lang" data-v="中">中文</span>
+  <span class="ftag" data-f="lang" data-v="日">日文</span>
+  <span class="ftag" data-f="lang" data-v="英">英文</span>
+  <span class="ftag" data-f="lang" data-v="韩">韩文</span>
+</div>
+
+<div class="body" id="main-body">
+  <div class="tb">
+    <input type="text" id="search-box" placeholder="搜索书名、作者、关键词、QZJ编号…" oninput="renderList()">
+  </div>
+  <div id="list-area"><div class="loading">加载中</div></div>
+</div>
+
+<!-- 详情视图 -->
+<div class="body" id="detail-body" style="display:none"></div>
+
+<!-- 录入/编辑面板 -->
+<div class="overlay" id="entry-overlay">
+  <div class="overlay-box">
+    <div class="overlay-hdr">
+      <div>
+        <h2 id="entry-title">录入新文献</h2>
+        <p>填写艺术史参考文献信息</p>
+      </div>
+      <button class="overlay-close" onclick="closeEntry()">✕</button>
+    </div>
+    <div class="overlay-body">
+      <div class="field-grid">
+        <div class="field-row">
+          <label>文献编号 *</label>
+          <input type="text" id="f-ref_no" placeholder="REF-001">
+          <div class="hint">格式：REF-001, REF-002…</div>
+        </div>
+        <div class="field-row">
+          <label>类型 *</label>
+          <select id="f-type">
+            <option value="">选择类型</option>
+            <option value="图录">图录</option>
+            <option value="专著">专著</option>
+            <option value="论文">论文</option>
+            <option value="数字资源">数字资源</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <label>书名 / 篇名 *</label>
+        <input type="text" id="f-title" placeholder="完整书名或篇名">
+      </div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>作者 / 编者</label>
+          <input type="text" id="f-author" placeholder="作者姓名">
+        </div>
+        <div class="field-row">
+          <label>出版机构</label>
+          <input type="text" id="f-publisher" placeholder="出版社 / 机构">
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>出版年份</label>
+          <input type="text" id="f-year" placeholder="2024">
+        </div>
+        <div class="field-row">
+          <label>语言</label>
+          <select id="f-language">
+            <option value="">选择语言</option>
+            <option value="中">中文</option>
+            <option value="日">日文</option>
+            <option value="英">英文</option>
+            <option value="韩">韩文</option>
+            <option value="多语">多语种</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>涉及文明</label>
+          <input type="text" id="f-civilization" placeholder="伊斯兰·日本·中国（用·分隔）">
+        </div>
+        <div class="field-row">
+          <label>涉及品类</label>
+          <input type="text" id="f-category" placeholder="陶瓷·佛造像·书画（用·分隔）">
+        </div>
+      </div>
+      <div class="field-row">
+        <label>关联藏品编号</label>
+        <input type="text" id="f-linked_qzj" placeholder="QZJ-047·QZJ-070（用·分隔）">
+        <div class="hint">填写与此文献直接相关的殿堂藏品编号</div>
+      </div>
+      <div class="field-row">
+        <label>核心内容摘要</label>
+        <textarea id="f-key_content" rows="4" placeholder="核心论点、重要章节、对殿堂研究的价值…"></textarea>
+      </div>
+      <div class="field-row">
+        <label>实体位置 / 数字链接</label>
+        <input type="text" id="f-location" placeholder="书架位置描述，或URL">
+      </div>
+      <div class="field-row">
+        <label>参考价值评级</label>
+        <div class="star-select" id="star-select">
+          <span class="star-opt" data-v="1">★</span>
+          <span class="star-opt" data-v="2">★</span>
+          <span class="star-opt" data-v="3">★</span>
+          <span class="star-opt" data-v="4">★</span>
+          <span class="star-opt" data-v="5">★</span>
+        </div>
+        <input type="hidden" id="f-rating" value="">
+      </div>
+      <div class="field-row">
+        <label>研究笔记</label>
+        <textarea id="f-notes" rows="3" placeholder="个人研究笔记、待深入方向…"></textarea>
+      </div>
+    </div>
+    <div class="overlay-footer">
+      <button class="btn btn-secondary" onclick="closeEntry()">取消</button>
+      <button class="btn btn-primary" onclick="saveEntry()">✓ 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 从Claude导入面板 -->
+<div class="overlay" id="import-overlay">
+  <div class="overlay-box">
+    <div class="overlay-hdr">
+      <div>
+        <h2>从 Claude 导入文献</h2>
+        <p>粘贴 Claude 生成的【字段名】格式内容，自动解析填入</p>
+      </div>
+      <button class="overlay-close" onclick="closeImport()">✕</button>
+    </div>
+    <div class="overlay-body">
+      <div class="import-area">
+        <label>粘贴 Claude 生成的文献录入内容</label>
+        <textarea id="import-text" placeholder="【ref_no】REF-001&#10;【type】专著&#10;【title】书名&#10;【author】作者&#10;…"></textarea>
+      </div>
+      <div id="import-preview" style="display:none">
+        <div class="sec">解析预览</div>
+        <div id="import-preview-content"></div>
+      </div>
+    </div>
+    <div class="overlay-footer">
+      <button class="btn btn-secondary" onclick="closeImport()">取消</button>
+      <button class="btn btn-secondary" onclick="parseImport()">解析预览</button>
+      <button class="btn btn-primary" id="import-confirm-btn" style="display:none" onclick="confirmImport()">✓ 确认导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 设置面板 -->
+<div class="overlay" id="cfg-overlay">
+  <div class="overlay-box" style="max-width:480px">
+    <div class="overlay-hdr">
+      <div><h2>数据库设置</h2><p>文献库使用浏览器本地存储，数据保存在此设备</p></div>
+      <button class="overlay-close" onclick="closeCfg()">✕</button>
+    </div>
+    <div class="overlay-body">
+      <div class="field-row">
+        <label>数据备份（导出JSON）</label>
+        <button class="btn btn-secondary" style="width:100%;margin-top:4px" onclick="exportData()">⬇ 导出所有文献数据</button>
+      </div>
+      <div class="field-row">
+        <label>从备份恢复（导入JSON）</label>
+        <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="font-size:12px;padding:6px">
+      </div>
+      <div class="field-row" style="margin-top:20px;padding-top:16px;border-top:1px solid #eee">
+        <label style="color:#8b1a1a">危险操作</label>
+        <button class="btn btn-danger" style="width:100%;margin-top:4px" onclick="clearAll()">清空所有文献数据</button>
+      </div>
+    </div>
+    <div class="overlay-footer">
+      <button class="btn btn-secondary" onclick="closeCfg()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── 数据存储（localStorage）──
+var STORE_KEY = 'qzj_refs_v1';
+
+function loadRefs() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveRefs(refs) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(refs));
+}
+
+// ── 当前状态 ──
+var curFilters = { type: '', civ: '', lang: '' };
+var curView = 'list'; // 'list' | 'detail'
+var curDetailId = null;
+var editingId = null;
+var importParsed = null;
+
+// ── 工具函数 ──
+function toast(msg, dur) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, dur || 2200);
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function typeClass(t) {
+  var m = {'图录':'type-catalog','专著':'type-book','论文':'type-paper','数字资源':'type-digital'};
+  return m[t] || 'type-other';
+}
+
+function stars(n) {
+  n = parseInt(n) || 0;
+  var s = '';
+  for(var i=1;i<=5;i++) s += i<=n ? '★' : '☆';
+  return s;
+}
+
+function genId() {
+  var refs = loadRefs();
+  var nums = refs.map(function(r){ return parseInt((r.ref_no||'').replace(/\D/g,''))||0; });
+  var max = nums.length ? Math.max.apply(null,nums) : 0;
+  return 'REF-' + String(max+1).padStart(3,'0');
+}
+
+// ── 渲染统计 ──
+function renderStats() {
+  var refs = loadRefs();
+  document.getElementById('s-total').textContent = refs.length;
+  document.getElementById('s-catalog').textContent = refs.filter(function(r){return r.type==='图录';}).length;
+  document.getElementById('s-book').textContent = refs.filter(function(r){return r.type==='专著';}).length;
+  document.getElementById('s-paper').textContent = refs.filter(function(r){return r.type==='论文';}).length;
+  document.getElementById('s-digital').textContent = refs.filter(function(r){return r.type==='数字资源';}).length;
+}
+
+// ── 筛选器 ──
+document.getElementById('filter-bar').addEventListener('click', function(e){
+  var el = e.target.closest('.ftag');
+  if(!el) return;
+  var f = el.dataset.f, v = el.dataset.v;
+  curFilters[f] = v;
+  document.querySelectorAll('.ftag[data-f="'+f+'"]').forEach(function(x){ x.classList.remove('on'); });
+  el.classList.add('on');
+  renderList();
+});
+
+// ── 渲染列表 ──
+function renderList() {
+  var refs = loadRefs();
+  var q = (document.getElementById('search-box').value || '').toLowerCase().trim();
+
+  var filtered = refs.filter(function(r) {
+    if(curFilters.type && r.type !== curFilters.type) return false;
+    if(curFilters.civ && !(r.civilization||'').includes(curFilters.civ)) return false;
+    if(curFilters.lang && !(r.language||'').includes(curFilters.lang)) return false;
+    if(q) {
+      var hay = [r.ref_no,r.title,r.author,r.publisher,r.civilization,r.category,r.linked_qzj,r.key_content,r.notes].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // 按编号排序
+  filtered.sort(function(a,b){
+    var na = parseInt((a.ref_no||'').replace(/\D/g,''))||999;
+    var nb = parseInt((b.ref_no||'').replace(/\D/g,''))||999;
+    return na-nb;
+  });
+
+  var area = document.getElementById('list-area');
+  if(!filtered.length) {
+    area.innerHTML = '<div class="empty">暂无文献记录<br><span style="font-size:11px;color:#bbb">点击右上角「＋ 录入文献」开始</span></div>';
+    return;
+  }
+
+  var html = '<div class="grid">';
+  filtered.forEach(function(r) {
+    var civs = (r.civilization||'').split('·').filter(Boolean);
+    var cats = (r.category||'').split('·').filter(Boolean);
+    var qzjs = (r.linked_qzj||'').split('·').filter(Boolean);
+    var tags = '';
+    civs.slice(0,2).forEach(function(c){ tags += '<span class="ctag ctag-civ">'+esc(c)+'</span>'; });
+    cats.slice(0,1).forEach(function(c){ tags += '<span class="ctag ctag-cat">'+esc(c)+'</span>'; });
+    qzjs.slice(0,2).forEach(function(q){ tags += '<span class="ctag ctag-qzj">'+esc(q)+'</span>'; });
+
+    html += '<div class="card" onclick="showDetail(\''+esc(r.ref_no)+'\')">'
+      + '<div class="card-no">'+esc(r.ref_no)+'</div>'
+      + '<span class="card-type '+typeClass(r.type)+'">'+esc(r.type||'—')+'</span>'
+      + '<div class="card-title">'+esc(r.title||'（无标题）')+'</div>'
+      + '<div class="card-author">'+esc(r.author||'—')+'</div>'
+      + '<div class="card-meta">'+(r.publisher?esc(r.publisher)+' ':'')+esc(r.year||'')+(r.language?' · '+esc(r.language):'')+'</div>'
+      + (r.rating ? '<div class="rating-stars">'+stars(r.rating)+'</div>' : '')
+      + (tags ? '<div class="card-tags">'+tags+'</div>' : '')
+      + '</div>';
+  });
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+// ── 详情视图 ──
+function showDetail(refNo) {
+  var refs = loadRefs();
+  var r = refs.find(function(x){ return x.ref_no === refNo; });
+  if(!r) return;
+  curView = 'detail';
+  curDetailId = refNo;
+  document.getElementById('main-body').style.display = 'none';
+  var db = document.getElementById('detail-body');
+  db.style.display = 'block';
+
+  var civs = (r.civilization||'').split('·').filter(Boolean);
+  var cats = (r.category||'').split('·').filter(Boolean);
+  var qzjs = (r.linked_qzj||'').split('·').filter(Boolean);
+
+  var chips = qzjs.map(function(q){
+    return '<span class="linked-chip" onclick="searchQZJ(\''+esc(q)+'\')">'+esc(q)+'</span>';
+  }).join('');
+
+  var civTags = civs.map(function(c){ return '<span class="ctag ctag-civ" style="font-size:11px;padding:3px 9px">'+esc(c)+'</span>'; }).join(' ');
+  var catTags = cats.map(function(c){ return '<span class="ctag ctag-cat" style="font-size:11px;padding:3px 9px">'+esc(c)+'</span>'; }).join(' ');
+
+  db.innerHTML = '<button class="back-btn" onclick="backToList()">← 返回文献库</button>'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+    + '<div><span style="font-size:10px;font-family:monospace;font-weight:700;color:#888;background:#f0eee9;border:1px solid #ddd;border-radius:6px;padding:3px 9px">'+esc(r.ref_no)+'</span> <span class="card-type '+typeClass(r.type)+'" style="font-size:10px;padding:3px 9px">'+esc(r.type||'—')+'</span>'+(r.rating?'<span style="color:#C4912A;font-size:14px;margin-left:8px">'+stars(r.rating)+'</span>':'')+'</div>'
+    + '<div style="display:flex;gap:6px"><button class="btn btn-secondary" style="font-size:12px;padding:6px 14px" onclick="editRef(\''+esc(r.ref_no)+'\')">✎ 编辑</button><button class="btn btn-danger" style="font-size:12px;padding:6px 14px" onclick="deleteRef(\''+esc(r.ref_no)+'\')">删除</button></div>'
+    + '</div>'
+
+    + '<div class="dcard"><h3>基本信息</h3>'
+    + kv('书名 / 篇名', r.title)
+    + kv('作者 / 编者', r.author)
+    + kv('出版机构', r.publisher)
+    + kv('出版年份', r.year)
+    + kv('语言', r.language)
+    + '</div>'
+
+    + (civTags||catTags ? '<div class="dcard"><h3>涉及范围</h3>'+(civTags?'<div style="margin-bottom:6px"><span style="font-size:10px;color:#aaa;margin-right:6px">文明</span>'+civTags+'</div>':'')+(catTags?'<div><span style="font-size:10px;color:#aaa;margin-right:6px">品类</span>'+catTags+'</div>':'')+'</div>' : '')
+
+    + (chips ? '<div class="linked-box"><div class="linked-lbl">关联殿堂藏品</div><div class="linked-chips">'+chips+'</div></div>' : '')
+
+    + (r.key_content ? '<div class="content-box"><div class="content-lbl">◈ 核心内容摘要</div><div class="content-p">'+esc(r.key_content)+'</div></div>' : '')
+
+    + (r.location ? '<div class="dcard"><h3>位置 / 链接</h3><div style="font-size:12px;word-break:break-all">'+esc(r.location)+'</div></div>' : '')
+
+    + (r.notes ? '<div class="dcard"><h3>研究笔记</h3><div class="notes-box">'+esc(r.notes)+'</div></div>' : '');
+}
+
+function kv(k, v) {
+  if(!v) return '';
+  return '<div class="kv"><span class="k">'+k+'</span><span class="v">'+esc(v)+'</span></div>';
+}
+
+function backToList() {
+  curView = 'list';
+  curDetailId = null;
+  document.getElementById('detail-body').style.display = 'none';
+  document.getElementById('main-body').style.display = 'block';
+  renderList();
+}
+
+function searchQZJ(q) {
+  backToList();
+  document.getElementById('search-box').value = q;
+  renderList();
+}
+
+// ── 录入 / 编辑 ──
+function openEntry() {
+  editingId = null;
+  document.getElementById('entry-title').textContent = '录入新文献';
+  clearForm();
+  document.getElementById('f-ref_no').value = genId();
+  document.getElementById('entry-overlay').classList.add('open');
+}
+
+function editRef(refNo) {
+  var refs = loadRefs();
+  var r = refs.find(function(x){ return x.ref_no === refNo; });
+  if(!r) return;
+  editingId = refNo;
+  document.getElementById('entry-title').textContent = '编辑文献 · ' + refNo;
+  document.getElementById('f-ref_no').value = r.ref_no || '';
+  document.getElementById('f-type').value = r.type || '';
+  document.getElementById('f-title').value = r.title || '';
+  document.getElementById('f-author').value = r.author || '';
+  document.getElementById('f-publisher').value = r.publisher || '';
+  document.getElementById('f-year').value = r.year || '';
+  document.getElementById('f-language').value = r.language || '';
+  document.getElementById('f-civilization').value = r.civilization || '';
+  document.getElementById('f-category').value = r.category || '';
+  document.getElementById('f-linked_qzj').value = r.linked_qzj || '';
+  document.getElementById('f-key_content').value = r.key_content || '';
+  document.getElementById('f-location').value = r.location || '';
+  document.getElementById('f-rating').value = r.rating || '';
+  document.getElementById('f-notes').value = r.notes || '';
+  updateStars(parseInt(r.rating)||0);
+  document.getElementById('entry-overlay').classList.add('open');
+}
+
+function clearForm() {
+  ['ref_no','type','title','author','publisher','year','language','civilization','category','linked_qzj','key_content','location','rating','notes'].forEach(function(k){
+    var el = document.getElementById('f-'+k);
+    if(el) el.value = '';
+  });
+  updateStars(0);
+}
+
+function closeEntry() {
+  document.getElementById('entry-overlay').classList.remove('open');
+  editingId = null;
+}
+
+function saveEntry() {
+  var refNo = (document.getElementById('f-ref_no').value || '').trim();
+  var title = (document.getElementById('f-title').value || '').trim();
+  if(!refNo || !title) { toast('请填写文献编号和书名'); return; }
+
+  var refs = loadRefs();
+  var r = {
+    ref_no: refNo,
+    type: document.getElementById('f-type').value,
+    title: title,
+    author: document.getElementById('f-author').value.trim(),
+    publisher: document.getElementById('f-publisher').value.trim(),
+    year: document.getElementById('f-year').value.trim(),
+    language: document.getElementById('f-language').value,
+    civilization: document.getElementById('f-civilization').value.trim(),
+    category: document.getElementById('f-category').value.trim(),
+    linked_qzj: document.getElementById('f-linked_qzj').value.trim(),
+    key_content: document.getElementById('f-key_content').value.trim(),
+    location: document.getElementById('f-location').value.trim(),
+    rating: document.getElementById('f-rating').value,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+
+  if(editingId) {
+    var idx = refs.findIndex(function(x){ return x.ref_no === editingId; });
+    if(idx >= 0) refs[idx] = r; else refs.push(r);
+    toast('✓ 已更新 ' + refNo);
+  } else {
+    var exists = refs.find(function(x){ return x.ref_no === refNo; });
+    if(exists) { toast('编号已存在，请修改编号'); return; }
+    refs.push(r);
+    toast('✓ 已录入 ' + refNo);
+  }
+
+  saveRefs(refs);
+  closeEntry();
+  renderStats();
+  if(curView === 'detail' && curDetailId === (editingId || refNo)) {
+    showDetail(refNo);
+  } else {
+    renderList();
+  }
+}
+
+function deleteRef(refNo) {
+  if(!confirm('确认删除「'+refNo+'」？此操作不可恢复。\n\n确定 = 删除\n取消 = 保留')) return;
+  var refs = loadRefs().filter(function(r){ return r.ref_no !== refNo; });
+  saveRefs(refs);
+  toast('已删除 ' + refNo);
+  renderStats();
+  backToList();
+}
+
+// ── 星级选择 ──
+document.getElementById('star-select').addEventListener('click', function(e){
+  var el = e.target.closest('.star-opt');
+  if(!el) return;
+  updateStars(parseInt(el.dataset.v));
+});
+
+function updateStars(n) {
+  document.getElementById('f-rating').value = n || '';
+  document.querySelectorAll('.star-opt').forEach(function(el){
+    el.classList.toggle('on', parseInt(el.dataset.v) <= n);
+  });
+}
+
+// ── 从Claude导入 ──
+function openImport() {
+  document.getElementById('import-text').value = '';
+  document.getElementById('import-preview').style.display = 'none';
+  document.getElementById('import-confirm-btn').style.display = 'none';
+  importParsed = null;
+  document.getElementById('import-overlay').classList.add('open');
+}
+
+function closeImport() {
+  document.getElementById('import-overlay').classList.remove('open');
+  importParsed = null;
+}
+
+var KEY_MAP = {
+  'ref_no':['文献编号','编号'],
+  'type':['类型'],
+  'title':['书名','篇名','书名/篇名','标题'],
+  'author':['作者','编者','作者/编者'],
+  'publisher':['出版机构','出版社'],
+  'year':['出版年份','年份'],
+  'language':['语言'],
+  'civilization':['涉及文明','文明'],
+  'category':['涉及品类','品类'],
+  'linked_qzj':['关联藏品编号','关联藏品','关联qzj'],
+  'key_content':['核心内容摘要','核心内容','摘要'],
+  'location':['实体位置','位置','链接'],
+  'rating':['参考价值评级','评级'],
+  'notes':['研究笔记','笔记']
+};
+
+function parseImport() {
+  var raw = document.getElementById('import-text').value.trim();
+  if(!raw) { toast('请先粘贴内容'); return; }
+
+  var fields = {};
+  var pattern = /【([^】]+)】([\s\S]*?)(?=【[^】]+】|$)/g;
+  var match;
+  while((match = pattern.exec(raw)) !== null) {
+    var rawKey = match[1].trim().toLowerCase();
+    var val = match[2].trim();
+    var mapped = rawKey;
+    for(var k in KEY_MAP) {
+      if(k === rawKey || KEY_MAP[k].map(function(s){return s.toLowerCase();}).indexOf(rawKey) >= 0) {
+        mapped = k; break;
+      }
+    }
+    fields[mapped] = val;
+  }
+
+  if(!fields.title && !fields.ref_no) {
+    toast('解析失败：未识别到字段，请确认格式为【字段名】内容');
+    return;
+  }
+
+  if(!fields.ref_no) fields.ref_no = genId();
+  importParsed = fields;
+
+  var html = '';
+  for(var k in fields) {
+    if(fields[k]) html += '<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(fields[k].substring(0,120))+(fields[k].length>120?'…':'')+'</span></div>';
+  }
+  document.getElementById('import-preview-content').innerHTML = '<div class="dcard">'+html+'</div>';
+  document.getElementById('import-preview').style.display = 'block';
+  document.getElementById('import-confirm-btn').style.display = 'inline-flex';
+}
+
+function confirmImport() {
+  if(!importParsed) return;
+  var refs = loadRefs();
+  var exists = refs.find(function(r){ return r.ref_no === importParsed.ref_no; });
+  if(exists) {
+    var idx = refs.findIndex(function(r){ return r.ref_no === importParsed.ref_no; });
+    refs[idx] = Object.assign(refs[idx], importParsed);
+    toast('✓ 已更新 ' + importParsed.ref_no);
+  } else {
+    refs.push(importParsed);
+    toast('✓ 已导入 ' + importParsed.ref_no);
+  }
+  saveRefs(refs);
+  closeImport();
+  renderStats();
+  renderList();
+}
+
+// ── 设置 ──
+function openCfg() { document.getElementById('cfg-overlay').classList.add('open'); }
+function closeCfg() { document.getElementById('cfg-overlay').classList.remove('open'); }
+
+function exportData() {
+  var refs = loadRefs();
+  var blob = new Blob([JSON.stringify(refs, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'qzj_refs_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  toast('✓ 已导出 ' + refs.length + ' 条文献数据');
+}
+
+function importData(e) {
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var data = JSON.parse(ev.target.result);
+      if(!Array.isArray(data)) throw new Error('格式错误');
+      saveRefs(data);
+      renderStats();
+      renderList();
+      toast('✓ 已恢复 ' + data.length + ' 条文献数据');
+    } catch(err) {
+      toast('导入失败：JSON格式错误');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearAll() {
+  if(!confirm('确认清空所有文献数据？此操作不可恢复。\n\n确定 = 清空\n取消 = 保留')) return;
+  saveRefs([]);
+  renderStats();
+  renderList();
+  toast('已清空所有数据');
+}
+
+// ── 初始化 ──
+renderStats();
+renderList();
+</script>
+</body>
+</html>

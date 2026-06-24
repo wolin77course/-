@@ -25,7 +25,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 .tb{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .tb input{font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;outline:none;flex:1;min-width:160px}
 .tb input:focus{border-color:#1a1a1a}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:13px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative}
 .card:hover{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.07)}
 .card-no{position:absolute;top:8px;right:9px;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em;font-family:monospace}
@@ -39,10 +39,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 .card-author{font-size:11px;color:#888;margin-bottom:3px}
 .card-meta{font-size:10px;color:#aaa;line-height:1.5}
 .card-tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:3px}
+.card-snippet{font-size:10px;color:#999;margin-top:5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ctag{font-size:9px;padding:2px 6px;border-radius:8px;font-weight:500}
 .ctag-civ{background:#FAD9A1;color:#6B3800}
 .ctag-cat{background:#E8D5FF;color:#3C3489}
 .ctag-qzj{background:#EAF3DE;color:#27500A;font-family:monospace}
+.ctag-ch{background:#FAECE7;color:#4A1B0C}
 .rating-stars{font-size:11px;color:#C4912A;margin-top:4px}
 .empty{text-align:center;padding:3rem 1rem;color:#aaa;font-size:13px}
 .sec{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:#888;padding:5px 0 3px;border-bottom:1px solid #e8e6e0;margin:12px 0 7px}
@@ -54,15 +56,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 .kv:last-child{border-bottom:none}
 .k{font-size:10px;color:#999;min-width:72px;flex-shrink:0;padding-top:1px}
 .v{font-size:11px;font-weight:500;line-height:1.6;overflow-wrap:break-word;word-break:break-word;min-width:0}
-.notes-box{background:#f8f7f4;border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.78;margin-top:7px;color:#333;white-space:pre-wrap;overflow-wrap:break-word}
-.content-box{background:linear-gradient(135deg,#faf8f4,#f5f2ea);border:1px solid #e0d8c8;border-radius:10px;padding:12px 14px;margin-bottom:9px}
-.content-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#7a6b4e;margin-bottom:5px}
-.content-p{font-size:11px;line-height:1.85;color:#2d2a24;white-space:pre-wrap;overflow-wrap:break-word}
+.longtext-box{background:#f8f7f4;border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.85;margin-top:0;color:#333;white-space:pre-wrap;overflow-wrap:break-word}
+/* 各分区色块 */
+.box-summary{background:linear-gradient(135deg,#faf8f4,#f5f2ea);border:1px solid #e0d8c8;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.box-summary .box-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#7a6b4e;margin-bottom:6px}
+.box-arguments{background:#F0EEFE;border:1px solid #C8C2F0;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.box-arguments .box-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#3C3489;margin-bottom:6px}
+.box-chapters{background:#FFF8F0;border:1px solid #F0D8B8;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.box-chapters .box-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#8B4A0A;margin-bottom:6px}
+.box-writing{background:#EAF3DE;border:1px solid #b8d4b8;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.box-writing .box-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#27500A;margin-bottom:6px}
+.box-quotes{background:#F8F4FF;border:1px solid #D0C0F0;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.box-quotes .box-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#4A2080;margin-bottom:6px}
+.box-verify{background:#FFF4E6;border:1px solid #F0D080;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.box-verify .box-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#8B6000;margin-bottom:6px}
+.box-notes{background:#f8f7f4;border:1px solid #e8e4de;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.box-notes .box-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#666;margin-bottom:6px}
+.box-p{font-size:11px;line-height:1.85;color:#2d2a24;white-space:pre-wrap;overflow-wrap:break-word}
 .linked-box{background:#EAF3DE;border:1px solid #b8d4b8;border-radius:10px;padding:10px 14px;margin-bottom:9px}
 .linked-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#27500A;margin-bottom:6px}
 .linked-chips{display:flex;flex-wrap:wrap;gap:5px}
 .linked-chip{font-size:10px;padding:3px 9px;background:#fff;border:1px solid #b8d4b8;border-radius:10px;color:#27500A;font-family:monospace;font-weight:600;cursor:pointer}
 .linked-chip:hover{background:#d4edc4}
+.writing-chip{font-size:10px;padding:3px 9px;background:#fff;border:1px solid #C8C2F0;border-radius:10px;color:#3C3489;font-weight:500;display:inline-block;margin:2px 3px 2px 0}
 .btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none}
 .btn-primary{background:#1a1a1a;color:#fff}
 .btn-secondary{background:#f0eeea;color:#444}
@@ -73,8 +89,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 @keyframes spin{to{transform:rotate(360deg)}}
 #toast{position:fixed;bottom:20px;right:20px;background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:9999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
 #toast.show{opacity:1;transform:translateY(0)}
-
-/* 录入/编辑面板 */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
 .overlay.open{display:flex}
 .overlay-box{background:#fff;border-radius:16px;width:min(700px,96vw);box-shadow:0 12px 48px rgba(0,0,0,.2);margin:auto;display:flex;flex-direction:column;max-height:calc(100vh - 40px)}
@@ -95,11 +109,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 .star-select{display:flex;gap:6px;margin-top:4px}
 .star-opt{font-size:18px;cursor:pointer;opacity:.3;transition:opacity .15s}
 .star-opt.on{opacity:1}
-
-/* 导入面板 */
 .import-area{background:#f0eef8;border:1px solid #AFA9EC;border-radius:10px;padding:14px;margin-bottom:14px}
 .import-area label{font-size:11px;font-weight:600;color:#3C3489;display:block;margin-bottom:6px}
-.import-area textarea{width:100%;padding:8px 10px;border:1px solid #AFA9EC;border-radius:8px;font-size:11px;font-family:monospace;min-height:100px;resize:vertical;outline:none;background:#fff}
+.import-area textarea{width:100%;padding:8px 10px;border:1px solid #AFA9EC;border-radius:8px;font-size:11px;font-family:monospace;min-height:120px;resize:vertical;outline:none;background:#fff}
+.import-hint{background:#fff;border:1px solid #e8e6e0;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.75;color:#666}
+.import-hint code{background:#f0eee9;padding:1px 5px;border-radius:4px;font-family:monospace;font-size:10px;color:#444}
+.field-sec{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#888;padding:10px 0 6px;border-bottom:1px solid #f0eeea;margin-bottom:10px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -153,12 +168,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 
 <div class="body" id="main-body">
   <div class="tb">
-    <input type="text" id="search-box" placeholder="搜索书名、作者、关键词、QZJ编号…" oninput="renderList()">
+    <input type="text" id="search-box" placeholder="搜索书名、作者、关键词、QZJ编号、写作章节…" oninput="renderList()">
   </div>
   <div id="list-area"><div class="loading">加载中</div></div>
 </div>
 
-<!-- 详情视图 -->
 <div class="body" id="detail-body" style="display:none"></div>
 
 <!-- 录入/编辑面板 -->
@@ -167,16 +181,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
     <div class="overlay-hdr">
       <div>
         <h2 id="entry-title">录入新文献</h2>
-        <p>填写艺术史参考文献信息</p>
+        <p>填写参考文献信息与研究笔记</p>
       </div>
       <button class="overlay-close" onclick="closeEntry()">✕</button>
     </div>
     <div class="overlay-body">
+
+      <div class="field-sec">基本信息</div>
       <div class="field-grid">
         <div class="field-row">
           <label>文献编号 *</label>
           <input type="text" id="f-ref_no" placeholder="REF-001">
-          <div class="hint">格式：REF-001, REF-002…</div>
         </div>
         <div class="field-row">
           <label>类型 *</label>
@@ -207,7 +222,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
       <div class="field-grid">
         <div class="field-row">
           <label>出版年份</label>
-          <input type="text" id="f-year" placeholder="2024">
+          <input type="text" id="f-year" placeholder="2015">
         </div>
         <div class="field-row">
           <label>语言</label>
@@ -233,16 +248,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
       </div>
       <div class="field-row">
         <label>关联藏品编号</label>
-        <input type="text" id="f-linked_qzj" placeholder="QZJ-047·QZJ-070（用·分隔）">
-        <div class="hint">填写与此文献直接相关的殿堂藏品编号</div>
-      </div>
-      <div class="field-row">
-        <label>核心内容摘要</label>
-        <textarea id="f-key_content" rows="4" placeholder="核心论点、重要章节、对殿堂研究的价值…"></textarea>
+        <input type="text" id="f-linked_qzj" placeholder="QZJ-107·QZJ-116（用·分隔）">
       </div>
       <div class="field-row">
         <label>实体位置 / 数字链接</label>
-        <input type="text" id="f-location" placeholder="书架位置描述，或URL">
+        <input type="text" id="f-location" placeholder="书架位置，或URL">
       </div>
       <div class="field-row">
         <label>参考价值评级</label>
@@ -255,10 +265,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
         </div>
         <input type="hidden" id="f-rating" value="">
       </div>
+
+      <div class="field-sec">研究内容</div>
+      <div class="field-row">
+        <label>内容概述</label>
+        <textarea id="f-summary" rows="3" placeholder="这本书是什么，核心研究方法，覆盖范围…"></textarea>
+      </div>
+      <div class="field-row">
+        <label>章节地图</label>
+        <textarea id="f-chapter_map" rows="4" placeholder="各章节标题与核心内容，对照目录填写…"></textarea>
+      </div>
+      <div class="field-row">
+        <label>核心学术论点</label>
+        <textarea id="f-arguments" rows="4" placeholder="本书最重要的学术贡献与核心论点…"></textarea>
+      </div>
+
+      <div class="field-sec">与写作的关联</div>
+      <div class="field-row">
+        <label>关联写作章节</label>
+        <input type="text" id="f-writing_links" placeholder="第三章·第五章·尾章（用·分隔）">
+        <div class="hint">对应《美的精神史》哪些章节</div>
+      </div>
+      <div class="field-row">
+        <label>写作关联说明</label>
+        <textarea id="f-writing_notes" rows="4" placeholder="本书如何支撑各写作议题，具体论点的对应关系…"></textarea>
+      </div>
+      <div class="field-row">
+        <label>可引用原文段落</label>
+        <textarea id="f-quotations" rows="5" placeholder="关键原文（附页码或章节位置）&#10;&#10;例：「The Salğūq Empire's degeneration is paradoxically paralleled...」— 第2章塞尔柱段，约p.24"></textarea>
+      </div>
+      <div class="field-row">
+        <label>待核实 / 待深入</label>
+        <textarea id="f-to_verify" rows="3" placeholder="需要对照实体书确认的信息，或待深入研究的方向…"></textarea>
+      </div>
+
+      <div class="field-sec">个人笔记</div>
       <div class="field-row">
         <label>研究笔记</label>
-        <textarea id="f-notes" rows="3" placeholder="个人研究笔记、待深入方向…"></textarea>
+        <textarea id="f-notes" rows="3" placeholder="个人感想、阅读心得、其他备注…"></textarea>
       </div>
+
     </div>
     <div class="overlay-footer">
       <button class="btn btn-secondary" onclick="closeEntry()">取消</button>
@@ -273,14 +319,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
     <div class="overlay-hdr">
       <div>
         <h2>从 Claude 导入文献</h2>
-        <p>粘贴 Claude 生成的【字段名】格式内容，自动解析填入</p>
+        <p>粘贴 Claude 生成的【字段名】格式内容，自动解析</p>
       </div>
       <button class="overlay-close" onclick="closeImport()">✕</button>
     </div>
     <div class="overlay-body">
+      <div class="import-hint">
+        支持字段名：<code>文献编号</code> <code>类型</code> <code>书名</code> <code>作者</code> <code>出版机构</code> <code>出版年份</code> <code>语言</code> <code>涉及文明</code> <code>涉及品类</code> <code>关联藏品编号</code> <code>实体位置</code> <code>评级</code> <code>内容概述</code> <code>章节地图</code> <code>核心论点</code> <code>关联章节</code> <code>写作关联</code> <code>可引原文</code> <code>待核实</code> <code>研究笔记</code>
+      </div>
       <div class="import-area">
         <label>粘贴 Claude 生成的文献录入内容</label>
-        <textarea id="import-text" placeholder="【ref_no】REF-001&#10;【type】专著&#10;【title】书名&#10;【author】作者&#10;…"></textarea>
+        <textarea id="import-text" placeholder="【文献编号】REF-002&#10;【类型】专著&#10;【书名】Rayy: From Its Origins to the Mongol Invasion&#10;【作者】Rocco Rante&#10;…"></textarea>
       </div>
       <div id="import-preview" style="display:none">
         <div class="sec">解析预览</div>
@@ -325,8 +374,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 <div id="toast"></div>
 
 <script>
-// ── 数据存储（localStorage）──
-var STORE_KEY = 'qzj_refs_v1';
+var STORE_KEY = 'qzj_refs_v2';
 
 function loadRefs() {
   try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch(e) { return []; }
@@ -335,14 +383,12 @@ function saveRefs(refs) {
   localStorage.setItem(STORE_KEY, JSON.stringify(refs));
 }
 
-// ── 当前状态 ──
 var curFilters = { type: '', civ: '', lang: '' };
-var curView = 'list'; // 'list' | 'detail'
+var curView = 'list';
 var curDetailId = null;
 var editingId = null;
 var importParsed = null;
 
-// ── 工具函数 ──
 function toast(msg, dur) {
   var t = document.getElementById('toast');
   t.textContent = msg;
@@ -371,7 +417,6 @@ function genId() {
   return 'REF-' + String(max+1).padStart(3,'0');
 }
 
-// ── 渲染统计 ──
 function renderStats() {
   var refs = loadRefs();
   document.getElementById('s-total').textContent = refs.length;
@@ -381,7 +426,6 @@ function renderStats() {
   document.getElementById('s-digital').textContent = refs.filter(function(r){return r.type==='数字资源';}).length;
 }
 
-// ── 筛选器 ──
 document.getElementById('filter-bar').addEventListener('click', function(e){
   var el = e.target.closest('.ftag');
   if(!el) return;
@@ -392,7 +436,6 @@ document.getElementById('filter-bar').addEventListener('click', function(e){
   renderList();
 });
 
-// ── 渲染列表 ──
 function renderList() {
   var refs = loadRefs();
   var q = (document.getElementById('search-box').value || '').toLowerCase().trim();
@@ -402,13 +445,14 @@ function renderList() {
     if(curFilters.civ && !(r.civilization||'').includes(curFilters.civ)) return false;
     if(curFilters.lang && !(r.language||'').includes(curFilters.lang)) return false;
     if(q) {
-      var hay = [r.ref_no,r.title,r.author,r.publisher,r.civilization,r.category,r.linked_qzj,r.key_content,r.notes].join(' ').toLowerCase();
+      var hay = [r.ref_no,r.title,r.author,r.publisher,r.civilization,r.category,
+                 r.linked_qzj,r.summary,r.arguments,r.writing_links,r.writing_notes,
+                 r.quotations,r.to_verify,r.notes,r.chapter_map].join(' ').toLowerCase();
       if(!hay.includes(q)) return false;
     }
     return true;
   });
 
-  // 按编号排序
   filtered.sort(function(a,b){
     var na = parseInt((a.ref_no||'').replace(/\D/g,''))||999;
     var nb = parseInt((b.ref_no||'').replace(/\D/g,''))||999;
@@ -426,11 +470,14 @@ function renderList() {
     var civs = (r.civilization||'').split('·').filter(Boolean);
     var cats = (r.category||'').split('·').filter(Boolean);
     var qzjs = (r.linked_qzj||'').split('·').filter(Boolean);
+    var chs  = (r.writing_links||'').split('·').filter(Boolean);
     var tags = '';
     civs.slice(0,2).forEach(function(c){ tags += '<span class="ctag ctag-civ">'+esc(c)+'</span>'; });
     cats.slice(0,1).forEach(function(c){ tags += '<span class="ctag ctag-cat">'+esc(c)+'</span>'; });
     qzjs.slice(0,2).forEach(function(q){ tags += '<span class="ctag ctag-qzj">'+esc(q)+'</span>'; });
+    chs.slice(0,2).forEach(function(c){ tags += '<span class="ctag ctag-ch">'+esc(c)+'</span>'; });
 
+    var snippet = r.summary || r.arguments || '';
     html += '<div class="card" onclick="showDetail(\''+esc(r.ref_no)+'\')">'
       + '<div class="card-no">'+esc(r.ref_no)+'</div>'
       + '<span class="card-type '+typeClass(r.type)+'">'+esc(r.type||'—')+'</span>'
@@ -438,6 +485,7 @@ function renderList() {
       + '<div class="card-author">'+esc(r.author||'—')+'</div>'
       + '<div class="card-meta">'+(r.publisher?esc(r.publisher)+' ':'')+esc(r.year||'')+(r.language?' · '+esc(r.language):'')+'</div>'
       + (r.rating ? '<div class="rating-stars">'+stars(r.rating)+'</div>' : '')
+      + (snippet ? '<div class="card-snippet">'+esc(snippet)+'</div>' : '')
       + (tags ? '<div class="card-tags">'+tags+'</div>' : '')
       + '</div>';
   });
@@ -445,7 +493,6 @@ function renderList() {
   area.innerHTML = html;
 }
 
-// ── 详情视图 ──
 function showDetail(refNo) {
   var refs = loadRefs();
   var r = refs.find(function(x){ return x.ref_no === refNo; });
@@ -459,37 +506,87 @@ function showDetail(refNo) {
   var civs = (r.civilization||'').split('·').filter(Boolean);
   var cats = (r.category||'').split('·').filter(Boolean);
   var qzjs = (r.linked_qzj||'').split('·').filter(Boolean);
+  var chs  = (r.writing_links||'').split('·').filter(Boolean);
 
-  var chips = qzjs.map(function(q){
-    return '<span class="linked-chip" onclick="searchQZJ(\''+esc(q)+'\')">'+esc(q)+'</span>';
+  var qzjChips = qzjs.map(function(q){
+    return '<span class="linked-chip" onclick="searchByQ(\''+esc(q)+'\')">'+esc(q)+'</span>';
+  }).join('');
+
+  var chChips = chs.map(function(c){
+    return '<span class="writing-chip">'+esc(c)+'</span>';
   }).join('');
 
   var civTags = civs.map(function(c){ return '<span class="ctag ctag-civ" style="font-size:11px;padding:3px 9px">'+esc(c)+'</span>'; }).join(' ');
   var catTags = cats.map(function(c){ return '<span class="ctag ctag-cat" style="font-size:11px;padding:3px 9px">'+esc(c)+'</span>'; }).join(' ');
 
-  db.innerHTML = '<button class="back-btn" onclick="backToList()">← 返回文献库</button>'
-    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+  var html = '<button class="back-btn" onclick="backToList()">← 返回文献库</button>';
+
+  // 标题行
+  html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
     + '<div><span style="font-size:10px;font-family:monospace;font-weight:700;color:#888;background:#f0eee9;border:1px solid #ddd;border-radius:6px;padding:3px 9px">'+esc(r.ref_no)+'</span> <span class="card-type '+typeClass(r.type)+'" style="font-size:10px;padding:3px 9px">'+esc(r.type||'—')+'</span>'+(r.rating?'<span style="color:#C4912A;font-size:14px;margin-left:8px">'+stars(r.rating)+'</span>':'')+'</div>'
     + '<div style="display:flex;gap:6px"><button class="btn btn-secondary" style="font-size:12px;padding:6px 14px" onclick="editRef(\''+esc(r.ref_no)+'\')">✎ 编辑</button><button class="btn btn-danger" style="font-size:12px;padding:6px 14px" onclick="deleteRef(\''+esc(r.ref_no)+'\')">删除</button></div>'
-    + '</div>'
+    + '</div>';
 
-    + '<div class="dcard"><h3>基本信息</h3>'
-    + kv('书名 / 篇名', r.title)
-    + kv('作者 / 编者', r.author)
-    + kv('出版机构', r.publisher)
-    + kv('出版年份', r.year)
-    + kv('语言', r.language)
-    + '</div>'
+  // 基本信息
+  html += '<div class="dcard"><h3>基本信息</h3>'
+    + kv('书名', r.title) + kv('作者', r.author) + kv('出版机构', r.publisher)
+    + kv('出版年份', r.year) + kv('语言', r.language)
+    + (r.location ? kv('位置/链接', r.location) : '')
+    + '</div>';
 
-    + (civTags||catTags ? '<div class="dcard"><h3>涉及范围</h3>'+(civTags?'<div style="margin-bottom:6px"><span style="font-size:10px;color:#aaa;margin-right:6px">文明</span>'+civTags+'</div>':'')+(catTags?'<div><span style="font-size:10px;color:#aaa;margin-right:6px">品类</span>'+catTags+'</div>':'')+'</div>' : '')
+  // 涉及范围
+  if(civTags || catTags) {
+    html += '<div class="dcard"><h3>涉及范围</h3>'
+      + (civTags ? '<div style="margin-bottom:6px"><span style="font-size:10px;color:#aaa;margin-right:6px">文明</span>'+civTags+'</div>' : '')
+      + (catTags ? '<div><span style="font-size:10px;color:#aaa;margin-right:6px">品类</span>'+catTags+'</div>' : '')
+      + '</div>';
+  }
 
-    + (chips ? '<div class="linked-box"><div class="linked-lbl">关联殿堂藏品</div><div class="linked-chips">'+chips+'</div></div>' : '')
+  // 关联藏品
+  if(qzjChips) {
+    html += '<div class="linked-box"><div class="linked-lbl">关联殿堂藏品</div><div class="linked-chips">'+qzjChips+'</div></div>';
+  }
 
-    + (r.key_content ? '<div class="content-box"><div class="content-lbl">◈ 核心内容摘要</div><div class="content-p">'+esc(r.key_content)+'</div></div>' : '')
+  // 内容概述
+  if(r.summary) {
+    html += '<div class="box-summary"><div class="box-lbl">◈ 内容概述</div><div class="box-p">'+esc(r.summary)+'</div></div>';
+  }
 
-    + (r.location ? '<div class="dcard"><h3>位置 / 链接</h3><div style="font-size:12px;word-break:break-all">'+esc(r.location)+'</div></div>' : '')
+  // 章节地图
+  if(r.chapter_map) {
+    html += '<div class="box-chapters"><div class="box-lbl">◈ 章节地图</div><div class="box-p">'+esc(r.chapter_map)+'</div></div>';
+  }
 
-    + (r.notes ? '<div class="dcard"><h3>研究笔记</h3><div class="notes-box">'+esc(r.notes)+'</div></div>' : '');
+  // 核心论点
+  if(r.arguments) {
+    html += '<div class="box-arguments"><div class="box-lbl">◈ 核心学术论点</div><div class="box-p">'+esc(r.arguments)+'</div></div>';
+  }
+
+  // 写作关联
+  if(chChips || r.writing_notes) {
+    html += '<div class="box-writing">'
+      + '<div class="box-lbl">◈ 与写作的关联</div>'
+      + (chChips ? '<div style="margin-bottom:8px">'+chChips+'</div>' : '')
+      + (r.writing_notes ? '<div class="box-p">'+esc(r.writing_notes)+'</div>' : '')
+      + '</div>';
+  }
+
+  // 可引原文
+  if(r.quotations) {
+    html += '<div class="box-quotes"><div class="box-lbl">◈ 可引用原文段落</div><div class="box-p">'+esc(r.quotations)+'</div></div>';
+  }
+
+  // 待核实
+  if(r.to_verify) {
+    html += '<div class="box-verify"><div class="box-lbl">⚑ 待核实 / 待深入</div><div class="box-p">'+esc(r.to_verify)+'</div></div>';
+  }
+
+  // 研究笔记
+  if(r.notes) {
+    html += '<div class="box-notes"><div class="box-lbl">研究笔记</div><div class="box-p">'+esc(r.notes)+'</div></div>';
+  }
+
+  db.innerHTML = html;
 }
 
 function kv(k, v) {
@@ -505,13 +602,18 @@ function backToList() {
   renderList();
 }
 
-function searchQZJ(q) {
+function searchByQ(q) {
   backToList();
   document.getElementById('search-box').value = q;
   renderList();
 }
 
 // ── 录入 / 编辑 ──
+var ALL_FIELDS = ['ref_no','type','title','author','publisher','year','language',
+  'civilization','category','linked_qzj','location','rating',
+  'summary','chapter_map','arguments','writing_links','writing_notes',
+  'quotations','to_verify','notes'];
+
 function openEntry() {
   editingId = null;
   document.getElementById('entry-title').textContent = '录入新文献';
@@ -526,26 +628,16 @@ function editRef(refNo) {
   if(!r) return;
   editingId = refNo;
   document.getElementById('entry-title').textContent = '编辑文献 · ' + refNo;
-  document.getElementById('f-ref_no').value = r.ref_no || '';
-  document.getElementById('f-type').value = r.type || '';
-  document.getElementById('f-title').value = r.title || '';
-  document.getElementById('f-author').value = r.author || '';
-  document.getElementById('f-publisher').value = r.publisher || '';
-  document.getElementById('f-year').value = r.year || '';
-  document.getElementById('f-language').value = r.language || '';
-  document.getElementById('f-civilization').value = r.civilization || '';
-  document.getElementById('f-category').value = r.category || '';
-  document.getElementById('f-linked_qzj').value = r.linked_qzj || '';
-  document.getElementById('f-key_content').value = r.key_content || '';
-  document.getElementById('f-location').value = r.location || '';
-  document.getElementById('f-rating').value = r.rating || '';
-  document.getElementById('f-notes').value = r.notes || '';
+  ALL_FIELDS.forEach(function(k){
+    var el = document.getElementById('f-'+k);
+    if(el) el.value = r[k] || '';
+  });
   updateStars(parseInt(r.rating)||0);
   document.getElementById('entry-overlay').classList.add('open');
 }
 
 function clearForm() {
-  ['ref_no','type','title','author','publisher','year','language','civilization','category','linked_qzj','key_content','location','rating','notes'].forEach(function(k){
+  ALL_FIELDS.forEach(function(k){
     var el = document.getElementById('f-'+k);
     if(el) el.value = '';
   });
@@ -563,22 +655,11 @@ function saveEntry() {
   if(!refNo || !title) { toast('请填写文献编号和书名'); return; }
 
   var refs = loadRefs();
-  var r = {
-    ref_no: refNo,
-    type: document.getElementById('f-type').value,
-    title: title,
-    author: document.getElementById('f-author').value.trim(),
-    publisher: document.getElementById('f-publisher').value.trim(),
-    year: document.getElementById('f-year').value.trim(),
-    language: document.getElementById('f-language').value,
-    civilization: document.getElementById('f-civilization').value.trim(),
-    category: document.getElementById('f-category').value.trim(),
-    linked_qzj: document.getElementById('f-linked_qzj').value.trim(),
-    key_content: document.getElementById('f-key_content').value.trim(),
-    location: document.getElementById('f-location').value.trim(),
-    rating: document.getElementById('f-rating').value,
-    notes: document.getElementById('f-notes').value.trim()
-  };
+  var r = {};
+  ALL_FIELDS.forEach(function(k){
+    var el = document.getElementById('f-'+k);
+    r[k] = el ? el.value.trim() : '';
+  });
 
   if(editingId) {
     var idx = refs.findIndex(function(x){ return x.ref_no === editingId; });
@@ -594,15 +675,12 @@ function saveEntry() {
   saveRefs(refs);
   closeEntry();
   renderStats();
-  if(curView === 'detail' && curDetailId === (editingId || refNo)) {
-    showDetail(refNo);
-  } else {
-    renderList();
-  }
+  if(curView === 'detail') showDetail(refNo);
+  else renderList();
 }
 
 function deleteRef(refNo) {
-  if(!confirm('确认删除「'+refNo+'」？此操作不可恢复。\n\n确定 = 删除\n取消 = 保留')) return;
+  if(!confirm('确认删除「'+refNo+'」？此操作不可恢复。')) return;
   var refs = loadRefs().filter(function(r){ return r.ref_no !== refNo; });
   saveRefs(refs);
   toast('已删除 ' + refNo);
@@ -610,7 +688,7 @@ function deleteRef(refNo) {
   backToList();
 }
 
-// ── 星级选择 ──
+// ── 星级 ──
 document.getElementById('star-select').addEventListener('click', function(e){
   var el = e.target.closest('.star-opt');
   if(!el) return;
@@ -624,7 +702,31 @@ function updateStars(n) {
   });
 }
 
-// ── 从Claude导入 ──
+// ── KEY_MAP（新增字段全部加入）──
+var KEY_MAP = {
+  'ref_no':       ['文献编号','编号'],
+  'type':         ['类型'],
+  'title':        ['书名','篇名','书名/篇名','标题'],
+  'author':       ['作者','编者','作者/编者'],
+  'publisher':    ['出版机构','出版社'],
+  'year':         ['出版年份','年份'],
+  'language':     ['语言'],
+  'civilization': ['涉及文明','文明'],
+  'category':     ['涉及品类','品类'],
+  'linked_qzj':   ['关联藏品编号','关联藏品','关联qzj'],
+  'location':     ['实体位置','位置','链接'],
+  'rating':       ['参考价值评级','评级'],
+  'summary':      ['内容概述','概述'],
+  'chapter_map':  ['章节地图','章节结构','目录结构'],
+  'arguments':    ['核心论点','核心学术论点','学术论点'],
+  'writing_links':['关联章节','关联写作章节','写作章节'],
+  'writing_notes':['写作关联','写作关联说明','关联说明'],
+  'quotations':   ['可引原文','可引用原文','原文段落','引文'],
+  'to_verify':    ['待核实','待深入','待确认'],
+  'notes':        ['研究笔记','笔记','个人笔记']
+};
+
+// ── 导入 ──
 function openImport() {
   document.getElementById('import-text').value = '';
   document.getElementById('import-preview').style.display = 'none';
@@ -637,23 +739,6 @@ function closeImport() {
   document.getElementById('import-overlay').classList.remove('open');
   importParsed = null;
 }
-
-var KEY_MAP = {
-  'ref_no':['文献编号','编号'],
-  'type':['类型'],
-  'title':['书名','篇名','书名/篇名','标题'],
-  'author':['作者','编者','作者/编者'],
-  'publisher':['出版机构','出版社'],
-  'year':['出版年份','年份'],
-  'language':['语言'],
-  'civilization':['涉及文明','文明'],
-  'category':['涉及品类','品类'],
-  'linked_qzj':['关联藏品编号','关联藏品','关联qzj'],
-  'key_content':['核心内容摘要','核心内容','摘要'],
-  'location':['实体位置','位置','链接'],
-  'rating':['参考价值评级','评级'],
-  'notes':['研究笔记','笔记']
-};
 
 function parseImport() {
   var raw = document.getElementById('import-text').value.trim();
@@ -682,11 +767,24 @@ function parseImport() {
   if(!fields.ref_no) fields.ref_no = genId();
   importParsed = fields;
 
-  var html = '';
+  var LABELS = {
+    ref_no:'文献编号', type:'类型', title:'书名', author:'作者', publisher:'出版机构',
+    year:'出版年份', language:'语言', civilization:'涉及文明', category:'涉及品类',
+    linked_qzj:'关联藏品', location:'位置', rating:'评级',
+    summary:'内容概述', chapter_map:'章节地图', arguments:'核心论点',
+    writing_links:'关联章节', writing_notes:'写作关联', quotations:'可引原文',
+    to_verify:'待核实', notes:'研究笔记'
+  };
+
+  var html = '<div class="dcard">';
   for(var k in fields) {
-    if(fields[k]) html += '<div class="kv"><span class="k">'+esc(k)+'</span><span class="v">'+esc(fields[k].substring(0,120))+(fields[k].length>120?'…':'')+'</span></div>';
+    if(fields[k]) {
+      var lbl = LABELS[k] || k;
+      html += '<div class="kv"><span class="k">'+esc(lbl)+'</span><span class="v">'+esc(fields[k].substring(0,150))+(fields[k].length>150?'…':'')+'</span></div>';
+    }
   }
-  document.getElementById('import-preview-content').innerHTML = '<div class="dcard">'+html+'</div>';
+  html += '</div>';
+  document.getElementById('import-preview-content').innerHTML = html;
   document.getElementById('import-preview').style.display = 'block';
   document.getElementById('import-confirm-btn').style.display = 'inline-flex';
 }
@@ -743,14 +841,13 @@ function importData(e) {
 }
 
 function clearAll() {
-  if(!confirm('确认清空所有文献数据？此操作不可恢复。\n\n确定 = 清空\n取消 = 保留')) return;
+  if(!confirm('确认清空所有文献数据？此操作不可恢复。')) return;
   saveRefs([]);
   renderStats();
   renderList();
   toast('已清空所有数据');
 }
 
-// ── 初始化 ──
 renderStats();
 renderList();
 </script>

@@ -231,7 +231,7 @@ textarea.ef-inp{resize:vertical}
     <div class="import-box" id="import-box">
       <h3>⎘ 从 Claude 一键导入 / 更新</h3>
       <p>将 Claude 生成的议题记录文本粘贴到下方，点「解析并填入」自动识别所有字段。<br>
-      知识背景字段可选择「追加」或「替换」；原创论点将自动保留历史版本。</p>
+      知识背景字段有旧内容时自动按日期追加，不覆盖；原创论点将自动保留历史版本。</p>
       <textarea class="ef-inp" id="import-text" rows="5" placeholder="粘贴 Claude 生成的【字段名】格式内容…"></textarea>
       <div class="import-acts">
         <button class="btn-pri" onclick="parseImport()">解析并填入字段</button>
@@ -839,7 +839,7 @@ function kbSaveBlock(key, idx) {
 }
 
 function kbDelBlock(key, idx) {
-  if (!confirm('确认删除这条补充记录？')) return;
+  if (!confirm('删除这条补充记录\n\n确定 = 删除\n取消 = 保留')) return;
   var blocks = kbParseBlocks(editData[key] || '');
   blocks.splice(idx, 1);
   editData[key] = kbSerializeBlocks(blocks);
@@ -856,7 +856,7 @@ function renderKbField(key) {
 }
 
 function kbClear(key) {
-  if (!confirm('确认清空「' + key + '」字段的所有内容？此操作不可恢复。')) return;
+  if (!confirm('清空「' + key + '」字段\n\n确定 = 清空所有内容（不可恢复）\n取消 = 保留内容')) return;
   editData[key] = '';
   renderKbField(key);
   toast('已清空，请点「保存」写入 Airtable');
@@ -995,7 +995,7 @@ function saveArgVersionEdit(idx) {
 }
 
 function delArgVersion(idx) {
-  if (!confirm('确认删除第 ' + (idx + 1) + ' 个历史版本？')) return;
+  if (!confirm('删除第 ' + (idx + 1) + ' 个历史版本\n\n确定 = 删除\n取消 = 保留')) return;
   argVersions.splice(idx, 1);
   editData.original_arguments = serializeArgVersions(argVersions);
   renderEditForm();
@@ -1205,7 +1205,7 @@ async function saveRecord() {
 async function deleteRecord() {
   if (!currentId) return;
   var rec = RECORDS.find(function(r) { return r._id === currentId; });
-  if (!confirm('确认删除「' + (rec ? (rec.chapter_theme || rec.fragment_no) : '此记录') + '」？')) return;
+  if (!confirm('删除议题「' + (rec ? (rec.chapter_theme || rec.fragment_no) : '此记录') + '」\n\n确定 = 删除（不可恢复）\n取消 = 保留')) return;
   var c = loadCfg();
   try {
     var res = await fetch('https://api.airtable.com/v0/' + c.base + '/' + encodeURIComponent(c.table) + '/' + currentId,

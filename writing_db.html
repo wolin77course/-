@@ -135,6 +135,14 @@ textarea.ef-inp{resize:vertical}
 .pp{background:#f8f7f4;border:1px solid #e8e6e0;border-radius:8px;padding:10px 12px;font-size:10px;line-height:1.8;color:#555;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow-y:auto;margin-top:8px;display:none}
 #toast{position:fixed;bottom:20px;right:20px;background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:9999;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
 #toast.show{opacity:1;transform:translateY(0)}
+.kb-field{margin-bottom:14px}
+.kb-blocks{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+.kb-block{background:#faf9f7;border:1px solid #e8e6e0;border-radius:7px;padding:8px 10px}
+.kb-block-append{background:#f0eef8;border-color:#d4cff0}
+.kb-block-hdr{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.kb-block-date{font-size:9px;font-weight:600;letter-spacing:.05em;color:#888;background:#fff;border:1px solid #e0ddd7;padding:1px 7px;border-radius:10px;flex-shrink:0}
+.kb-block-append .kb-block-date{background:#E8D5FF;color:#3C3489;border-color:#AFA9EC}
+.kb-block-content{font-size:12px;color:#333;line-height:1.75;white-space:pre-wrap;word-break:break-word}
 </style>
 </head>
 <body>
@@ -681,32 +689,177 @@ function renderEditForm() {
   document.getElementById('edit-form').innerHTML = h;
 }
 
+function kbParseBlocks(raw) {
+  if (!raw) return [];
+  var blocks = [];
+  var parts = raw.split(/\n\n===补充\s*(\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}[^=]*)===\n/);
+  if (parts.length === 1) {
+    if (raw.trim()) blocks.push({date:'初始内容', content:raw.trim()});
+  } else {
+    if (parts[0].trim()) blocks.push({date:'初始内容', content:parts[0].trim()});
+    for (var i = 1; i < parts.length; i += 2) {
+      var date = parts[i] ? parts[i].trim() : '';
+      var content = parts[i+1] ? parts[i+1].trim() : '';
+      if (content) blocks.push({date: date || '补充', content: content});
+    }
+  }
+  return blocks;
+}
+
+function kbSerializeBlocks(blocks) {
+  if (!blocks.length) return '';
+  return blocks.map(function(b, i) {
+    if (i === 0) return b.content;
+    return '\n\n===补充 ' + b.date + '===\n' + b.content;
+  }).join('');
+}
+
 function kbField(key, label, rows) {
-  return '<div class="ef"><div class="ef-lbl">' + label
+  var blocks = kbParseBlocks(editData[key] || '');
+  var h = '<div class="ef kb-field" id="kbf-' + key + '">';
+  h += '<div class="ef-lbl">' + label
     + '<div style="display:flex;gap:4px;margin-left:auto">'
-    + '<button class="kf-btn" onclick="kbAppend(\'' + key + '\')">追加</button>'
+    + '<button class="kf-btn" style="background:#E8D5FF;color:#1A1A2E;border-color:#AFA9EC" onclick="kbToggleAppend(\'' + key + '\')">＋ 本次补充</button>'
+    + '<button class="kf-btn" onclick="kbToggleEdit(\'' + key + '\')">编辑全文</button>'
     + '<button class="kf-btn dan" onclick="kbClear(\'' + key + '\')">清空</button>'
-    + '</div></div>'
-    + '<textarea class="ef-inp" id="ef-' + key + '" rows="' + rows + '" oninput="editData[\'' + key + '\']=this.value">'
-    + esc2(editData[key] || '') + '</textarea></div>';
+    + '</div></div>';
+  if (blocks.length === 0) {
+    h += '<div style="font-size:11px;color:#bbb;font-style:italic;padding:8px;background:#faf9f7;border-radius:6px;border:1px dashed #ddd;margin-bottom:6px">尚无内容，点「＋ 本次补充」添加第一条</div>';
+  } else {
+    h += '<div class="kb-blocks" id="kb-blocks-' + key + '">';
+    blocks.forEach(function(b, i) {
+      var isFirst = i === 0;
+      h += '<div class="kb-block' + (isFirst ? '' : ' kb-block-append') + '">'
+        + '<div class="kb-block-hdr">'
+        + '<span class="kb-block-date">' + esc(b.date) + '</span>'
+        + '<button class="kf-btn" style="font-size:9px;padding:1px 7px" onclick="kbEditBlock(\'' + key + '\',' + i + ')">编辑</button>'
+        + (!isFirst ? '<button class="kf-btn dan" style="font-size:9px;padding:1px 7px" onclick="kbDelBlock(\'' + key + '\',' + i + ')">删除</button>' : '')
+        + '</div>'
+        + '<div class="kb-block-content" id="kb-bc-' + key + '-' + i + '">' + esc(b.content) + '</div>'
+        + '<div class="kb-block-edit" id="kb-be-' + key + '-' + i + '" style="display:none;margin-top:6px">'
+        + '<textarea class="ef-inp" id="kb-bet-' + key + '-' + i + '" rows="5" style="border-color:#AFA9EC">' + esc2(b.content) + '</textarea>'
+        + '<div style="display:flex;gap:6px;margin-top:5px">'
+        + '<button class="kf-btn" style="background:#EAF3DE;color:#27500A;border-color:#b8d4b8" onclick="kbSaveBlock(\'' + key + '\',' + i + ')">✓ 确认修改</button>'
+        + '<button class="kf-btn" onclick="kbCancelBlock(\'' + key + '\',' + i + ')">取消</button>'
+        + '</div></div>'
+        + '</div>';
+    });
+    h += '</div>';
+  }
+  h += '<div class="kb-append-area" id="kb-append-' + key + '" style="display:none;margin-top:8px;background:#f0eef8;border:1px solid #AFA9EC;border-radius:8px;padding:10px">'
+    + '<div style="font-size:10px;font-weight:600;color:#7B4FA0;margin-bottom:6px;letter-spacing:.04em">本次补充内容</div>'
+    + '<textarea class="ef-inp" id="kb-new-' + key + '" rows="5" style="border-color:#AFA9EC" placeholder="粘贴本次讨论新增的内容…"></textarea>'
+    + '<div style="display:flex;gap:8px;margin-top:7px;align-items:center">'
+    + '<button class="kf-btn" style="background:#1A1A2E;color:#E8D5FF;border-color:#1A1A2E" onclick="kbConfirmAppend(\'' + key + '\')">✓ 确认追加</button>'
+    + '<button class="kf-btn" onclick="kbToggleAppend(\'' + key + '\')">取消</button>'
+    + '</div></div>';
+  h += '<div class="kb-edit-area" id="kb-edit-' + key + '" style="display:none;margin-top:8px">'
+    + '<div style="font-size:10px;color:#888;margin-bottom:5px">编辑全文（直接修改，保存后替换所有内容）</div>'
+    + '<textarea class="ef-inp" id="kb-fulledit-' + key + '" rows="' + rows + '" oninput="editData[\'' + key + '\']=this.value">'
+    + esc2(editData[key] || '') + '</textarea>'
+    + '<div style="display:flex;gap:6px;margin-top:5px">'
+    + '<button class="kf-btn" style="background:#EAF3DE;color:#27500A;border-color:#b8d4b8" onclick="kbDoneEdit(\'' + key + '\')">✓ 完成编辑</button>'
+    + '</div></div>';
+  h += '</div>';
+  return h;
+}
+
+function kbToggleAppend(key) {
+  var area = document.getElementById('kb-append-' + key);
+  if (!area) return;
+  var isHidden = area.style.display === 'none';
+  area.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) {
+    var ta = document.getElementById('kb-new-' + key);
+    if (ta) { ta.value = ''; ta.focus(); }
+    var editArea = document.getElementById('kb-edit-' + key);
+    if (editArea) editArea.style.display = 'none';
+  }
+}
+
+function kbToggleEdit(key) {
+  var area = document.getElementById('kb-edit-' + key);
+  if (!area) return;
+  var isHidden = area.style.display === 'none';
+  area.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) {
+    var ta = document.getElementById('kb-fulledit-' + key);
+    if (ta) { ta.value = editData[key] || ''; ta.focus(); }
+    var appendArea = document.getElementById('kb-append-' + key);
+    if (appendArea) appendArea.style.display = 'none';
+  }
+}
+
+function kbDoneEdit(key) {
+  var ta = document.getElementById('kb-fulledit-' + key);
+  if (ta) editData[key] = ta.value;
+  var area = document.getElementById('kb-edit-' + key);
+  if (area) area.style.display = 'none';
+  renderKbField(key);
+  toast('✓ 已更新，请点「保存到 Airtable」');
+}
+
+function kbConfirmAppend(key) {
+  var ta = document.getElementById('kb-new-' + key);
+  if (!ta || !ta.value.trim()) { alert('请先填写补充内容'); return; }
+  var newContent = ta.value.trim();
+  var today = new Date().toLocaleDateString('zh-CN');
+  var cur = editData[key] || '';
+  var blocks = kbParseBlocks(cur);
+  blocks.push({date: today, content: newContent});
+  editData[key] = kbSerializeBlocks(blocks);
+  var area = document.getElementById('kb-append-' + key);
+  if (area) area.style.display = 'none';
+  renderKbField(key);
+  toast('✓ 已追加，请点「保存到 Airtable」');
+}
+
+function kbEditBlock(key, idx) {
+  var content = document.getElementById('kb-bc-' + key + '-' + idx);
+  var edit = document.getElementById('kb-be-' + key + '-' + idx);
+  if (content) content.style.display = 'none';
+  if (edit) { edit.style.display = 'block'; var ta = document.getElementById('kb-bet-' + key + '-' + idx); if (ta) ta.focus(); }
+}
+
+function kbCancelBlock(key, idx) {
+  var content = document.getElementById('kb-bc-' + key + '-' + idx);
+  var edit = document.getElementById('kb-be-' + key + '-' + idx);
+  if (content) content.style.display = 'block';
+  if (edit) edit.style.display = 'none';
+}
+
+function kbSaveBlock(key, idx) {
+  var ta = document.getElementById('kb-bet-' + key + '-' + idx);
+  if (!ta || !ta.value.trim()) { alert('内容不能为空'); return; }
+  var blocks = kbParseBlocks(editData[key] || '');
+  blocks[idx].content = ta.value.trim();
+  editData[key] = kbSerializeBlocks(blocks);
+  renderKbField(key);
+  toast('✓ 已修改，请点「保存到 Airtable」');
+}
+
+function kbDelBlock(key, idx) {
+  if (!confirm('确认删除这条补充记录？')) return;
+  var blocks = kbParseBlocks(editData[key] || '');
+  blocks.splice(idx, 1);
+  editData[key] = kbSerializeBlocks(blocks);
+  renderKbField(key);
+  toast('已删除');
+}
+
+function renderKbField(key) {
+  var labels = {philosophical_context:'哲学宗教文化背景', craft_context:'工艺技术研究', arthistory_context:'艺术史与日常文化研究', academic_refs:'权威文献目录', related_objects:'器物组'};
+  var rows = {philosophical_context:10, craft_context:5, arthistory_context:5, academic_refs:5, related_objects:5};
+  var container = document.getElementById('kbf-' + key);
+  if (!container) return;
+  container.outerHTML = kbField(key, labels[key] || key, rows[key] || 5);
 }
 
 function kbClear(key) {
-  if (!confirm('确认清空「' + key + '」字段？')) return;
+  if (!confirm('确认清空「' + key + '」字段的所有内容？此操作不可恢复。')) return;
   editData[key] = '';
-  var el = document.getElementById('ef-' + key);
-  if (el) el.value = '';
+  renderKbField(key);
   toast('已清空，请点「保存」写入 Airtable');
-}
-
-function kbAppend(key) {
-  var clipboard = prompt('请粘贴要追加的内容：', '');
-  if (!clipboard) return;
-  var cur = editData[key] || '';
-  editData[key] = cur + (cur ? '\n\n---\n\n' : '') + clipboard;
-  var el = document.getElementById('ef-' + key);
-  if (el) el.value = editData[key];
-  toast('✓ 已追加，请检查后点「保存」');
 }
 
 function renderArgEdit() {
@@ -987,12 +1140,19 @@ function parseImport() {
       editData.original_arguments = serializeArgVersions(argVersions);
     }
   }
-  // 知识字段询问追加还是替换
+  // 知识字段：有旧内容时自动结构化追加（带日期戳），无旧内容时直接写入
   var kbKeys = ['philosophical_context','craft_context','arthistory_context','academic_refs','related_objects'];
   kbKeys.forEach(function(k) {
-    if (parsed[k] && editData[k] && editData[k].trim()) {
-      var choice = confirm('「' + k + '」字段已有内容。\n\n确定 = 替换为新内容\n取消 = 追加到末尾');
-      if (!choice) parsed[k] = editData[k] + '\n\n---\n\n' + parsed[k];
+    if (parsed[k]) {
+      if (editData[k] && editData[k].trim()) {
+        var today = new Date().toLocaleDateString('zh-CN');
+        var blocks = kbParseBlocks(editData[k]);
+        blocks.push({date: today, content: parsed[k]});
+        editData[k] = kbSerializeBlocks(blocks);
+      } else {
+        editData[k] = parsed[k];
+      }
+      delete parsed[k];
     }
   });
   Object.keys(parsed).forEach(function(k) { editData[k] = parsed[k]; });

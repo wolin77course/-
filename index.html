@@ -366,7 +366,7 @@ var REGION_ORDER = ['地中海','南亚 / 犍陀罗','波斯 / 中东 / 蒙古',
 var REGION_MAP   = {
   all: REGION_ORDER,
   ceramics: ['地中海','波斯 / 中东 / 蒙古','中国','朝鲜','日本','西洋近代'],
-  buddha:   ['南亚 / 犍陀罗','朝鲜','日本'],
+  buddha:   ['南亚 / 犍陀罗','朝鲜','日本','西洋近代'],
   paintings:['南亚 / 犍陀罗','中国','日本','西洋近代'],
   architecture:['日本'],
   japan_modern:['日本']
@@ -689,6 +689,8 @@ function cb(it){
     if(n.includes('金铜')||n.includes('金銅'))b+=bd('金铜佛','#FAD9A1','#6B3800');
     if(p.includes('法隆寺'))b+=bd('法隆寺','#FAECE7','#4A1B0C');
     if(p.includes('土门')||p.includes('土門'))b+=bd('土门拳','#EEEDFE','#3C3489');
+    if(n.includes('圣像')||n.includes('イコン')||n.includes('パントクラトール'))b+=bd('东正教圣像','#E6F1FB','#042C53');
+    if(n.includes('踏絵')||n.includes('踏み絵'))b+=bd('踏絵','#FCEBEB','#791F1F');
   }else if(it.cat==='architecture'){
     b+=bd('工艺·建筑','#F1EFE8','#444441');
     if(n.includes('唐招提寺'))b+=bd('唐招提寺','#FAECE7','#4A1B0C');

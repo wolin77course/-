@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文献录入 · 青之寂寥</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  color:#1a1a1a;background:#f5f4f0;font-size:15px;line-height:1.7}
+
+.hdr{background:#fff;border-bottom:1px solid #e8e6e0;padding:18px 24px;display:flex;
+  align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.hdr .sub{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#999;margin-bottom:3px}
+.hdr h1{font-size:21px;font-weight:500;letter-spacing:.03em}
+.back{font-size:13.5px;color:#666;text-decoration:none}
+.back:hover{color:#1a1a1a}
+
+.tabs{display:flex;border-bottom:1px solid #e8e6e0;background:#fff;padding:0 24px;overflow-x:auto}
+.tab{padding:13px 16px;font-size:14px;cursor:pointer;border:none;background:none;color:#888;
+  border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
+.tab[aria-selected="true"]{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+.tab:focus-visible{outline:2px solid #1a1a1a;outline-offset:-2px}
+
+.body{max-width:1000px;margin:0 auto;padding:24px 24px 80px}
+.panel{display:none}
+.panel.on{display:block}
+
+.box{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:22px 24px;margin-bottom:14px}
+.box h3{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#888;
+  padding-bottom:7px;border-bottom:1px solid #e8e6e0;margin-bottom:14px}
+
+label{display:block;font-size:12.5px;font-weight:500;color:#555;letter-spacing:.03em;margin:16px 0 6px}
+label:first-of-type{margin-top:0}
+input[type=text],input[type=password],select,textarea{
+  width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;
+  font-family:inherit;font-size:14px;color:#1a1a1a;outline:none;line-height:1.65}
+input[type=password],input#s-base,input#s-lit,input#s-chap,input#s-obj,input#s-eye,input#s-gate{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+textarea{min-height:150px;resize:vertical;font-size:13.5px}
+input:focus,select:focus,textarea:focus{border-color:#1a1a1a}
+.hint{font-size:12px;color:#999;margin-top:6px;line-height:1.75}
+.hint code{background:#f0eee9;padding:1px 5px;border-radius:4px;font-size:11.5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media(max-width:640px){.row{grid-template-columns:1fr}}
+
+.btns{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.btn{padding:9px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;
+  border:none;font-family:inherit}
+.btn-primary{background:#1a1a1a;color:#fff}
+.btn-primary:hover{background:#333}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed}
+.btn-secondary{background:#f0eee9;color:#444}
+.btn-secondary:hover{background:#e6e3dc}
+
+.msg{margin-top:14px;padding:10px 14px;border-radius:8px;font-size:13px;display:none;white-space:pre-wrap;line-height:1.7}
+.msg.on{display:block;background:#e8f4e8;color:#2d6b2d}
+.msg.on.bad{background:#fde8e8;color:#8b1a1a}
+
+table.prev{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;
+  background:#fff;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden}
+table.prev th,table.prev td{border-bottom:1px solid #f0eeea;padding:9px 13px;text-align:left;vertical-align:top}
+table.prev tr:last-child th,table.prev tr:last-child td{border-bottom:none}
+table.prev th{background:#faf9f7;width:180px;font-weight:500;color:#777;font-size:12px;letter-spacing:.03em}
+table.prev td{white-space:pre-wrap;word-break:break-word;line-height:1.75}
+td.empty{color:#bbb}
+.chnum{font-size:12px;font-weight:600;letter-spacing:.08em;color:#666;background:#f0eee9;
+  border:1px solid #e3e0d8;border-radius:6px;padding:4px 10px;display:inline-block;margin:20px 0 2px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div><div class="sub">Literature · REF / ART</div><h1>文献录入</h1></div>
+  <a class="back" href="./home.html">← 返回殿堂</a>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true"  data-p="p-book">主表 · 一本书</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-chap">子表 · 逐章</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-set">设置</button>
+</div>
+
+<!-- ========== 主表 ========== -->
+<div class="body">
+<section class="panel on" id="p-book"><div class="box">
+  <label for="paste-b">粘贴 Claude 生成的主表卡片</label>
+  <textarea id="paste-b" placeholder="【ref_no】REF-016&#10;【category】陶瓷&#10;【author】…"></textarea>
+  <div class="hint">格式为每行一个 <code>【字段名】内容</code>。下一个编号：<b id="next-ref">—</b></div>
+  <div class="btns">
+    <button class="btn btn-primary" id="parse-b">解析预览</button>
+    <button class="btn btn-secondary" id="clear-b">清空</button>
+  </div>
+  <div class="msg" id="msg-b"></div>
+  <div id="prev-b"></div>
+  <div class="btns"><button class="btn btn-primary" id="save-b" style="display:none">写入主表</button></div>
+</div></section>
+
+<!-- ========== 子表 ========== -->
+<section class="panel" id="p-chap"><div class="box">
+  <label for="ref-pick">归属文献</label>
+  <select id="ref-pick"><option value="">— 载入中 —</option></select>
+  <div class="hint">章节将挂在此书之下。若列表为空，请先在设置中填好凭证，或先写入主表。</div>
+
+  <label for="paste-c">粘贴逐章摘要</label>
+  <textarea id="paste-c" placeholder="多章之间用 --- 分隔&#10;&#10;【chapter_no】1&#10;【chapter_title】An Overview&#10;【page_range】pp.1-30&#10;【question】…&#10;---&#10;【chapter_no】2&#10;…"></textarea>
+  <div class="hint">多章以单独一行 <code>---</code> 分隔，可一次录入整本书。<code>chapter_id</code> 留空时自动生成为「REF-016-C01」。</div>
+  <div class="btns">
+    <button class="btn btn-primary" id="parse-c">解析预览</button>
+    <button class="btn btn-secondary" id="clear-c">清空</button>
+  </div>
+  <div class="msg" id="msg-c"></div>
+  <div id="prev-c"></div>
+  <div class="btns"><button class="btn btn-primary" id="save-c" style="display:none">写入子表</button></div>
+</div></section>
+
+<!-- ========== 设置 ========== -->
+<section class="panel" id="p-set"><div class="box">
+  <div class="hint">凭证只存在此浏览器的 localStorage，不会上传。换电脑需重新填写。<br>
+  Airtable → 账户设置 → Developer hub → Personal access tokens，创建时勾选 <b>data.records:read</b> 与 <b>data.records:write</b>。</div>
+
+  <label for="s-pat">API TOKEN</label>
+  <input type="password" id="s-pat" autocomplete="off" placeholder="pat...">
+
+  <label for="s-base">BASE ID</label>
+  <input type="text" id="s-base" placeholder="app...">
+
+  <div class="row">
+    <div>
+      <label for="s-lit">文献主表 TABLE ID</label>
+      <input type="text" id="s-lit" placeholder="tbl...">
+    </div>
+    <div>
+      <label for="s-chap">文献子表 TABLE ID</label>
+      <input type="text" id="s-chap" placeholder="tbl...">
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <label for="s-obj">藏品表 TABLE ID</label>
+      <input type="text" id="s-obj" placeholder="tbl...">
+    </div>
+    <div>
+      <label for="s-eye">美之眼 TABLE ID</label>
+      <input type="text" id="s-eye" placeholder="tbl...（暂未建可留空）">
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <label for="s-gate">美之法门 TABLE ID</label>
+      <input type="text" id="s-gate" placeholder="tbl...（暂未建可留空）">
+    </div>
+  </div>
+
+  <div class="btns">
+    <button class="btn btn-primary" id="save-set">测试连接并保存</button>
+    <button class="btn btn-secondary" id="wipe-set">清除凭证</button>
+  </div>
+  <div class="msg" id="msg-s"></div>
+</div></section>
+</div>
+
+<script>
+const CFG='qzj_cfg';
+const BOOK_FIELDS=['ref_no','category','subcategory','region','title_original','title_cn',
+  'author','publisher','year','pages','isbn','language','holding','author_background',
+  'author_position','author_core_views','book_thesis','academic_dialogue','reception',
+  'methodology','status','date_added'];
+const CHAP_FIELDS=['chapter_id','chapter_no','chapter_title','page_range','question',
+  'materials','conclusion','technical_data','key_quotes','objects_discussed','chapter_dialogue'];
+const MULTI=['region'];
+const NUM=['pages'];
+
+const $=id=>document.getElementById(id);
+const cfg=()=>{try{return JSON.parse(localStorage.getItem(CFG))||{}}catch(e){return{}}};
+const setCfg=o=>localStorage.setItem(CFG,JSON.stringify(o));
+
+function show(el,txt,bad){el.textContent=txt;el.className='msg on'+(bad?' bad':'');}
+function hide(el){el.className='msg';}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+    t.setAttribute('aria-selected','true');
+    $(t.dataset.p).classList.add('on');
+  };
+});
+if(location.hash==='#settings') document.querySelector('[data-p="p-set"]').click();
+
+/* ---------- parse 【field】value ---------- */
+function parseBlock(txt,allow){
+  const out={}; let cur=null;
+  txt.split(/\r?\n/).forEach(line=>{
+    const m=line.match(/^\s*【\s*([A-Za-z_]+)\s*】\s*(.*)$/);
+    if(m){ cur=m[1].trim(); if(allow.includes(cur)) out[cur]=m[2].trim(); else cur=null; }
+    else if(cur!==null && line.trim()!==''){ out[cur]+=(out[cur]?'\n':'')+line.trim(); }
+  });
+  return out;
+}
+function coerce(o){
+  const r={};
+  for(const [k,v] of Object.entries(o)){
+    if(v==='' || v==='—' || v==='（待补）') continue;
+    if(NUM.includes(k)){ const n=parseInt(String(v).replace(/[^\d]/g,''),10); if(!isNaN(n)) r[k]=n; }
+    else if(MULTI.includes(k)) r[k]=v.split(/[、,，/／]/).map(s=>s.trim()).filter(Boolean);
+    else r[k]=v;
+  }
+  return r;
+}
+function preview(obj,fields,host){
+  const rows=fields.map(f=>{
+    const v=obj[f];
+    const disp=Array.isArray(v)?v.join(' · '):(v===undefined?'':v);
+    return `<tr><th>${f}</th><td class="${disp===''?'empty':''}">${disp===''?'（空）':String(disp).replace(/</g,'&lt;')}</td></tr>`;
+  }).join('');
+  host.innerHTML=`<table class="prev">${rows}</table>`;
+}
+
+/* ---------- airtable ---------- */
+async function api(table,method,body,qs){
+  const c=cfg();
+  if(!c.pat||!c.base) throw new Error('尚未填写凭证，请到「设置」页。');
+  if(!table) throw new Error('尚未填写该表的 TABLE ID。');
+  let url='https://api.airtable.com/v0/'+c.base+'/'+table;
+  if(qs) url+='?'+new URLSearchParams(qs);
+  const r=await fetch(url,{method,
+    headers:{Authorization:'Bearer '+c.pat,'Content-Type':'application/json'},
+    body:body?JSON.stringify(body):undefined});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d?.error?.message||d?.error?.type||('HTTP '+r.status));
+  return d;
+}
+async function listAll(table,qs){
+  let recs=[],offset=null;
+  do{ const p=Object.assign({pageSize:100},qs||{}); if(offset)p.offset=offset;
+      const d=await api(table,'GET',null,p); recs=recs.concat(d.records||[]); offset=d.offset;
+  }while(offset);
+  return recs;
+}
+
+/* ---------- next ref_no ---------- */
+async function nextRef(){
+  const c=cfg(); if(!c.pat||!c.base||!c.tbl_literature) return null;
+  try{
+    const recs=await listAll(c.tbl_literature,{'fields[]':'ref_no'});
+    let max=0;
+    recs.forEach(r=>{const m=(r.fields.ref_no||'').match(/REF-(\d+)/); if(m)max=Math.max(max,+m[1]);});
+    return 'REF-'+String(max+1).padStart(3,'0');
+  }catch(e){ return null; }
+}
+async function refreshNext(){
+  const n=await nextRef();
+  $('next-ref').textContent=n||'—';
+}
+
+/* ---------- book panel ---------- */
+let bookObj=null;
+$('parse-b').onclick=()=>{
+  hide($('msg-b'));
+  const raw=$('paste-b').value.trim();
+  if(!raw){show($('msg-b'),'请先粘贴内容。',true);return;}
+  bookObj=coerce(parseBlock(raw,BOOK_FIELDS));
+  if(!bookObj.ref_no){show($('msg-b'),'缺少 ref_no，无法写入。',true);return;}
+  preview(bookObj,BOOK_FIELDS,$('prev-b'));
+  $('save-b').style.display='inline-block';
+  show($('msg-b'),'已解析 '+Object.keys(bookObj).length+' 个字段。请核对后写入。');
+};
+$('clear-b').onclick=()=>{$('paste-b').value='';$('prev-b').innerHTML='';
+  $('save-b').style.display='none';hide($('msg-b'));};
+$('save-b').onclick=async()=>{
+  const btn=$('save-b'); btn.disabled=true;
+  try{
+    if(!bookObj.date_added) bookObj.date_added=new Date().toISOString().slice(0,10);
+    const d=await api(cfg().tbl_literature,'POST',{records:[{fields:bookObj}],typecast:true});
+    show($('msg-b'),'已写入：'+(d.records[0].fields.ref_no||'')+'　（记录 '+d.records[0].id+'）');
+    $('save-b').style.display='none';
+    refreshNext(); loadRefs();
+  }catch(e){ show($('msg-b'),'写入失败：'+e.message,true); }
+  btn.disabled=false;
+};
+
+/* ---------- chapters panel ---------- */
+let chapObjs=null;
+async function loadRefs(){
+  const sel=$('ref-pick'); const c=cfg();
+  if(!c.pat||!c.base||!c.tbl_literature){sel.innerHTML='<option value="">— 请先完成设置 —</option>';return;}
+  try{
+    const recs=await listAll(c.tbl_literature,{'fields[]':['ref_no','title_original','title_cn']});
+    recs.sort((a,b)=>(a.fields.ref_no||'').localeCompare(b.fields.ref_no||''));
+    sel.innerHTML='<option value="">— 请选择 —</option>'+recs.map(r=>{
+      const f=r.fields;
+      const lbl=(f.ref_no||'?')+'　'+(f.title_cn||f.title_original||'');
+      return `<option value="${r.id}" data-ref="${f.ref_no||''}">${lbl.replace(/</g,'&lt;')}</option>`;
+    }).join('');
+  }catch(e){ sel.innerHTML='<option value="">— 读取失败 —</option>'; }
+}
+$('parse-c').onclick=()=>{
+  hide($('msg-c'));
+  const raw=$('paste-c').value.trim();
+  if(!raw){show($('msg-c'),'请先粘贴内容。',true);return;}
+  const opt=$('ref-pick').selectedOptions[0];
+  if(!opt||!opt.value){show($('msg-c'),'请先选择归属文献。',true);return;}
+  const refNo=opt.dataset.ref||'REF-000';
+  chapObjs=raw.split(/^\s*-{3,}\s*$/m).map(s=>s.trim()).filter(Boolean)
+    .map((blk,i)=>{
+      const o=coerce(parseBlock(blk,CHAP_FIELDS));
+      if(!o.chapter_id){
+        const n=o.chapter_no?String(o.chapter_no).replace(/[^\dA-Za-z]/g,''):String(i+1);
+        o.chapter_id=refNo+'-C'+n.padStart(2,'0');
+      }
+      return o;
+    });
+  $('prev-c').innerHTML='';
+  chapObjs.forEach((o,i)=>{
+    const h=document.createElement('div');
+    h.innerHTML=`<div class="chnum">第 ${i+1} 条　${o.chapter_id}</div>`;
+    const box=document.createElement('div'); preview(o,CHAP_FIELDS,box);
+    h.appendChild(box); $('prev-c').appendChild(h);
+  });
+  $('save-c').style.display='inline-block';
+  show($('msg-c'),'已解析 '+chapObjs.length+' 章。请核对后写入。');
+};
+$('clear-c').onclick=()=>{$('paste-c').value='';$('prev-c').innerHTML='';
+  $('save-c').style.display='none';hide($('msg-c'));};
+$('save-c').onclick=async()=>{
+  const btn=$('save-c'); btn.disabled=true;
+  const recId=$('ref-pick').value;
+  try{
+    let done=0;
+    for(let i=0;i<chapObjs.length;i+=10){
+      const batch=chapObjs.slice(i,i+10).map(o=>({fields:Object.assign({},o,{ref_link:[recId]})}));
+      const d=await api(cfg().tbl_literature_chapters,'POST',{records:batch,typecast:true});
+      done+=d.records.length;
+    }
+    show($('msg-c'),'已写入 '+done+' 章。');
+    $('save-c').style.display='none';
+  }catch(e){ show($('msg-c'),'写入失败：'+e.message,true); }
+  btn.disabled=false;
+};
+
+/* ---------- settings ---------- */
+(function fill(){
+  const c=cfg();
+  $('s-pat').value=c.pat||''; $('s-base').value=c.base||'';
+  $('s-lit').value=c.tbl_literature||''; $('s-chap').value=c.tbl_literature_chapters||'';
+  $('s-obj').value=c.tbl_objects||''; $('s-eye').value=c.tbl_eye||''; $('s-gate').value=c.tbl_gate||'';
+})();
+$('save-set').onclick=async()=>{
+  const o={pat:$('s-pat').value.trim(),base:$('s-base').value.trim(),
+    tbl_literature:$('s-lit').value.trim(),tbl_literature_chapters:$('s-chap').value.trim(),
+    tbl_objects:$('s-obj').value.trim(),tbl_eye:$('s-eye').value.trim(),tbl_gate:$('s-gate').value.trim()};
+  if(!o.pat||!o.base||!o.tbl_literature){show($('msg-s'),'TOKEN、BASE ID、文献主表 ID 为必填。',true);return;}
+  setCfg(o);
+  try{
+    await api(o.tbl_literature,'GET',null,{pageSize:1});
+    show($('msg-s'),'连接成功，凭证已保存到本机。');
+    refreshNext(); loadRefs();
+  }catch(e){ show($('msg-s'),'连接失败：'+e.message+'\n凭证仍已保存，可修正后重试。',true); }
+};
+$('wipe-set').onclick=()=>{
+  localStorage.removeItem(CFG);
+  ['s-pat','s-base','s-lit','s-chap','s-obj','s-eye','s-gate'].forEach(i=>$(i).value='');
+  show($('msg-s'),'已清除本机凭证。');
+};
+
+refreshNext(); loadRefs();
+</script>
+</body>
+</html>

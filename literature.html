@@ -71,6 +71,13 @@ td.empty{color:#bbb}
 .lit-sub{font-size:12.5px;color:#888;margin-top:4px;line-height:1.6}
 .lit-x{color:#bbb;font-size:13px;flex-shrink:0;padding-top:2px}
 .lit-body{padding:0 16px 16px}
+.filt{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 4px}
+.filt select{flex:1;min-width:130px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;
+  background:#fff;font-family:inherit;font-size:13px;color:#1a1a1a}
+.grp-h{font-size:12px;font-weight:600;letter-spacing:.06em;color:#7a5a2a;background:#f6f1e8;
+  border:1px solid #e8ddc8;border-radius:8px;padding:7px 13px;margin:16px 0 8px}
+.grp-h:first-child{margin-top:4px}
+.grp-h .n{color:#b0a488;font-weight:400;margin-left:6px}
 .chnum{font-size:12px;font-weight:600;letter-spacing:.08em;color:#666;background:#f0eee9;
   border:1px solid #e3e0d8;border-radius:6px;padding:4px 10px;display:inline-block;margin:20px 0 2px}
 </style>
@@ -91,10 +98,19 @@ td.empty{color:#bbb}
 <div class="body">
 <section class="panel on" id="p-list"><div class="box">
   <h3>文献列表</h3>
-  <div id="diag" style="font-size:12px;padding:9px 12px;border-radius:8px;background:#fdf3e3;border:1px solid #e8d5a8;color:#7a5a2a;margin-bottom:12px;line-height:1.7"></div>
+  <div id="diag" style="display:none;font-size:12px;padding:9px 12px;border-radius:8px;margin-bottom:12px;line-height:1.7"></div>
   <div class="btns" style="margin-top:0">
-    <input type="text" id="q-list" placeholder="搜索编号、书名、作者…" style="flex:1;min-width:180px">
+    <input type="text" id="q-list" placeholder="搜索编号、书名、作者…" style="flex:1;min-width:160px">
     <button class="btn btn-secondary" id="reload-list">刷新</button>
+  </div>
+  <div class="filt">
+    <select id="f-cat"><option value="">全部品类</option></select>
+    <select id="f-reg"><option value="">全部地域</option></select>
+    <select id="f-grp">
+      <option value="cat">按品类分组</option>
+      <option value="region">按地域分组</option>
+      <option value="none">不分组</option>
+    </select>
   </div>
   <div class="hint" id="cnt-list"></div>
   <div id="rows-list"></div>
@@ -212,13 +228,13 @@ try{
 function showDiag(){
   const el=document.getElementById('diag'); if(!el) return;
   const c=cfg();
-  const lit=c.tbl_literature||'（未填）';
+  const lit=c.tbl_literature||'';
   const ok = lit==='tblkyrinIIzgVmJb4';
-  el.innerHTML='当前读取的「文献主表」ID：<b>'+lit+'</b>'
-    + (ok ? '　✓ 正确' : '　✗ 不对！应为 tblkyrinIIzgVmJb4。请到「设置」修改')
-    + '<br>BASE：'+(c.base||'（未填）')+'　子表：'+(c.tbl_literature_chapters||'（未填）')
-    + '<br><a href="#" id="wipe-inline" style="color:#7a5a2a">清除全部本地配置并重填</a>';
-  if(!ok) el.style.background='#fde8e8', el.style.borderColor='#e8a8a8', el.style.color='#8b2a2a';
+  if(ok){ el.style.display='none'; return; }   // 配置正确时隐藏
+  el.style.display='block';
+  el.style.background='#fde8e8'; el.style.borderColor='#e8a8a8'; el.style.color='#8b2a2a';
+  el.innerHTML='当前读取的「文献主表」ID：<b>'+(lit||'（未填）')+'</b>　✗ 应为 tblkyrinIIzgVmJb4，请到「设置」修改。'
+    + '　<a href="#" id="wipe-inline" style="color:#8b2a2a">清除本地配置重填</a>';
   const w=document.getElementById('wipe-inline');
   if(w) w.onclick=(ev)=>{ev.preventDefault();localStorage.removeItem(CFG);location.reload();};
 }
@@ -410,43 +426,88 @@ try{ refreshNext(); }catch(e){}
 try{ loadRefs(); }catch(e){}
 const LIST_FIELDS=['author','year','category','subcategory','region','language','holding','status','isbn','pages','date_added','author_background','author_position','author_core_views','book_thesis','academic_dialogue','reception','methodology'];
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
-function renderList(){
-  const host=$('rows-list'); if(!host) return;
-  const q=($('q-list').value||'').trim().toLowerCase();
-  let rows=allRefs.slice().sort((a,b)=>(a.fields.ref_no||'').localeCompare(b.fields.ref_no||''));
-  if(q) rows=rows.filter(r=>{
-    const f=r.fields;
-    return [f.ref_no,f.title_cn,f.title_original,f.author].some(v=>String(v||'').toLowerCase().includes(q));
-  });
-  $('cnt-list').textContent='共 '+allRefs.length+' 种文献'+(q?('，筛出 '+rows.length+' 种'):'');
-  if(!rows.length){host.innerHTML='<div class="hint">暂无记录。</div>';return;}
-  host.innerHTML=rows.map(r=>{
-    const f=r.fields;
-    const reg=Array.isArray(f.region)?f.region.join(' · '):(f.region||'');
-    const meta=[f.category,f.subcategory,reg,f.year,f.language,f.holding,f.status].filter(Boolean).join('　·　');
-    const detail=LIST_FIELDS.map(k=>{
-      let v=f[k]; if(v==null||v==='')return'';
-      if(Array.isArray(v))v=v.join(' · ');
-      return `<tr><th>${k}</th><td>${esc(v)}</td></tr>`;
-    }).join('');
-    return `<div class="lit-card">
-      <div class="lit-head" data-id="${r.id}">
-        <div><b>${esc(f.ref_no||'')}</b>　${esc(f.title_cn||f.title_original||'')}
-          <div class="lit-sub">${esc(f.author||'')}${meta?'　'+esc(meta):''}</div></div>
-        <span class="lit-x">▸</span>
-      </div>
-      <div class="lit-body" id="d-${r.id}" style="display:none">
-        <table class="prev">${detail}</table>
-      </div>
-    </div>`;
+function regList(f){return Array.isArray(f.region)?f.region:(f.region?[f.region]:[]);}
+
+function refreshFilters(){
+  const cats=new Set(), regs=new Set();
+  allRefs.forEach(r=>{ if(r.fields.category)cats.add(r.fields.category); regList(r.fields).forEach(x=>regs.add(x)); });
+  const cur=id=>document.getElementById(id).value;
+  const fc=cur('f-cat'), fr=cur('f-reg');
+  const CAT_ORDER=['艺术理论与艺术史通论','书画','陶瓷','木漆器与金工'];
+  const sortedCats=[...cats].sort((a,b)=>{const i=CAT_ORDER.indexOf(a),j=CAT_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j);});
+  $('f-cat').innerHTML='<option value="">全部品类</option>'+sortedCats.map(c=>`<option${c===fc?' selected':''}>${esc(c)}</option>`).join('');
+  $('f-reg').innerHTML='<option value="">全部地域</option>'+[...regs].map(c=>`<option${c===fr?' selected':''}>${esc(c)}</option>`).join('');
+}
+
+function cardHtml(r){
+  const f=r.fields;
+  const reg=regList(f).join(' · ');
+  const meta=[f.category,f.subcategory,reg,f.year,f.language,f.holding,f.status].filter(Boolean).join('　·　');
+  const detail=LIST_FIELDS.map(k=>{
+    let v=f[k]; if(v==null||v==='')return'';
+    if(Array.isArray(v))v=v.join(' · ');
+    return `<tr><th>${k}</th><td>${esc(v)}</td></tr>`;
   }).join('');
+  return `<div class="lit-card">
+    <div class="lit-head" data-id="${r.id}">
+      <div><b>${esc(f.ref_no||'')}</b>　${esc(f.title_cn||f.title_original||'')}
+        <div class="lit-sub">${esc(f.author||'')}${meta?'　'+esc(meta):''}</div></div>
+      <span class="lit-x">▸</span>
+    </div>
+    <div class="lit-body" id="d-${r.id}" style="display:none">
+      <table class="prev">${detail}</table>
+    </div>
+  </div>`;
+}
+function bindCards(host){
   host.querySelectorAll('.lit-head').forEach(h=>h.onclick=()=>{
-    const b=$('d-'+h.dataset.id); const x=h.querySelector('.lit-x');
+    const b=document.getElementById('d-'+h.dataset.id); const x=h.querySelector('.lit-x');
     const open=b.style.display==='none';
     b.style.display=open?'block':'none'; x.textContent=open?'▾':'▸';
   });
 }
+
+function renderList(){
+  const host=$('rows-list'); if(!host) return;
+  refreshFilters();
+  const q=($('q-list').value||'').trim().toLowerCase();
+  const fc=$('f-cat').value, fr=$('f-reg').value, grp=$('f-grp').value;
+  let rows=allRefs.slice();
+  if(q) rows=rows.filter(r=>{const f=r.fields;
+    return [f.ref_no,f.title_cn,f.title_original,f.author].some(v=>String(v||'').toLowerCase().includes(q));});
+  if(fc) rows=rows.filter(r=>r.fields.category===fc);
+  if(fr) rows=rows.filter(r=>regList(r.fields).includes(fr));
+  rows.sort((a,b)=>(a.fields.ref_no||'').localeCompare(b.fields.ref_no||''));
+
+  $('cnt-list').textContent='共 '+allRefs.length+' 种文献'
+    +((q||fc||fr)?('，筛出 '+rows.length+' 种'):'');
+  if(!rows.length){host.innerHTML='<div class="hint">暂无记录。</div>';return;}
+
+  if(grp==='none'){
+    host.innerHTML=rows.map(cardHtml).join('');
+    bindCards(host); return;
+  }
+
+  // grouped
+  const CAT_ORDER=['艺术理论与艺术史通论','书画','陶瓷','木漆器与金工'];
+  const groups={};
+  rows.forEach(r=>{
+    let keys = grp==='cat' ? [r.fields.category||'（未分类）'] : (regList(r.fields).length?regList(r.fields):['（未标地域）']);
+    keys.forEach(k=>{ (groups[k]=groups[k]||[]).push(r); });
+  });
+  let names=Object.keys(groups);
+  if(grp==='cat') names.sort((a,b)=>{const i=CAT_ORDER.indexOf(a),j=CAT_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j);});
+  else names.sort();
+  host.innerHTML=names.map(n=>
+    `<div class="grp-h">${esc(n)}<span class="n">${groups[n].length}</span></div>`
+    + groups[n].map(cardHtml).join('')
+  ).join('');
+  bindCards(host);
+}
 $('q-list').addEventListener('input',renderList);
+$('f-cat').addEventListener('change',renderList);
+$('f-reg').addEventListener('change',renderList);
+$('f-grp').addEventListener('change',renderList);
 $('reload-list').onclick=loadRefs;
 </script>
 </body>

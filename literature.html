@@ -64,6 +64,13 @@ table.prev tr:last-child th,table.prev tr:last-child td{border-bottom:none}
 table.prev th{background:#faf9f7;width:180px;font-weight:500;color:#777;font-size:12px;letter-spacing:.03em}
 table.prev td{white-space:pre-wrap;word-break:break-word;line-height:1.75}
 td.empty{color:#bbb}
+.lit-card{background:#fff;border:1px solid #e8e6e0;border-radius:10px;margin-bottom:9px;overflow:hidden}
+.lit-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;cursor:pointer}
+.lit-head:hover{background:#faf9f7}
+.lit-head b{font-size:14px}
+.lit-sub{font-size:12.5px;color:#888;margin-top:4px;line-height:1.6}
+.lit-x{color:#bbb;font-size:13px;flex-shrink:0;padding-top:2px}
+.lit-body{padding:0 16px 16px}
 .chnum{font-size:12px;font-weight:600;letter-spacing:.08em;color:#666;background:#f0eee9;
   border:1px solid #e3e0d8;border-radius:6px;padding:4px 10px;display:inline-block;margin:20px 0 2px}
 </style>
@@ -75,14 +82,25 @@ td.empty{color:#bbb}
 </div>
 
 <div class="tabs" role="tablist">
-  <button class="tab" role="tab" aria-selected="true"  data-p="p-book">主表 · 一本书</button>
+  <button class="tab" role="tab" aria-selected="true"  data-p="p-list">文献列表</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-book">主表 · 一本书</button>
   <button class="tab" role="tab" aria-selected="false" data-p="p-chap">子表 · 逐章</button>
   <button class="tab" role="tab" aria-selected="false" data-p="p-set">设置</button>
 </div>
 
-<!-- ========== 主表 ========== -->
 <div class="body">
-<section class="panel on" id="p-book"><div class="box">
+<section class="panel on" id="p-list"><div class="box">
+  <h3>文献列表</h3>
+  <div class="btns" style="margin-top:0">
+    <input type="text" id="q-list" placeholder="搜索编号、书名、作者…" style="flex:1;min-width:180px">
+    <button class="btn btn-secondary" id="reload-list">刷新</button>
+  </div>
+  <div class="hint" id="cnt-list"></div>
+  <div id="rows-list"></div>
+</div></section>
+
+<!-- ========== 主表 ========== -->
+<section class="panel" id="p-book"><div class="box">
   <label for="paste-b">粘贴 Claude 生成的主表卡片</label>
   <textarea id="paste-b" placeholder="【ref_no】REF-016&#10;【category】陶瓷&#10;【author】…"></textarea>
   <div class="hint">格式为每行一个 <code>【字段名】内容</code>。下一个编号：<b id="next-ref">—</b></div>
@@ -243,7 +261,7 @@ async function listAll(table,qs){
 async function nextRef(){
   const c=cfg(); if(!c.pat||!c.base||!c.tbl_literature) return null;
   try{
-    const recs=await listAll(c.tbl_literature,{'fields[]':'ref_no'});
+    const recs=await listAll(c.tbl_literature);
     let max=0;
     recs.forEach(r=>{const m=(r.fields.ref_no||'').match(/REF-(\d+)/); if(m)max=Math.max(max,+m[1]);});
     return 'REF-'+String(max+1).padStart(3,'0');
@@ -282,17 +300,20 @@ $('save-b').onclick=async()=>{
 
 /* ---------- chapters panel ---------- */
 let chapObjs=null;
+let allRefs=[];
 async function loadRefs(){
   const sel=$('ref-pick'); const c=cfg();
   if(!c.pat||!c.base||!c.tbl_literature){sel.innerHTML='<option value="">— 请先完成设置 —</option>';return;}
   try{
-    const recs=await listAll(c.tbl_literature,{'fields[]':['ref_no','title_original','title_cn']});
+    const recs=await listAll(c.tbl_literature);
+    allRefs=recs;
     recs.sort((a,b)=>(a.fields.ref_no||'').localeCompare(b.fields.ref_no||''));
     sel.innerHTML='<option value="">— 请选择 —</option>'+recs.map(r=>{
       const f=r.fields;
       const lbl=(f.ref_no||'?')+'　'+(f.title_cn||f.title_original||'');
       return `<option value="${r.id}" data-ref="${f.ref_no||''}">${lbl.replace(/</g,'&lt;')}</option>`;
     }).join('');
+    renderList();
   }catch(e){ sel.innerHTML='<option value="">— 读取失败 —</option>'; }
 }
 $('parse-c').onclick=()=>{
@@ -365,6 +386,47 @@ $('wipe-set').onclick=()=>{
 };
 
 refreshNext(); loadRefs();
-</script>
+
+/* ---------- 文献列表 ---------- */
+const LIST_FIELDS=['author','year','category','subcategory','region','language','holding','status','isbn','pages','date_added','author_background','author_position','author_core_views','book_thesis','academic_dialogue','reception','methodology'];
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function renderList(){
+  const host=$('rows-list'); if(!host) return;
+  const q=($('q-list').value||'').trim().toLowerCase();
+  let rows=allRefs.slice().sort((a,b)=>(a.fields.ref_no||'').localeCompare(b.fields.ref_no||''));
+  if(q) rows=rows.filter(r=>{
+    const f=r.fields;
+    return [f.ref_no,f.title_cn,f.title_original,f.author].some(v=>String(v||'').toLowerCase().includes(q));
+  });
+  $('cnt-list').textContent='共 '+allRefs.length+' 种文献'+(q?('，筛出 '+rows.length+' 种'):'');
+  if(!rows.length){host.innerHTML='<div class="hint">暂无记录。</div>';return;}
+  host.innerHTML=rows.map(r=>{
+    const f=r.fields;
+    const reg=Array.isArray(f.region)?f.region.join(' · '):(f.region||'');
+    const meta=[f.category,f.subcategory,reg,f.year,f.language,f.holding,f.status].filter(Boolean).join('　·　');
+    const detail=LIST_FIELDS.map(k=>{
+      let v=f[k]; if(v==null||v==='')return'';
+      if(Array.isArray(v))v=v.join(' · ');
+      return `<tr><th>${k}</th><td>${esc(v)}</td></tr>`;
+    }).join('');
+    return `<div class="lit-card">
+      <div class="lit-head" data-id="${r.id}">
+        <div><b>${esc(f.ref_no||'')}</b>　${esc(f.title_cn||f.title_original||'')}
+          <div class="lit-sub">${esc(f.author||'')}${meta?'　'+esc(meta):''}</div></div>
+        <span class="lit-x">▸</span>
+      </div>
+      <div class="lit-body" id="d-${r.id}" style="display:none">
+        <table class="prev">${detail}</table>
+      </div>
+    </div>`;
+  }).join('');
+  host.querySelectorAll('.lit-head').forEach(h=>h.onclick=()=>{
+    const b=$('d-'+h.dataset.id); const x=h.querySelector('.lit-x');
+    const open=b.style.display==='none';
+    b.style.display=open?'block':'none'; x.textContent=open?'▾':'▸';
+  });
+}
+$('q-list').addEventListener('input',renderList);
+$('reload-list').onclick=loadRefs;
 </body>
 </html>

@@ -91,6 +91,7 @@ td.empty{color:#bbb}
 <div class="body">
 <section class="panel on" id="p-list"><div class="box">
   <h3>文献列表</h3>
+  <div id="diag" style="font-size:12px;padding:9px 12px;border-radius:8px;background:#fdf3e3;border:1px solid #e8d5a8;color:#7a5a2a;margin-bottom:12px;line-height:1.7"></div>
   <div class="btns" style="margin-top:0">
     <input type="text" id="q-list" placeholder="搜索编号、书名、作者…" style="flex:1;min-width:180px">
     <button class="btn btn-secondary" id="reload-list">刷新</button>
@@ -195,16 +196,35 @@ const setCfg=o=>localStorage.setItem(CFG,JSON.stringify(o));
 function show(el,txt,bad){el.textContent=txt;el.className='msg on'+(bad?' bad':'');}
 function hide(el){el.className='msg';}
 
-/* ---------- tabs ---------- */
-document.querySelectorAll('.tab').forEach(t=>{
-  t.onclick=()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
-    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
-    t.setAttribute('aria-selected','true');
-    $(t.dataset.p).classList.add('on');
-  };
-});
-if(location.hash==='#settings') document.querySelector('[data-p="p-set"]').click();
+/* ---------- tabs (bound first, guarded) ---------- */
+try{
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+      t.setAttribute('aria-selected','true');
+      const p=document.getElementById(t.dataset.p); if(p)p.classList.add('on');
+    });
+  });
+}catch(e){}
+
+/* ---------- diagnostic banner ---------- */
+function showDiag(){
+  const el=document.getElementById('diag'); if(!el) return;
+  const c=cfg();
+  const lit=c.tbl_literature||'（未填）';
+  const ok = lit==='tblkyrinIIzgVmJb4';
+  el.innerHTML='当前读取的「文献主表」ID：<b>'+lit+'</b>'
+    + (ok ? '　✓ 正确' : '　✗ 不对！应为 tblkyrinIIzgVmJb4。请到「设置」修改')
+    + '<br>BASE：'+(c.base||'（未填）')+'　子表：'+(c.tbl_literature_chapters||'（未填）')
+    + '<br><a href="#" id="wipe-inline" style="color:#7a5a2a">清除全部本地配置并重填</a>';
+  if(!ok) el.style.background='#fde8e8', el.style.borderColor='#e8a8a8', el.style.color='#8b2a2a';
+  const w=document.getElementById('wipe-inline');
+  if(w) w.onclick=(ev)=>{ev.preventDefault();localStorage.removeItem(CFG);location.reload();};
+}
+try{ showDiag(); }catch(e){}
+
+if(location.hash==='#settings'){ const s=document.querySelector('[data-p="p-set"]'); if(s)s.click(); }
 
 /* ---------- parse 【field】value ---------- */
 function parseBlock(txt,allow){
@@ -314,6 +334,7 @@ async function loadRefs(){
       return `<option value="${r.id}" data-ref="${f.ref_no||''}">${lbl.replace(/</g,'&lt;')}</option>`;
     }).join('');
     renderList();
+    try{ showDiag(); }catch(e){}
   }catch(e){ sel.innerHTML='<option value="">— 读取失败 —</option>'; }
 }
 $('parse-c').onclick=()=>{
@@ -385,9 +406,8 @@ $('wipe-set').onclick=()=>{
   show($('msg-s'),'已清除本机凭证。');
 };
 
-refreshNext(); loadRefs();
-
-/* ---------- 文献列表 ---------- */
+try{ refreshNext(); }catch(e){}
+try{ loadRefs(); }catch(e){}
 const LIST_FIELDS=['author','year','category','subcategory','region','language','holding','status','isbn','pages','date_added','author_background','author_position','author_core_views','book_thesis','academic_dialogue','reception','methodology'];
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function renderList(){
@@ -428,5 +448,6 @@ function renderList(){
 }
 $('q-list').addEventListener('input',renderList);
 $('reload-list').onclick=loadRefs;
+</script>
 </body>
 </html>

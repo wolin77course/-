@@ -27,10 +27,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 .card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:13px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative}
 .card:hover{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.07)}
 .card-no{position:absolute;top:8px;right:9px;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em}
-.cn{font-size:14px;font-weight:500;margin:5px 0 3px;line-height:1.4;padding-right:40px}
-.cm{font-size:12px;color:#888}
-.ct{font-size:11px;color:#aaa;margin-top:3px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.badge{font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500;display:inline-block;margin:0 2px 2px 0}
+.cn{font-size:12px;font-weight:500;margin:5px 0 3px;line-height:1.4;padding-right:40px}
+.cm{font-size:11px;color:#888}
+.ct{font-size:10px;color:#aaa;margin-top:3px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.badge{font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500;display:inline-block;margin:0 2px 2px 0}
 .sec{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:#888;padding:5px 0 3px;border-bottom:1px solid #e8e6e0;margin:12px 0 7px}
 .back-btn{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:#666;cursor:pointer;padding:6px 0;border:none;background:none;margin-bottom:12px}
 .back-btn:hover{color:#1a1a1a}
@@ -247,7 +247,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
   <div><div class="sub">个人典藏 · v30 · Airtable 实时版</div><h1>青之寂寥 · 私人殿堂</h1></div>
   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <span id="cnt" style="font-size:12px;color:#888"></span>
-    <a href="writing_db.html" style="font-size:11px;padding:5px 12px;border:1px solid #AFA9EC;border-radius:20px;background:#f0eef8;color:#1A1A2E;text-decoration:none;white-space:nowrap">✦ 写作数据库</a>
+    <a href="home.html" style="font-size:11px;padding:5px 12px;border:1px solid #ddd;border-radius:20px;background:#fff;color:#666;text-decoration:none;white-space:nowrap">← 殿堂</a>
+    <a href="literature.html" style="font-size:11px;padding:5px 12px;border:1px solid #d9cfc0;border-radius:20px;background:#faf6ef;color:#6b5a42;text-decoration:none;white-space:nowrap">📚 文献库</a>
+    <a href="eye.html" style="font-size:11px;padding:5px 12px;border:1px solid #c9d6cf;border-radius:20px;background:#f2f7f5;color:#3d5c52;text-decoration:none;white-space:nowrap">👁 美之眼</a>
+    <a href="gate.html" style="font-size:11px;padding:5px 12px;border:1px solid #AFA9EC;border-radius:20px;background:#f0eef8;color:#1A1A2E;text-decoration:none;white-space:nowrap">✦ 美之法门</a>
     <button class="hdr-cfg-btn" style="background:#1a1a1a;color:#fff;border-color:#1a1a1a" onclick="openEntry()">＋ 录入新藏品</button>
     <button class="hdr-cfg-btn" onclick="openCfg()">⚙ 数据库设置</button>
   </div>
@@ -314,11 +317,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 <script>
 // ── 配置存取 ──────────────────────────────────────────
 var CFG_KEY = 'qzj_airtable_cfg';
+var SHARED_KEY = 'qzj_cfg';   // 与 home/literature/eye/gate 四页共用
 
+function readShared(){
+  try{ return JSON.parse(localStorage.getItem(SHARED_KEY)||'{}'); }catch(e){ return {}; }
+}
 function loadCfg(){
-  try{ return JSON.parse(localStorage.getItem(CFG_KEY)||'{}'); }catch(e){ return {}; }
+  // 优先读共用配置；回落到本页旧配置，并顺带迁移
+  var s = readShared();
+  if(s.pat && s.base){
+    return { token:s.pat, base:s.base, table:s.tbl_objects||'' };
+  }
+  var old;
+  try{ old = JSON.parse(localStorage.getItem(CFG_KEY)||'{}'); }catch(e){ old = {}; }
+  if(old.token && old.base){
+    // 迁移到共用配置，此后四页共享
+    var merged = readShared();
+    merged.pat = old.token; merged.base = old.base;
+    if(old.table) merged.tbl_objects = old.table;
+    localStorage.setItem(SHARED_KEY, JSON.stringify(merged));
+  }
+  return old;
 }
 function saveCfg(token,base,table){
+  // 同时写入共用配置，四页立即生效
+  var merged = readShared();
+  merged.pat = token; merged.base = base; merged.tbl_objects = table;
+  localStorage.setItem(SHARED_KEY, JSON.stringify(merged));
   localStorage.setItem(CFG_KEY, JSON.stringify({token,base,table}));
 }
 

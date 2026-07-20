@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美之法门 · 录入</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  color:#1a1a1a;background:#f5f4f0;font-size:15px;line-height:1.7}
+.hdr{background:#fff;border-bottom:1px solid #e8e6e0;padding:18px 24px;display:flex;
+  align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.hdr .sub{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#999;margin-bottom:3px}
+.hdr h1{font-size:21px;font-weight:500;letter-spacing:.03em}
+.back{font-size:13.5px;color:#666;text-decoration:none}.back:hover{color:#1a1a1a}
+.tabs{display:flex;border-bottom:1px solid #e8e6e0;background:#fff;padding:0 24px;overflow-x:auto}
+.tab{padding:13px 16px;font-size:14px;cursor:pointer;border:none;background:none;color:#888;
+  border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
+.tab[aria-selected="true"]{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+.tab:focus-visible{outline:2px solid #1a1a1a;outline-offset:-2px}
+.body{max-width:1000px;margin:0 auto;padding:24px 24px 80px}
+.panel{display:none}.panel.on{display:block}
+.box{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:22px 24px;margin-bottom:14px}
+.box h3{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#888;
+  padding-bottom:7px;border-bottom:1px solid #e8e6e0;margin-bottom:14px}
+label{display:block;font-size:12.5px;font-weight:500;color:#555;margin:16px 0 6px}
+label:first-of-type{margin-top:0}
+input[type=text],input[type=password],select,textarea{width:100%;padding:10px 12px;border:1px solid #ddd;
+  border-radius:8px;background:#fff;font-family:inherit;font-size:14px;color:#1a1a1a;outline:none;line-height:1.65}
+input[type=password],input.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+textarea{min-height:150px;resize:vertical;font-size:13.5px}
+input:focus,select:focus,textarea:focus{border-color:#1a1a1a}
+.hint{font-size:12px;color:#999;margin-top:6px;line-height:1.75}
+.hint code{background:#f0eee9;padding:1px 5px;border-radius:4px;font-size:11.5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media(max-width:640px){.row{grid-template-columns:1fr}}
+.btns{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.btn{padding:9px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:inherit}
+.btn-primary{background:#1a1a1a;color:#fff}.btn-primary:hover{background:#333}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed}
+.btn-secondary{background:#f0eee9;color:#444}.btn-secondary:hover{background:#e6e3dc}
+.msg{margin-top:14px;padding:10px 14px;border-radius:8px;font-size:13px;display:none;white-space:pre-wrap;line-height:1.7}
+.msg.on{display:block;background:#e8f4e8;color:#2d6b2d}
+.msg.on.bad{background:#fde8e8;color:#8b1a1a}
+table.prev{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;background:#fff;
+  border:1px solid #e8e6e0;border-radius:12px;overflow:hidden}
+table.prev th,table.prev td{border-bottom:1px solid #f0eeea;padding:9px 13px;text-align:left;vertical-align:top}
+table.prev tr:last-child th,table.prev tr:last-child td{border-bottom:none}
+table.prev th{background:#faf9f7;width:190px;font-weight:500;color:#777;font-size:12px}
+table.prev td{white-space:pre-wrap;word-break:break-word;line-height:1.75}
+td.empty{color:#bbb}
+.log{margin-top:14px}
+.log-item{border:1px solid #e8e6e0;border-radius:10px;padding:13px 15px;margin-bottom:9px;background:#faf9f7}
+.log-item .d{font-size:11.5px;color:#888;letter-spacing:.06em;margin-bottom:6px}
+.log-item .t{font-size:13.5px;line-height:1.8;white-space:pre-wrap;color:#333}
+.pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;background:#f0eee9;
+  color:#777;border:1px solid #e3e0d8;margin:0 5px 5px 0}
+.diff{margin-top:6px;font-size:12.5px;color:#888;background:#faf9f7;border:1px solid #eee;
+  border-radius:8px;padding:9px 12px;max-height:150px;overflow:auto;white-space:pre-wrap;line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div><div class="sub">The Gateway of Beauty · 卷二</div><h1>美之法门 · 录入</h1></div>
+  <a class="back" href="./home.html">← 返回殿堂</a>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true"  data-p="p-new">新建议题</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-log">记一次讨论</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-sum">提炼论点</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-set">设置</button>
+</div>
+
+<div class="body">
+
+<!-- 新建议题 -->
+<section class="panel on" id="p-new"><div class="box">
+  <h3>新建 · 一条议题</h3>
+  <label for="paste-n">粘贴 Claude 生成的议题卡片</label>
+  <textarea id="paste-n" placeholder="【fragment_no】3A&#10;【chapter_theme】第二章副议题：五色的物质前提&#10;【category】色彩&#10;【philosophical_context】…&#10;【predecessors】…&#10;【counter_arguments】…"></textarea>
+  <div class="hint">每行一个 <code>【字段名】内容</code>。器物只作最低限度指路，工艺实证留在《美之眼》。</div>
+  <div class="btns">
+    <button class="btn btn-primary" id="parse-n">解析预览</button>
+    <button class="btn btn-secondary" id="clear-n">清空</button>
+  </div>
+  <div class="msg" id="msg-n"></div>
+  <div id="prev-n"></div>
+  <div class="btns"><button class="btn btn-primary" id="save-n" style="display:none">写入议题表</button></div>
+</div></section>
+
+<!-- 讨论记录 -->
+<section class="panel" id="p-log"><div class="box">
+  <h3>讨论记录 · 层层累积，不覆盖旧的</h3>
+  <label for="pick-l">归属议题</label>
+  <select id="pick-l"><option value="">— 载入中 —</option></select>
+  <div class="hint" id="meta-l"></div>
+
+  <div class="row">
+    <div><label for="date-l">讨论日期</label><input type="text" id="date-l" placeholder="2026-07-20"></div>
+    <div><label for="kind-l">这次产出的性质</label>
+      <select id="kind-l">
+        <option>论点推进</option><option>反例</option><option>概念界定</option>
+        <option>前人定位</option><option>材料补充</option><option>自我修正</option>
+      </select></div>
+  </div>
+
+  <label for="text-l">讨论内容</label>
+  <textarea id="text-l" placeholder="这次讨论产出了什么"></textarea>
+
+  <div class="btns">
+    <button class="btn btn-primary" id="save-l">追加一条记录</button>
+    <button class="btn btn-secondary" id="reload-l">重新载入</button>
+  </div>
+  <div class="msg" id="msg-l"></div>
+
+  <div class="log" id="log-l"></div>
+</div></section>
+
+<!-- 提炼 -->
+<section class="panel" id="p-sum"><div class="box">
+  <h3>提炼 · 把历次讨论收束为论点</h3>
+  <label for="pick-s">议题</label>
+  <select id="pick-s"><option value="">— 载入中 —</option></select>
+
+  <label>该议题的全部讨论记录</label>
+  <div class="log" id="log-s"></div>
+
+  <div class="btns"><button class="btn btn-secondary" id="copy-s">复制全部记录，供 Claude 提炼</button></div>
+
+  <label for="field-s">写入哪一栏</label>
+  <select id="field-s">
+    <option value="distilled_argument">distilled_argument · 一句话提炼</option>
+    <option value="original_arguments">original_arguments · 原创论点</option>
+    <option value="argument">argument · 论证</option>
+    <option value="concepts_to_redefine">concepts_to_redefine · 需重新界定的概念</option>
+    <option value="counter_arguments">counter_arguments · 反例与自我防守</option>
+    <option value="predecessors">predecessors · 前人卡在哪</option>
+  </select>
+  <label for="cur-s">该栏现有内容</label>
+  <div class="diff" id="cur-s">—</div>
+  <label for="new-s">提炼后的内容（替换写入）</label>
+  <textarea id="new-s" placeholder="粘贴 Claude 提炼后的结果"></textarea>
+  <div class="btns"><button class="btn btn-primary" id="save-s">替换写入</button></div>
+  <div class="msg" id="msg-s2"></div>
+</div></section>
+
+<!-- 设置 -->
+<section class="panel" id="p-set"><div class="box">
+  <h3>数据库设置</h3>
+  <div class="hint">凭证只存在此浏览器 localStorage。与藏品、文献、美之眼页面共用同一份设置。</div>
+  <label for="s-pat">API TOKEN</label>
+  <input type="password" id="s-pat" autocomplete="off" placeholder="pat...">
+  <label for="s-base">BASE ID</label>
+  <input type="text" class="mono" id="s-base" placeholder="app...">
+  <div class="row">
+    <div><label for="s-gate">美之法门 议题表 ID</label><input type="text" class="mono" id="s-gate" placeholder="tbl..."></div>
+    <div><label for="s-disc">讨论记录 子表 ID</label><input type="text" class="mono" id="s-disc" placeholder="tbl..."></div>
+  </div>
+  <div class="btns">
+    <button class="btn btn-primary" id="save-set">测试连接并保存</button>
+    <button class="btn btn-secondary" id="wipe-set">清除凭证</button>
+  </div>
+  <div class="msg" id="msg-set"></div>
+</div></section>
+
+</div>
+
+<script>
+const CFG='qzj_cfg';
+const FIELDS=['fragment_no','chapter_theme','chapter_sub','category','civilization_axis',
+  'philosophical_context','original_arguments','predecessors','counter_arguments',
+  'concepts_to_redefine','arthistory_context','academic_refs','related_objects','eye_ref',
+  'argument','connections','distilled_argument','status'];
+const MULTI=['category','civilization_axis'];
+const $=id=>document.getElementById(id);
+const cfg=()=>{try{return JSON.parse(localStorage.getItem(CFG))||{}}catch(e){return{}}};
+const setCfg=o=>localStorage.setItem(CFG,JSON.stringify(o));
+const show=(el,t,bad)=>{el.textContent=t;el.className='msg on'+(bad?' bad':'')};
+const hide=el=>el.className='msg';
+const today=()=>new Date().toISOString().slice(0,10);
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.setAttribute('aria-selected','true'); $(t.dataset.p).classList.add('on');
+});
+if(location.hash==='#settings') document.querySelector('[data-p="p-set"]').click();
+
+function parseBlock(txt,allow){
+  const out={}; let cur=null;
+  txt.split(/\r?\n/).forEach(line=>{
+    const m=line.match(/^\s*【\s*([A-Za-z_]+)\s*】\s*(.*)$/);
+    if(m){cur=m[1].trim(); if(allow.includes(cur)) out[cur]=m[2].trim(); else cur=null;}
+    else if(cur!==null&&line.trim()!==''){out[cur]+=(out[cur]?'\n':'')+line.trim();}
+  });
+  return out;
+}
+function coerce(o){
+  const r={};
+  for(const [k,v] of Object.entries(o)){
+    if(v===''||v==='—'||v==='（待撰）'||v==='（待补）') continue;
+    if(MULTI.includes(k)) r[k]=v.split(/[、,，]/).map(s=>s.trim()).filter(Boolean);
+    else r[k]=v;
+  }
+  return r;
+}
+async function api(table,method,body,qs){
+  const c=cfg();
+  if(!c.pat||!c.base) throw new Error('尚未填写凭证，请到「设置」页。');
+  if(!table) throw new Error('尚未填写对应的 TABLE ID。');
+  let url='https://api.airtable.com/v0/'+c.base+'/'+table;
+  if(qs) url+='?'+new URLSearchParams(qs);
+  const r=await fetch(url,{method,headers:{Authorization:'Bearer '+c.pat,'Content-Type':'application/json'},
+    body:body?JSON.stringify(body):undefined});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d?.error?.message||d?.error?.type||('HTTP '+r.status));
+  return d;
+}
+async function listAll(table,qs){
+  let recs=[],offset=null;
+  do{const p=Object.assign({pageSize:100},qs||{}); if(offset)p.offset=offset;
+     const d=await api(table,'GET',null,p); recs=recs.concat(d.records||[]); offset=d.offset;}while(offset);
+  return recs;
+}
+
+/* 新建 */
+let objN=null;
+$('parse-n').onclick=()=>{
+  hide($('msg-n'));
+  const raw=$('paste-n').value.trim();
+  if(!raw){show($('msg-n'),'请先粘贴内容。',true);return;}
+  objN=coerce(parseBlock(raw,FIELDS));
+  if(!objN.fragment_no){show($('msg-n'),'缺少 fragment_no，无法写入。',true);return;}
+  $('prev-n').innerHTML='<table class="prev">'+FIELDS.map(f=>{
+    const v=objN[f]; const d=Array.isArray(v)?v.join(' · '):(v===undefined?'':v);
+    return `<tr><th>${f}</th><td class="${d===''?'empty':''}">${d===''?'（空）':String(d).replace(/</g,'&lt;')}</td></tr>`;
+  }).join('')+'</table>';
+  $('save-n').style.display='inline-block';
+  show($('msg-n'),'已解析 '+Object.keys(objN).length+' 个字段，请核对。');
+};
+$('clear-n').onclick=()=>{$('paste-n').value='';$('prev-n').innerHTML='';
+  $('save-n').style.display='none';hide($('msg-n'))};
+$('save-n').onclick=async()=>{
+  const b=$('save-n'); b.disabled=true;
+  try{
+    const d=await api(cfg().tbl_gate,'POST',{records:[{fields:objN}],typecast:true});
+    show($('msg-n'),'已写入 '+(d.records[0].fields.fragment_no||'')+'　（'+d.records[0].id+'）');
+    $('save-n').style.display='none'; loadTopics();
+  }catch(e){show($('msg-n'),'写入失败：'+e.message,true)}
+  b.disabled=false;
+};
+
+/* 议题列表 */
+let topics=[],discs=[];
+function optionsHtml(){
+  return '<option value="">— 请选择 —</option>'+topics.map(r=>{
+    const f=r.fields;
+    const lbl=(f.fragment_no||'')+'　'+(f.chapter_sub||f.chapter_theme||'');
+    return `<option value="${r.id}">${lbl.replace(/</g,'&lt;')}</option>`;
+  }).join('');
+}
+async function loadTopics(){
+  const c=cfg();
+  if(!c.pat||!c.base||!c.tbl_gate){
+    $('pick-l').innerHTML='<option value="">— 请先完成设置 —</option>';
+    $('pick-s').innerHTML='<option value="">— 请先完成设置 —</option>'; return;
+  }
+  try{
+    topics=await listAll(c.tbl_gate);
+    topics.sort((a,b)=>String(a.fields.fragment_no||'').localeCompare(String(b.fields.fragment_no||''),'zh'));
+    $('pick-l').innerHTML=optionsHtml(); $('pick-s').innerHTML=optionsHtml();
+  }catch(e){$('pick-l').innerHTML='<option value="">— 读取失败 —</option>'}
+  if(cfg().tbl_gate_disc){ try{ discs=await listAll(cfg().tbl_gate_disc);}catch(e){discs=[]} }
+}
+function renderLog(host,topicId){
+  const mine=discs.filter(d=>(d.fields.topic_link||[]).includes(topicId))
+    .sort((a,b)=>String(b.fields.date||'').localeCompare(String(a.fields.date||'')));
+  host.innerHTML = mine.length ? mine.map(d=>`<div class="log-item">
+      <div class="d">${d.fields.date||''}　·　${d.fields.kind||''}</div>
+      <div class="t">${String(d.fields.content||'').replace(/</g,'&lt;')}</div></div>`).join('')
+    : '<div class="hint">尚无讨论记录。</div>';
+}
+$('pick-l').onchange=()=>{
+  const r=topics.find(x=>x.id===$('pick-l').value);
+  $('meta-l').innerHTML=r?`<span class="pill">${(r.fields.category||[]).join?(r.fields.category||[]).join(' · '):r.fields.category||''}</span><span class="pill">${r.fields.status||''}</span>`:'';
+  renderLog($('log-l'),$('pick-l').value);
+};
+$('reload-l').onclick=async()=>{await loadTopics();$('pick-l').onchange()};
+$('date-l').value=today();
+$('save-l').onclick=async()=>{
+  hide($('msg-l'));
+  const id=$('pick-l').value, txt=$('text-l').value.trim();
+  if(!id){show($('msg-l'),'请先选择议题。',true);return;}
+  if(!txt){show($('msg-l'),'讨论内容为空。',true);return;}
+  if(!cfg().tbl_gate_disc){show($('msg-l'),'尚未填写讨论记录子表 ID，请到「设置」页。',true);return;}
+  const b=$('save-l'); b.disabled=true;
+  try{
+    await api(cfg().tbl_gate_disc,'POST',{records:[{fields:{
+      date:$('date-l').value.trim()||today(), kind:$('kind-l').value,
+      content:txt, topic_link:[id]}}],typecast:true});
+    show($('msg-l'),'已追加一条记录。');
+    $('text-l').value='';
+    discs=await listAll(cfg().tbl_gate_disc); renderLog($('log-l'),id);
+  }catch(e){show($('msg-l'),'写入失败：'+e.message,true)}
+  b.disabled=false;
+};
+
+/* 提炼 */
+function refreshSum(){
+  const r=topics.find(x=>x.id===$('pick-s').value);
+  renderLog($('log-s'),$('pick-s').value);
+  $('cur-s').textContent = r ? (r.fields[$('field-s').value]||'（空）') : '—';
+}
+$('pick-s').onchange=refreshSum;
+$('field-s').onchange=refreshSum;
+$('copy-s').onclick=()=>{
+  const id=$('pick-s').value;
+  const r=topics.find(x=>x.id===id);
+  if(!r){show($('msg-s2'),'请先选择议题。',true);return;}
+  const mine=discs.filter(d=>(d.fields.topic_link||[]).includes(id))
+    .sort((a,b)=>String(a.fields.date||'').localeCompare(String(b.fields.date||'')));
+  const t='议题：'+(r.fields.fragment_no||'')+'　'+(r.fields.chapter_sub||r.fields.chapter_theme||'')+
+    '\n\n'+mine.map(d=>'【'+(d.fields.date||'')+'　'+(d.fields.kind||'')+'】\n'+(d.fields.content||'')).join('\n\n');
+  navigator.clipboard.writeText(t).then(
+    ()=>show($('msg-s2'),'已复制 '+mine.length+' 条记录。'),
+    ()=>show($('msg-s2'),'复制失败，请手动选取。',true));
+};
+$('save-s').onclick=async()=>{
+  hide($('msg-s2'));
+  const id=$('pick-s').value, f=$('field-s').value, txt=$('new-s').value.trim();
+  if(!id){show($('msg-s2'),'请先选择议题。',true);return;}
+  if(!txt){show($('msg-s2'),'内容为空。',true);return;}
+  const b=$('save-s'); b.disabled=true;
+  try{
+    await api(cfg().tbl_gate,'PATCH',{records:[{id,fields:{[f]:txt}}],typecast:true});
+    show($('msg-s2'),'已写入 '+f+'。');
+    $('new-s').value=''; await loadTopics(); $('pick-s').value=id; refreshSum();
+  }catch(e){show($('msg-s2'),'写入失败：'+e.message,true)}
+  b.disabled=false;
+};
+
+/* 设置 */
+(function(){const c=cfg();$('s-pat').value=c.pat||'';$('s-base').value=c.base||'';
+  $('s-gate').value=c.tbl_gate||'';$('s-disc').value=c.tbl_gate_disc||''})();
+$('save-set').onclick=async()=>{
+  const c=cfg();
+  const o=Object.assign({},c,{pat:$('s-pat').value.trim(),base:$('s-base').value.trim(),
+    tbl_gate:$('s-gate').value.trim(),tbl_gate_disc:$('s-disc').value.trim()});
+  if(!o.pat||!o.base||!o.tbl_gate){show($('msg-set'),'TOKEN、BASE ID、议题表 ID 为必填。',true);return;}
+  setCfg(o);
+  try{await api(o.tbl_gate,'GET',null,{pageSize:1});
+    show($('msg-set'),'连接成功，凭证已保存到本机。'); loadTopics();
+  }catch(e){show($('msg-set'),'连接失败：'+e.message+'\n凭证仍已保存，可修正后重试。',true)}
+};
+$('wipe-set').onclick=()=>{localStorage.removeItem(CFG);
+  ['s-pat','s-base','s-gate','s-disc'].forEach(i=>$(i).value='');
+  show($('msg-set'),'已清除本机凭证。')};
+
+loadTopics();
+</script>
+</body>
+</html>

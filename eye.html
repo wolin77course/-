@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美之眼 · 录入</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  color:#1a1a1a;background:#f5f4f0;font-size:15px;line-height:1.7}
+.hdr{background:#fff;border-bottom:1px solid #e8e6e0;padding:18px 24px;display:flex;
+  align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.hdr .sub{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#999;margin-bottom:3px}
+.hdr h1{font-size:21px;font-weight:500;letter-spacing:.03em}
+.back{font-size:13.5px;color:#666;text-decoration:none}
+.back:hover{color:#1a1a1a}
+.tabs{display:flex;border-bottom:1px solid #e8e6e0;background:#fff;padding:0 24px;overflow-x:auto}
+.tab{padding:13px 16px;font-size:14px;cursor:pointer;border:none;background:none;color:#888;
+  border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
+.tab[aria-selected="true"]{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+.tab:focus-visible{outline:2px solid #1a1a1a;outline-offset:-2px}
+.body{max-width:1000px;margin:0 auto;padding:24px 24px 80px}
+.panel{display:none}.panel.on{display:block}
+.box{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:22px 24px;margin-bottom:14px}
+.box h3{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#888;
+  padding-bottom:7px;border-bottom:1px solid #e8e6e0;margin-bottom:14px}
+label{display:block;font-size:12.5px;font-weight:500;color:#555;margin:16px 0 6px}
+label:first-of-type{margin-top:0}
+input[type=text],input[type=password],select,textarea{width:100%;padding:10px 12px;border:1px solid #ddd;
+  border-radius:8px;background:#fff;font-family:inherit;font-size:14px;color:#1a1a1a;outline:none;line-height:1.65}
+input[type=password],input.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+textarea{min-height:150px;resize:vertical;font-size:13.5px}
+input:focus,select:focus,textarea:focus{border-color:#1a1a1a}
+.hint{font-size:12px;color:#999;margin-top:6px;line-height:1.75}
+.hint code{background:#f0eee9;padding:1px 5px;border-radius:4px;font-size:11.5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media(max-width:640px){.row{grid-template-columns:1fr}}
+.btns{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.btn{padding:9px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:inherit}
+.btn-primary{background:#1a1a1a;color:#fff}.btn-primary:hover{background:#333}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed}
+.btn-secondary{background:#f0eee9;color:#444}.btn-secondary:hover{background:#e6e3dc}
+.msg{margin-top:14px;padding:10px 14px;border-radius:8px;font-size:13px;display:none;white-space:pre-wrap;line-height:1.7}
+.msg.on{display:block;background:#e8f4e8;color:#2d6b2d}
+.msg.on.bad{background:#fde8e8;color:#8b1a1a}
+table.prev{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;background:#fff;
+  border:1px solid #e8e6e0;border-radius:12px;overflow:hidden}
+table.prev th,table.prev td{border-bottom:1px solid #f0eeea;padding:9px 13px;text-align:left;vertical-align:top}
+table.prev tr:last-child th,table.prev tr:last-child td{border-bottom:none}
+table.prev th{background:#faf9f7;width:180px;font-weight:500;color:#777;font-size:12px}
+table.prev td{white-space:pre-wrap;word-break:break-word;line-height:1.75}
+td.empty{color:#bbb}
+.mode{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.mode input{display:none}
+.mode label{margin:0;padding:7px 16px;border:1px solid #ddd;border-radius:20px;font-size:13px;
+  cursor:pointer;background:#fff;color:#666;font-weight:400}
+.mode input:checked+label{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:500}
+.diff{margin-top:6px;font-size:12.5px;color:#888;background:#faf9f7;border:1px solid #eee;
+  border-radius:8px;padding:9px 12px;max-height:150px;overflow:auto;white-space:pre-wrap;line-height:1.7}
+.pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;background:#f0eee9;
+  color:#777;border:1px solid #e3e0d8;margin-right:5px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div><div class="sub">The Eye of Beauty · 卷一</div><h1>美之眼 · 录入</h1></div>
+  <a class="back" href="./home.html">← 返回殿堂</a>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true"  data-p="p-new">新建章节</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-upd">更新已有</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-set">设置</button>
+</div>
+
+<div class="body">
+
+<!-- 新建 -->
+<section class="panel on" id="p-new"><div class="box">
+  <h3>新建 · 一章一件核心藏品</h3>
+  <label for="paste-n">粘贴 Claude 生成的章节卡片</label>
+  <textarea id="paste-n" placeholder="【fragment_no】E-02&#10;【chapter_no】02&#10;【chapter_title】地中海的风&#10;【core_object】QZJ-066&#10;【period】前2300–前1900&#10;【region】地中海&#10;【craft_context】…"></textarea>
+  <div class="hint">每行一个 <code>【字段名】内容</code>。<code>text</code> 正文不入库，留在 Obsidian 本地。</div>
+  <div class="btns">
+    <button class="btn btn-primary" id="parse-n">解析预览</button>
+    <button class="btn btn-secondary" id="clear-n">清空</button>
+  </div>
+  <div class="msg" id="msg-n"></div>
+  <div id="prev-n"></div>
+  <div class="btns"><button class="btn btn-primary" id="save-n" style="display:none">写入美之眼</button></div>
+</div></section>
+
+<!-- 更新 -->
+<section class="panel" id="p-upd"><div class="box">
+  <h3>更新 · 替换或添补</h3>
+  <label for="pick-u">选择章节</label>
+  <select id="pick-u"><option value="">— 载入中 —</option></select>
+  <div class="hint" id="meta-u"></div>
+
+  <label for="field-u">要更新的字段</label>
+  <select id="field-u"></select>
+
+  <label>更新方式</label>
+  <div class="mode">
+    <input type="radio" name="m" id="m-app" value="append" checked><label for="m-app">添补 · 追加到末尾并注明日期</label>
+    <input type="radio" name="m" id="m-rep" value="replace"><label for="m-rep">替换 · 清空原内容</label>
+  </div>
+  <div class="hint">添补用于讨论深入后累加；替换用于修正错误信息。替换前请先看下方原内容。</div>
+
+  <label for="cur-u">该栏现有内容</label>
+  <div class="diff" id="cur-u">—</div>
+
+  <label for="new-u">新内容</label>
+  <textarea id="new-u" placeholder="粘贴新增或修正后的内容"></textarea>
+
+  <div class="btns">
+    <button class="btn btn-primary" id="save-u">写入更新</button>
+    <button class="btn btn-secondary" id="reload-u">重新载入列表</button>
+  </div>
+  <div class="msg" id="msg-u"></div>
+</div></section>
+
+<!-- 设置 -->
+<section class="panel" id="p-set"><div class="box">
+  <h3>数据库设置</h3>
+  <div class="hint">凭证只存在此浏览器 localStorage，不会上传。与藏品、文献页面共用同一份设置。</div>
+  <label for="s-pat">API TOKEN</label>
+  <input type="password" id="s-pat" autocomplete="off" placeholder="pat...">
+  <label for="s-base">BASE ID</label>
+  <input type="text" class="mono" id="s-base" placeholder="app...">
+  <div class="row">
+    <div><label for="s-eye">美之眼 TABLE ID</label><input type="text" class="mono" id="s-eye" placeholder="tbl..."></div>
+    <div><label for="s-lit">文献主表 TABLE ID</label><input type="text" class="mono" id="s-lit" placeholder="tbl..."></div>
+  </div>
+  <div class="btns">
+    <button class="btn btn-primary" id="save-set">测试连接并保存</button>
+    <button class="btn btn-secondary" id="wipe-set">清除凭证</button>
+  </div>
+  <div class="msg" id="msg-s"></div>
+</div></section>
+
+</div>
+
+<script>
+const CFG='qzj_cfg';
+const FIELDS=['fragment_no','chapter_no','chapter_title','core_object','object_name','period',
+  'region','civilization','related_objects','craft_context','arthistory_context','academic_refs',
+  'evidence_status','counter_evidence','original_arguments','connections','distilled_argument',
+  'status','last_updated'];
+const LONG=['related_objects','craft_context','arthistory_context','academic_refs',
+  'counter_evidence','original_arguments','connections','distilled_argument'];
+const MULTI=['region','civilization'];
+const $=id=>document.getElementById(id);
+const cfg=()=>{try{return JSON.parse(localStorage.getItem(CFG))||{}}catch(e){return{}}};
+const setCfg=o=>localStorage.setItem(CFG,JSON.stringify(o));
+const show=(el,t,bad)=>{el.textContent=t;el.className='msg on'+(bad?' bad':'')};
+const hide=el=>el.className='msg';
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.setAttribute('aria-selected','true'); $(t.dataset.p).classList.add('on');
+});
+if(location.hash==='#settings') document.querySelector('[data-p="p-set"]').click();
+
+function parseBlock(txt,allow){
+  const out={}; let cur=null;
+  txt.split(/\r?\n/).forEach(line=>{
+    const m=line.match(/^\s*【\s*([A-Za-z_]+)\s*】\s*(.*)$/);
+    if(m){cur=m[1].trim(); if(allow.includes(cur)) out[cur]=m[2].trim(); else cur=null;}
+    else if(cur!==null&&line.trim()!==''){out[cur]+=(out[cur]?'\n':'')+line.trim();}
+  });
+  return out;
+}
+function coerce(o){
+  const r={};
+  for(const [k,v] of Object.entries(o)){
+    if(v===''||v==='—'||v==='（待补）') continue;
+    if(MULTI.includes(k)) r[k]=v.split(/[、,，]/).map(s=>s.trim()).filter(Boolean);
+    else r[k]=v;
+  }
+  return r;
+}
+function preview(obj,host){
+  host.innerHTML='<table class="prev">'+FIELDS.map(f=>{
+    const v=obj[f]; const d=Array.isArray(v)?v.join(' · '):(v===undefined?'':v);
+    return `<tr><th>${f}</th><td class="${d===''?'empty':''}">${d===''?'（空）':String(d).replace(/</g,'&lt;')}</td></tr>`;
+  }).join('')+'</table>';
+}
+async function api(table,method,body,qs){
+  const c=cfg();
+  if(!c.pat||!c.base) throw new Error('尚未填写凭证，请到「设置」页。');
+  if(!table) throw new Error('尚未填写美之眼 TABLE ID。');
+  let url='https://api.airtable.com/v0/'+c.base+'/'+table;
+  if(qs) url+='?'+new URLSearchParams(qs);
+  const r=await fetch(url,{method,headers:{Authorization:'Bearer '+c.pat,'Content-Type':'application/json'},
+    body:body?JSON.stringify(body):undefined});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d?.error?.message||d?.error?.type||('HTTP '+r.status));
+  return d;
+}
+async function listAll(table,qs){
+  let recs=[],offset=null;
+  do{const p=Object.assign({pageSize:100},qs||{}); if(offset)p.offset=offset;
+     const d=await api(table,'GET',null,p); recs=recs.concat(d.records||[]); offset=d.offset;}while(offset);
+  return recs;
+}
+
+/* 新建 */
+let objN=null;
+$('parse-n').onclick=()=>{
+  hide($('msg-n'));
+  const raw=$('paste-n').value.trim();
+  if(!raw){show($('msg-n'),'请先粘贴内容。',true);return;}
+  objN=coerce(parseBlock(raw,FIELDS));
+  if(!objN.fragment_no){show($('msg-n'),'缺少 fragment_no，无法写入。',true);return;}
+  preview(objN,$('prev-n'));
+  $('save-n').style.display='inline-block';
+  show($('msg-n'),'已解析 '+Object.keys(objN).length+' 个字段，请核对。');
+};
+$('clear-n').onclick=()=>{$('paste-n').value='';$('prev-n').innerHTML='';
+  $('save-n').style.display='none';hide($('msg-n'))};
+$('save-n').onclick=async()=>{
+  const b=$('save-n'); b.disabled=true;
+  try{
+    objN.last_updated=new Date().toISOString().slice(0,10);
+    const d=await api(cfg().tbl_eye,'POST',{records:[{fields:objN}],typecast:true});
+    show($('msg-n'),'已写入 '+(d.records[0].fields.fragment_no||'')+'　（'+d.records[0].id+'）');
+    $('save-n').style.display='none'; loadList();
+  }catch(e){show($('msg-n'),'写入失败：'+e.message,true)}
+  b.disabled=false;
+};
+
+/* 更新 */
+let recs=[];
+async function loadList(){
+  const sel=$('pick-u'), c=cfg();
+  if(!c.pat||!c.base||!c.tbl_eye){sel.innerHTML='<option value="">— 请先完成设置 —</option>';return;}
+  try{
+    recs=await listAll(c.tbl_eye);
+    recs.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||'')));
+    sel.innerHTML='<option value="">— 请选择 —</option>'+recs.map(r=>{
+      const f=r.fields;
+      return `<option value="${r.id}">${((f.chapter_no||'')+'　'+(f.chapter_title||f.fragment_no||'')).replace(/</g,'&lt;')}</option>`;
+    }).join('');
+  }catch(e){sel.innerHTML='<option value="">— 读取失败 —</option>'}
+}
+$('field-u').innerHTML=LONG.map(f=>`<option value="${f}">${f}</option>`).join('');
+function refreshCur(){
+  const r=recs.find(x=>x.id===$('pick-u').value);
+  const f=$('field-u').value;
+  $('cur-u').textContent = r ? (r.fields[f]||'（空）') : '—';
+  $('meta-u').innerHTML = r
+    ? `<span class="pill">${r.fields.core_object||'无核心藏品'}</span><span class="pill">${r.fields.evidence_status||'证据状态未填'}</span><span class="pill">${r.fields.status||''}</span>`
+    : '';
+}
+$('pick-u').onchange=refreshCur;
+$('field-u').onchange=refreshCur;
+$('reload-u').onclick=loadList;
+$('save-u').onclick=async()=>{
+  hide($('msg-u'));
+  const id=$('pick-u').value, f=$('field-u').value, txt=$('new-u').value.trim();
+  if(!id){show($('msg-u'),'请先选择章节。',true);return;}
+  if(!txt){show($('msg-u'),'新内容为空。',true);return;}
+  const mode=document.querySelector('input[name=m]:checked').value;
+  const r=recs.find(x=>x.id===id);
+  const old=r.fields[f]||'';
+  const val = mode==='replace' ? txt
+    : (old? old+'\n\n───── '+new Date().toISOString().slice(0,10)+' 补 ─────\n'+txt : txt);
+  const b=$('save-u'); b.disabled=true;
+  try{
+    await api(cfg().tbl_eye,'PATCH',{records:[{id,fields:{[f]:val,last_updated:new Date().toISOString().slice(0,10)}}],typecast:true});
+    show($('msg-u'),(mode==='replace'?'已替换 ':'已添补至 ')+f+'。');
+    $('new-u').value=''; await loadList(); $('pick-u').value=id; refreshCur();
+  }catch(e){show($('msg-u'),'写入失败：'+e.message,true)}
+  b.disabled=false;
+};
+
+/* 设置 */
+(function(){const c=cfg();$('s-pat').value=c.pat||'';$('s-base').value=c.base||'';
+  $('s-eye').value=c.tbl_eye||'';$('s-lit').value=c.tbl_literature||''})();
+$('save-set').onclick=async()=>{
+  const c=cfg();
+  const o=Object.assign({},c,{pat:$('s-pat').value.trim(),base:$('s-base').value.trim(),
+    tbl_eye:$('s-eye').value.trim(),tbl_literature:$('s-lit').value.trim()});
+  if(!o.pat||!o.base||!o.tbl_eye){show($('msg-s'),'TOKEN、BASE ID、美之眼 TABLE ID 为必填。',true);return;}
+  setCfg(o);
+  try{await api(o.tbl_eye,'GET',null,{pageSize:1});
+    show($('msg-s'),'连接成功，凭证已保存到本机。'); loadList();
+  }catch(e){show($('msg-s'),'连接失败：'+e.message+'\n凭证仍已保存，可修正后重试。',true)}
+};
+$('wipe-set').onclick=()=>{localStorage.removeItem(CFG);
+  ['s-pat','s-base','s-eye','s-lit'].forEach(i=>$(i).value='');
+  show($('msg-s'),'已清除本机凭证。')};
+
+loadList();
+</script>
+</body>
+</html>

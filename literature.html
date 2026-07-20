@@ -257,7 +257,10 @@ function coerce(o){
   for(const [k,v] of Object.entries(o)){
     if(v==='' || v==='—' || v==='（待补）') continue;
     if(NUM.includes(k)){ const n=parseInt(String(v).replace(/[^\d]/g,''),10); if(!isNaN(n)) r[k]=n; }
-    else if(MULTI.includes(k)) r[k]=v.split(/[、,，/／]/).map(s=>s.trim()).filter(Boolean);
+    else if(MULTI.includes(k)){
+      // region 等多选：只按顿号/逗号切分，斜线属于值本身（如「波斯 / 中东 / 蒙古」）不切
+      r[k]=v.split(/[、,，]/).map(s=>s.trim()).filter(Boolean);
+    }
     else r[k]=v;
   }
   return r;
@@ -488,12 +491,14 @@ function renderList(){
     bindCards(host); return;
   }
 
-  // grouped
+  // grouped — 每本书只归一组，不重复
   const CAT_ORDER=['艺术理论与艺术史通论','书画','陶瓷','木漆器与金工'];
   const groups={};
   rows.forEach(r=>{
-    let keys = grp==='cat' ? [r.fields.category||'（未分类）'] : (regList(r.fields).length?regList(r.fields):['（未标地域）']);
-    keys.forEach(k=>{ (groups[k]=groups[k]||[]).push(r); });
+    let key = grp==='cat'
+      ? (r.fields.category||'（未分类）')
+      : (regList(r.fields)[0]||'（未标地域）');   // 只取第一个地域大类
+    (groups[key]=groups[key]||[]).push(r);
   });
   let names=Object.keys(groups);
   if(grp==='cat') names.sort((a,b)=>{const i=CAT_ORDER.indexOf(a),j=CAT_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j);});

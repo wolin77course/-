@@ -57,6 +57,19 @@ td.empty{color:#bbb}
   color:#777;border:1px solid #e3e0d8;margin:0 5px 5px 0}
 .diff{margin-top:6px;font-size:12.5px;color:#888;background:#faf9f7;border:1px solid #eee;
   border-radius:8px;padding:9px 12px;max-height:150px;overflow:auto;white-space:pre-wrap;line-height:1.7}
+.grp-h{font-size:12.5px;font-weight:600;letter-spacing:.06em;color:#4a4a7a;background:#eeecf7;
+  border:1px solid #dcd8ee;border-radius:8px;padding:8px 13px;margin:16px 0 8px}
+.grp-h:first-child{margin-top:4px}
+.grp-h .n{color:#9a95c0;font-weight:400;margin-left:6px}
+.t-card{background:#fff;border:1px solid #e8e6e0;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.t-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:13px 15px;cursor:pointer}
+.t-head:hover{background:#faf9fc}
+.t-head b{font-size:14px}
+.t-sub{font-size:12.5px;color:#888;margin-top:4px;line-height:1.6}
+.t-x{color:#bbb;font-size:13px;flex-shrink:0;padding-top:2px}
+.t-body{padding:0 15px 15px}
+.disc-wrap{margin-top:12px;border-top:1px dashed #ddd;padding-top:10px}
+.disc-title{font-size:11.5px;font-weight:600;letter-spacing:.06em;color:#4a4a7a;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -67,7 +80,8 @@ td.empty{color:#bbb}
 </div>
 
 <div class="tabs" role="tablist">
-  <button class="tab" role="tab" aria-selected="true"  data-p="p-new">新建议题</button>
+  <button class="tab" role="tab" aria-selected="true"  data-p="p-cat">议题目录</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-new">新建议题</button>
   <button class="tab" role="tab" aria-selected="false" data-p="p-log">记一次讨论</button>
   <button class="tab" role="tab" aria-selected="false" data-p="p-sum">提炼论点</button>
   <button class="tab" role="tab" aria-selected="false" data-p="p-set">设置</button>
@@ -75,8 +89,20 @@ td.empty{color:#bbb}
 
 <div class="body">
 
+<!-- 议题目录 -->
+<section class="panel on" id="p-cat"><div class="box">
+  <h3>议题目录 · 按章展开</h3>
+  <div id="diag-g" style="display:none;font-size:12px;padding:9px 12px;border-radius:8px;margin-bottom:12px;line-height:1.7"></div>
+  <div class="btns" style="margin-top:0">
+    <input type="text" id="q-cat" placeholder="搜索编号、章、副题…" style="flex:1;min-width:180px">
+    <button class="btn btn-secondary" id="reload-cat">刷新</button>
+  </div>
+  <div class="hint" id="cnt-cat"></div>
+  <div id="rows-cat"></div>
+</div></section>
+
 <!-- 新建议题 -->
-<section class="panel on" id="p-new"><div class="box">
+<section class="panel" id="p-new"><div class="box">
   <h3>新建 · 一条议题</h3>
   <label for="paste-n">粘贴 Claude 生成的议题卡片</label>
   <textarea id="paste-n" placeholder="【fragment_no】3A&#10;【chapter_theme】第二章副议题：五色的物质前提&#10;【category】色彩&#10;【philosophical_context】…&#10;【predecessors】…&#10;【counter_arguments】…"></textarea>
@@ -273,6 +299,7 @@ async function loadTopics(){
     $('pick-l').innerHTML=optionsHtml(); $('pick-s').innerHTML=optionsHtml();
   }catch(e){$('pick-l').innerHTML='<option value="">— 读取失败 —</option>'}
   if(cfg().tbl_gate_disc){ try{ discs=await listAll(cfg().tbl_gate_disc);}catch(e){discs=[]} }
+  try{ if(typeof renderCat==='function') renderCat(); }catch(e){}
 }
 function renderLog(host,topicId){
   const mine=discs.filter(d=>(d.fields.topic_link||[]).includes(topicId))
@@ -359,6 +386,86 @@ $('wipe-set').onclick=()=>{localStorage.removeItem(CFG);
   show($('msg-set'),'已清除本机凭证。')};
 
 loadTopics();
+
+/* ---------- 议题目录（浏览） ---------- */
+const CAT_ORDER=['色彩','线条','光泽','时间','生死','情感','权力','无心','序跋','一般背景'];
+const SHOW_FIELDS=['chapter_theme','chapter_sub','civilization_axis','philosophical_context',
+  'original_arguments','predecessors','counter_arguments','concepts_to_redefine',
+  'arthistory_context','academic_refs','related_objects','eye_ref','argument',
+  'connections','distilled_argument','status'];
+function escG(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function catOf(f){const c=f.category;return Array.isArray(c)?(c[0]||'（未分类）'):(c||'（未分类）');}
+function showDiagG(){
+  const el=document.getElementById('diag-g'); if(!el) return;
+  const c=cfg(); const g=c.tbl_gate||'';
+  if(g==='tbl9ZAZjFQOuV5DQU'){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.style.background='#fde8e8';el.style.borderColor='#e8a8a8';el.style.color='#8b2a2a';
+  el.innerHTML='当前议题表 ID：<b>'+(g||'（未填）')+'</b>　✗ 应为 tbl9ZAZjFQOuV5DQU，请到「设置」修改。'
+    +'　<a href="#" id="wipeG" style="color:#8b2a2a">清除配置重填</a>';
+  const w=document.getElementById('wipeG');
+  if(w) w.onclick=e=>{e.preventDefault();localStorage.removeItem(CFG);location.reload();};
+}
+function renderDiscList(topicId,host){
+  const mine=discs.filter(d=>(d.fields.topic_link||[]).includes(topicId))
+    .sort((a,b)=>String(b.fields.date||'').localeCompare(String(a.fields.date||'')));
+  host.innerHTML = mine.length ? mine.map(d=>`<div class="log-item">
+      <div class="d">${escG(d.fields.date||'')}　·　${escG(d.fields.kind||'')}</div>
+      <div class="t">${escG(d.fields.content||'')}</div></div>`).join('')
+    : '<span class="hint">尚无讨论记录。</span>';
+}
+function renderCat(){
+  const host=document.getElementById('rows-cat'); if(!host) return;
+  showDiagG();
+  const q=(document.getElementById('q-cat').value||'').trim().toLowerCase();
+  let rows=topics.slice();
+  if(q) rows=rows.filter(r=>{const f=r.fields;
+    return [f.fragment_no,f.chapter_theme,f.chapter_sub,f.distilled_argument]
+      .some(v=>String(v||'').toLowerCase().includes(q));});
+  document.getElementById('cnt-cat').textContent='共 '+topics.length+' 则议题'+(q?('，筛出 '+rows.length+' 则'):'');
+  if(!rows.length){host.innerHTML='<div class="hint">暂无议题。</div>';return;}
+  const groups={};
+  rows.forEach(r=>{const k=catOf(r.fields);(groups[k]=groups[k]||[]).push(r);});
+  let names=Object.keys(groups).sort((a,b)=>{
+    const i=CAT_ORDER.indexOf(a),j=CAT_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j);});
+  host.innerHTML=names.map(n=>{
+    const items=groups[n].sort((a,b)=>String(a.fields.fragment_no||'').localeCompare(String(b.fields.fragment_no||''),'zh',{numeric:true}));
+    return `<div class="grp-h">${escG(n)}<span class="n">${items.length}</span></div>`+
+      items.map(r=>{
+        const f=r.fields;
+        const detail=SHOW_FIELDS.map(k=>{let v=f[k];if(v==null||v==='')return'';
+          if(Array.isArray(v))v=v.join(' · ');
+          return `<tr><th>${k}</th><td>${escG(v)}</td></tr>`;}).join('');
+        return `<div class="t-card">
+          <div class="t-head" data-id="${r.id}">
+            <div><b>${escG(f.fragment_no||'')}</b>　${escG(f.chapter_sub||f.chapter_theme||'')}
+              <div class="t-sub">${escG(f.distilled_argument||'')}</div></div>
+            <span class="t-x">▸</span>
+          </div>
+          <div class="t-body" id="tb-${r.id}" style="display:none">
+            <table class="prev" style="width:100%;border-collapse:collapse;font-size:13px">${detail}</table>
+            <div class="disc-wrap" id="dw-${r.id}" data-tid="${r.id}" data-loaded="0">
+              <div class="disc-title">讨论记录</div>
+              <div class="disc-list"><span class="hint">展开时载入…</span></div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+  }).join('');
+  host.querySelectorAll('.t-head').forEach(h=>h.onclick=()=>{
+    const b=document.getElementById('tb-'+h.dataset.id); const x=h.querySelector('.t-x');
+    const open=b.style.display==='none';
+    b.style.display=open?'block':'none'; x.textContent=open?'▾':'▸';
+    if(open){
+      const dw=b.querySelector('.disc-wrap');
+      if(dw && dw.dataset.loaded==='0'){ dw.dataset.loaded='1'; renderDiscList(dw.dataset.tid, dw.querySelector('.disc-list')); }
+    }
+  });
+}
+(function(){
+  const qc=document.getElementById('q-cat'); if(qc) qc.addEventListener('input',renderCat);
+  const rc=document.getElementById('reload-cat'); if(rc) rc.onclick=async()=>{await loadTopics();renderCat();};
+})();
 </script>
 </body>
 </html>

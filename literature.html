@@ -71,6 +71,14 @@ td.empty{color:#bbb}
 .lit-sub{font-size:12.5px;color:#888;margin-top:4px;line-height:1.6}
 .lit-x{color:#bbb;font-size:13px;flex-shrink:0;padding-top:2px}
 .lit-body{padding:0 16px 16px}
+.ch-wrap{margin-top:14px;border-top:1px dashed #ddd;padding-top:12px}
+.ch-title{font-size:11.5px;font-weight:600;letter-spacing:.08em;color:#7a5a2a;margin-bottom:10px}
+.ch-item{border:1px solid #ece8e0;border-radius:8px;margin-bottom:8px;overflow:hidden}
+.ch-h{display:flex;align-items:center;gap:8px;padding:10px 13px;cursor:pointer;font-size:13.5px;background:#faf9f6}
+.ch-h:hover{background:#f4f1ea}
+.ch-h b{color:#5c4a2a;flex-shrink:0}
+.ch-x{margin-left:auto;color:#bbb;font-size:12px}
+.ch-b{padding:2px 13px 12px}
 .filt{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 4px}
 .filt select{flex:1;min-width:130px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;
   background:#fff;font-family:inherit;font-size:13px;color:#1a1a1a}
@@ -459,14 +467,55 @@ function cardHtml(r){
     </div>
     <div class="lit-body" id="d-${r.id}" style="display:none">
       <table class="prev">${detail}</table>
+      <div class="ch-wrap" id="ch-${r.id}" data-ref="${esc(f.ref_no||'')}" data-loaded="0">
+        <div class="ch-title">逐章摘要</div>
+        <div class="ch-list"><span class="hint">展开时载入…</span></div>
+      </div>
     </div>
   </div>`;
+}
+const CHAP_SHOW=['chapter_no','chapter_title','page_range','question','materials','conclusion','technical_data','key_quotes','objects_discussed','chapter_dialogue'];
+async function loadChapters(refNo,host){
+  const c=cfg();
+  if(!c.tbl_literature_chapters){host.innerHTML='<span class="hint">未配置子表 ID。</span>';return;}
+  try{
+    const recs=await listAll(c.tbl_literature_chapters);
+    // 依 chapter_id 前缀匹配本书（REF-001-Cxx），不依赖关联字段是否已建好
+    let mine=recs.filter(x=>String(x.fields.chapter_id||'').startsWith(refNo+'-')
+      || (Array.isArray(x.fields.ref_link)&&x.fields.ref_link.length));
+    // 若上面把别的书也带进来了，再按 chapter_id 精确过滤一次
+    const strict=recs.filter(x=>String(x.fields.chapter_id||'').startsWith(refNo+'-'));
+    if(strict.length) mine=strict;
+    mine.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||''),'zh',{numeric:true}));
+    if(!mine.length){host.innerHTML='<span class="hint">尚无章节。</span>';return;}
+    host.innerHTML=mine.map(ch=>{
+      const cf=ch.fields;
+      const rows=CHAP_SHOW.map(k=>{let v=cf[k];if(v==null||v==='')return'';
+        if(Array.isArray(v))v=v.join(' · ');
+        return `<tr><th>${k}</th><td>${esc(v)}</td></tr>`;}).join('');
+      return `<div class="ch-item">
+        <div class="ch-h" data-cid="${ch.id}"><b>第 ${esc(cf.chapter_no||'')} 章</b>　${esc(cf.chapter_title||'')}<span class="ch-x">▸</span></div>
+        <div class="ch-b" id="cb-${ch.id}" style="display:none"><table class="prev">${rows}</table></div>
+      </div>`;
+    }).join('');
+    host.querySelectorAll('.ch-h').forEach(h=>h.onclick=()=>{
+      const b=document.getElementById('cb-'+h.dataset.cid); const x=h.querySelector('.ch-x');
+      const op=b.style.display==='none'; b.style.display=op?'block':'none'; x.textContent=op?'▾':'▸';
+    });
+  }catch(e){ host.innerHTML='<span class="hint">章节读取失败：'+esc(e.message)+'</span>'; }
 }
 function bindCards(host){
   host.querySelectorAll('.lit-head').forEach(h=>h.onclick=()=>{
     const b=document.getElementById('d-'+h.dataset.id); const x=h.querySelector('.lit-x');
     const open=b.style.display==='none';
     b.style.display=open?'block':'none'; x.textContent=open?'▾':'▸';
+    if(open){
+      const wrap=b.querySelector('.ch-wrap');
+      if(wrap && wrap.dataset.loaded==='0'){
+        wrap.dataset.loaded='1';
+        loadChapters(wrap.dataset.ref, wrap.querySelector('.ch-list'));
+      }
+    }
   });
 }
 

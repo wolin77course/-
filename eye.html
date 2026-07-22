@@ -59,6 +59,16 @@ td.empty{color:#bbb}
   border-radius:8px;padding:9px 12px;max-height:150px;overflow:auto;white-space:pre-wrap;line-height:1.7}
 .pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;background:#f0eee9;
   color:#777;border:1px solid #e3e0d8;margin-right:5px}
+.split{display:flex;gap:0;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;min-height:440px}
+.tree{width:260px;flex-shrink:0;border-right:1px solid #e8e6e0;background:#f4f7f5;overflow-y:auto;max-height:70vh}
+.detail{flex:1;overflow-y:auto;max-height:70vh;padding:20px 22px}
+.tree-item{font-size:13px;color:#3d5c52;padding:11px 14px;cursor:pointer;border-bottom:1px solid #e6efe9;line-height:1.5}
+.tree-item:hover{background:#eaf2ee}
+.tree-item.sel{background:#dcece4;color:#1a1a1a;font-weight:500}
+.tree-item .no{color:#5c8574;font-weight:600;margin-right:6px}
+.tree-item .obj{display:block;font-size:11px;color:#8aa89b;margin-top:3px}
+.dh{font-size:19px;font-weight:500;margin-bottom:4px}
+.dh-sub{font-size:12.5px;color:#888;margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -69,16 +79,27 @@ td.empty{color:#bbb}
 </div>
 
 <div class="tabs" role="tablist">
-  <button class="tab" role="tab" aria-selected="true"  data-p="p-new">新建章节</button>
+  <button class="tab" role="tab" aria-selected="true"  data-p="p-cat">章节目录</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-new">新建章节</button>
   <button class="tab" role="tab" aria-selected="false" data-p="p-upd">更新已有</button>
   <button class="tab" role="tab" aria-selected="false" data-p="p-set">设置</button>
 </div>
 
 <div class="body">
 
+<!-- 章节目录 -->
+<section class="panel on" id="p-cat"><div class="box">
+  <div id="diag-e" style="display:none;font-size:12px;padding:9px 12px;border-radius:8px;margin-bottom:12px;line-height:1.7"></div>
+  <input type="text" id="q-cat" placeholder="搜索章号、章名、藏品编号…" style="width:100%;margin-bottom:12px">
+  <div class="split">
+    <div class="tree" id="tree-cat"></div>
+    <div class="detail" id="detail-cat"><div class="hint" style="padding:20px">← 从左侧选择一章</div></div>
+  </div>
+</div></section>
+
 <!-- 新建 -->
-<section class="panel on" id="p-new"><div class="box">
-  <h3>新建 · 一章一件核心藏品</h3>
+<section class="panel" id="p-new"><div class="box">
+  <h3>新建 · 一章多件藏品（平等并列）</h3>
   <label for="paste-n">粘贴 Claude 生成的章节卡片</label>
   <textarea id="paste-n" placeholder="【fragment_no】E-02&#10;【chapter_no】02&#10;【chapter_title】地中海的风&#10;【core_object】QZJ-066&#10;【period】前2300–前1900&#10;【region】地中海&#10;【craft_context】…"></textarea>
   <div class="hint">每行一个 <code>【字段名】内容</code>。<code>text</code> 正文不入库，留在 Obsidian 本地。</div>
@@ -245,6 +266,7 @@ async function loadList(){
       return `<option value="${r.id}">${((f.chapter_no||'')+'　'+(f.chapter_title||f.fragment_no||'')).replace(/</g,'&lt;')}</option>`;
     }).join('');
   }catch(e){sel.innerHTML='<option value="">— 读取失败 —</option>'}
+  try{ if(typeof renderTreeE==='function') renderTreeE(); }catch(e){}
 }
 $('field-u').innerHTML=LONG.map(f=>`<option value="${f}">${f}</option>`).join('');
 function refreshCur(){
@@ -295,6 +317,52 @@ $('wipe-set').onclick=()=>{localStorage.removeItem(CFG);
   show($('msg-s'),'已清除本机凭证。')};
 
 loadList();
+
+/* ---------- 章节目录（浏览，按章号线性） ---------- */
+const EYE_SHOW=['chapter_no','chapter_title','core_object','period','region','civilization',
+  'related_objects','craft_context','arthistory_context','academic_refs','evidence_status',
+  'counter_evidence','original_arguments','connections','distilled_argument','status','last_updated'];
+function escE(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function showDiagE(){
+  const el=document.getElementById('diag-e'); if(!el) return;
+  const c=cfg(); const g=c.tbl_eye||'';
+  if(g==='tblxNbcPNKE5CISfn'){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.style.background='#fde8e8';el.style.borderColor='#e8a8a8';el.style.color='#8b2a2a';
+  el.innerHTML='当前美之眼表 ID：<b>'+(g||'（未填）')+'</b>　✗ 应为 tblxNbcPNKE5CISfn，请到「设置」修改。'
+    +'　<a href="#" id="wipeE" style="color:#8b2a2a">清除配置重填</a>';
+  const w=document.getElementById('wipeE'); if(w) w.onclick=e=>{e.preventDefault();localStorage.removeItem(CFG);location.reload();};
+}
+function showChapter(r){
+  const f=r.fields;
+  document.querySelectorAll('#tree-cat .tree-item').forEach(x=>x.classList.remove('sel'));
+  const node=document.querySelector('#tree-cat .tree-item[data-id="'+r.id+'"]'); if(node)node.classList.add('sel');
+  const rows=EYE_SHOW.map(k=>{let v=f[k];if(v==null||v==='')return'';
+    if(Array.isArray(v))v=v.join(' · ');
+    return `<tr><th>${k}</th><td>${escE(v)}</td></tr>`;}).join('');
+  document.getElementById('detail-cat').innerHTML=
+    `<div class="dh">${escE(f.chapter_no||'')}　${escE(f.chapter_title||f.fragment_no||'')}</div>
+     <div class="dh-sub">${escE(f.core_object||'')}${f.last_updated?'　·　更新于 '+escE(f.last_updated):''}</div>
+     <table class="prev" style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>`;
+}
+function renderTreeE(){
+  const host=document.getElementById('tree-cat'); if(!host) return;
+  showDiagE();
+  const q=(document.getElementById('q-cat').value||'').trim().toLowerCase();
+  let rows=recs.slice();
+  if(q) rows=rows.filter(r=>{const f=r.fields;
+    return [f.chapter_no,f.chapter_title,f.fragment_no,f.core_object].some(v=>String(v||'').toLowerCase().includes(q));});
+  rows.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||''),'zh',{numeric:true}));
+  if(!rows.length){host.innerHTML='<div class="hint" style="padding:16px">暂无章节。</div>';return;}
+  host.innerHTML=rows.map(r=>{const f=r.fields;
+    return `<div class="tree-item" data-id="${r.id}">
+      <span class="no">${escE(f.chapter_no||'')}</span>${escE(f.chapter_title||f.fragment_no||'')}
+      ${f.core_object?`<span class="obj">${escE(f.core_object)}</span>`:''}</div>`;}).join('');
+  host.querySelectorAll('.tree-item').forEach(el=>el.onclick=()=>{
+    const r=recs.find(x=>x.id===el.dataset.id); if(r) showChapter(r);
+  });
+}
+(function(){const q=document.getElementById('q-cat'); if(q) q.addEventListener('input',renderTreeE);})();
 </script>
 </body>
 </html>

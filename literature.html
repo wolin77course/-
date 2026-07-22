@@ -71,6 +71,23 @@ td.empty{color:#bbb}
 .lit-sub{font-size:12.5px;color:#888;margin-top:4px;line-height:1.6}
 .lit-x{color:#bbb;font-size:13px;flex-shrink:0;padding-top:2px}
 .lit-body{padding:0 16px 16px}
+.split{display:flex;gap:0;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;min-height:440px}
+.tree{width:300px;flex-shrink:0;border-right:1px solid #e8e6e0;background:#faf9f7;overflow-y:auto;max-height:70vh}
+.detail{flex:1;overflow-y:auto;max-height:70vh;padding:20px 22px}
+.tree-cat{font-size:13px;font-weight:600;color:#5c4a2a;padding:11px 14px;cursor:pointer;
+  border-bottom:1px solid #efece5;display:flex;justify-content:space-between;align-items:center}
+.tree-cat:hover{background:#f2ede4}
+.tree-cat .n{font-size:11px;color:#b0a488;font-weight:400}
+.tree-reg{font-size:12px;font-weight:500;color:#7a6a4a;padding:8px 14px 8px 26px;cursor:pointer;
+  border-bottom:1px solid #f2efe8;background:#f6f3ec}
+.tree-reg:hover{background:#efe9de}
+.tree-item{font-size:12.5px;color:#444;padding:9px 14px 9px 38px;cursor:pointer;border-bottom:1px solid #f2efe8;line-height:1.5}
+.tree-item:hover{background:#fff}
+.tree-item.sel{background:#efe9f7;color:#1a1a1a;font-weight:500}
+.tree-item b{color:#5c4a2a;font-weight:600}
+.tree-hide{display:none}
+.dh{font-size:19px;font-weight:500;margin-bottom:4px}
+.dh-sub{font-size:12.5px;color:#888;margin-bottom:16px}
 .ch-wrap{margin-top:14px;border-top:1px dashed #ddd;padding-top:12px}
 .ch-title{font-size:11.5px;font-weight:600;letter-spacing:.08em;color:#7a5a2a;margin-bottom:10px}
 .ch-item{border:1px solid #ece8e0;border-radius:8px;margin-bottom:8px;overflow:hidden}
@@ -105,23 +122,12 @@ td.empty{color:#bbb}
 
 <div class="body">
 <section class="panel on" id="p-list"><div class="box">
-  <h3>文献列表</h3>
   <div id="diag" style="display:none;font-size:12px;padding:9px 12px;border-radius:8px;margin-bottom:12px;line-height:1.7"></div>
-  <div class="btns" style="margin-top:0">
-    <input type="text" id="q-list" placeholder="搜索编号、书名、作者…" style="flex:1;min-width:160px">
-    <button class="btn btn-secondary" id="reload-list">刷新</button>
+  <input type="text" id="q-list" placeholder="搜索编号、书名、作者…" style="width:100%;margin-bottom:12px">
+  <div class="split">
+    <div class="tree" id="tree-list"></div>
+    <div class="detail" id="detail-list"><div class="hint" style="padding:20px">← 从左侧选择一本文献</div></div>
   </div>
-  <div class="filt">
-    <select id="f-cat"><option value="">全部品类</option></select>
-    <select id="f-reg"><option value="">全部地域</option></select>
-    <select id="f-grp">
-      <option value="cat">按品类分组</option>
-      <option value="region">按地域分组</option>
-      <option value="none">不分组</option>
-    </select>
-  </div>
-  <div class="hint" id="cnt-list"></div>
-  <div id="rows-list"></div>
 </div></section>
 
 <!-- ========== 主表 ========== -->
@@ -360,7 +366,7 @@ async function loadRefs(){
       const lbl=(f.ref_no||'?')+'　'+(f.title_cn||f.title_original||'');
       return `<option value="${r.id}" data-ref="${f.ref_no||''}">${lbl.replace(/</g,'&lt;')}</option>`;
     }).join('');
-    renderList();
+    renderTree();
     try{ showDiag(); }catch(e){}
   }catch(e){ sel.innerHTML='<option value="">— 读取失败 —</option>'; }
 }
@@ -435,59 +441,20 @@ $('wipe-set').onclick=()=>{
 
 try{ refreshNext(); }catch(e){}
 try{ loadRefs(); }catch(e){}
-const LIST_FIELDS=['author','year','category','subcategory','region','language','holding','status','isbn','pages','date_added','author_background','author_position','author_core_views','book_thesis','academic_dialogue','reception','methodology'];
+const DETAIL_FIELDS=['author','year','publisher','isbn','pages','language','holding','category','subcategory','region','status','date_added','author_background','author_position','author_core_views','book_thesis','academic_dialogue','reception','methodology'];
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function regList(f){return Array.isArray(f.region)?f.region:(f.region?[f.region]:[]);}
-
-function refreshFilters(){
-  const cats=new Set(), regs=new Set();
-  allRefs.forEach(r=>{ if(r.fields.category)cats.add(r.fields.category); regList(r.fields).forEach(x=>regs.add(x)); });
-  const cur=id=>document.getElementById(id).value;
-  const fc=cur('f-cat'), fr=cur('f-reg');
-  const CAT_ORDER=['艺术理论与艺术史通论','书画','陶瓷','木漆器与金工'];
-  const sortedCats=[...cats].sort((a,b)=>{const i=CAT_ORDER.indexOf(a),j=CAT_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j);});
-  $('f-cat').innerHTML='<option value="">全部品类</option>'+sortedCats.map(c=>`<option${c===fc?' selected':''}>${esc(c)}</option>`).join('');
-  $('f-reg').innerHTML='<option value="">全部地域</option>'+[...regs].map(c=>`<option${c===fr?' selected':''}>${esc(c)}</option>`).join('');
-}
-
-function cardHtml(r){
-  const f=r.fields;
-  const reg=regList(f).join(' · ');
-  const meta=[f.category,f.subcategory,reg,f.year,f.language,f.holding,f.status].filter(Boolean).join('　·　');
-  const detail=LIST_FIELDS.map(k=>{
-    let v=f[k]; if(v==null||v==='')return'';
-    if(Array.isArray(v))v=v.join(' · ');
-    return `<tr><th>${k}</th><td>${esc(v)}</td></tr>`;
-  }).join('');
-  return `<div class="lit-card">
-    <div class="lit-head" data-id="${r.id}">
-      <div><b>${esc(f.ref_no||'')}</b>　${esc(f.title_cn||f.title_original||'')}
-        <div class="lit-sub">${esc(f.author||'')}${meta?'　'+esc(meta):''}</div></div>
-      <span class="lit-x">▸</span>
-    </div>
-    <div class="lit-body" id="d-${r.id}" style="display:none">
-      <table class="prev">${detail}</table>
-      <div class="ch-wrap" id="ch-${r.id}" data-ref="${esc(f.ref_no||'')}" data-loaded="0">
-        <div class="ch-title">逐章摘要</div>
-        <div class="ch-list"><span class="hint">展开时载入…</span></div>
-      </div>
-    </div>
-  </div>`;
-}
+const CAT_ORDER=['艺术理论与艺术史通论','书画','陶瓷','木漆器与金工'];
 const CHAP_SHOW=['chapter_no','chapter_title','page_range','question','materials','conclusion','technical_data','key_quotes','objects_discussed','chapter_dialogue'];
+
 async function loadChapters(refNo,host){
   const c=cfg();
   if(!c.tbl_literature_chapters){host.innerHTML='<span class="hint">未配置子表 ID。</span>';return;}
   try{
     const recs=await listAll(c.tbl_literature_chapters);
-    // 依 chapter_id 前缀匹配本书（REF-001-Cxx），不依赖关联字段是否已建好
-    let mine=recs.filter(x=>String(x.fields.chapter_id||'').startsWith(refNo+'-')
-      || (Array.isArray(x.fields.ref_link)&&x.fields.ref_link.length));
-    // 若上面把别的书也带进来了，再按 chapter_id 精确过滤一次
-    const strict=recs.filter(x=>String(x.fields.chapter_id||'').startsWith(refNo+'-'));
-    if(strict.length) mine=strict;
-    mine.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||''),'zh',{numeric:true}));
-    if(!mine.length){host.innerHTML='<span class="hint">尚无章节。</span>';return;}
+    const mine=recs.filter(x=>String(x.fields.chapter_id||'').startsWith(refNo+'-'))
+      .sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||''),'zh',{numeric:true}));
+    if(!mine.length){host.innerHTML='<span class="hint">尚无章节摘要。</span>';return;}
     host.innerHTML=mine.map(ch=>{
       const cf=ch.fields;
       const rows=CHAP_SHOW.map(k=>{let v=cf[k];if(v==null||v==='')return'';
@@ -504,65 +471,64 @@ async function loadChapters(refNo,host){
     });
   }catch(e){ host.innerHTML='<span class="hint">章节读取失败：'+esc(e.message)+'</span>'; }
 }
-function bindCards(host){
-  host.querySelectorAll('.lit-head').forEach(h=>h.onclick=()=>{
-    const b=document.getElementById('d-'+h.dataset.id); const x=h.querySelector('.lit-x');
-    const open=b.style.display==='none';
-    b.style.display=open?'block':'none'; x.textContent=open?'▾':'▸';
-    if(open){
-      const wrap=b.querySelector('.ch-wrap');
-      if(wrap && wrap.dataset.loaded==='0'){
-        wrap.dataset.loaded='1';
-        loadChapters(wrap.dataset.ref, wrap.querySelector('.ch-list'));
-      }
-    }
-  });
+
+function showBook(r){
+  const f=r.fields;
+  document.querySelectorAll('.tree-item').forEach(x=>x.classList.remove('sel'));
+  const node=document.querySelector('.tree-item[data-id="'+r.id+'"]'); if(node)node.classList.add('sel');
+  const meta=[f.category,f.subcategory,regList(f).join(' / '),f.year,f.language,f.holding,f.status].filter(Boolean).join('　·　');
+  const rows=DETAIL_FIELDS.map(k=>{let v=f[k];if(v==null||v==='')return'';
+    if(Array.isArray(v))v=v.join(' · ');
+    return `<tr><th>${k}</th><td>${esc(v)}</td></tr>`;}).join('');
+  const host=document.getElementById('detail-list');
+  host.innerHTML=`<div class="dh">${esc(f.ref_no||'')}　${esc(f.title_cn||f.title_original||'')}</div>
+    <div class="dh-sub">${esc(f.author||'')}${meta?'　·　'+esc(meta):''}</div>
+    <table class="prev" style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>
+    <div class="ch-wrap"><div class="ch-title">逐章摘要</div>
+      <div id="chlist-${r.id}"><span class="hint">载入中…</span></div></div>`;
+  loadChapters(f.ref_no||'', document.getElementById('chlist-'+r.id));
 }
 
-function renderList(){
-  const host=$('rows-list'); if(!host) return;
-  refreshFilters();
-  const q=($('q-list').value||'').trim().toLowerCase();
-  const fc=$('f-cat').value, fr=$('f-reg').value, grp=$('f-grp').value;
+function renderTree(){
+  const host=document.getElementById('tree-list'); if(!host) return;
+  const q=(document.getElementById('q-list').value||'').trim().toLowerCase();
   let rows=allRefs.slice();
   if(q) rows=rows.filter(r=>{const f=r.fields;
     return [f.ref_no,f.title_cn,f.title_original,f.author].some(v=>String(v||'').toLowerCase().includes(q));});
-  if(fc) rows=rows.filter(r=>r.fields.category===fc);
-  if(fr) rows=rows.filter(r=>regList(r.fields).includes(fr));
-  rows.sort((a,b)=>(a.fields.ref_no||'').localeCompare(b.fields.ref_no||''));
-
-  $('cnt-list').textContent='共 '+allRefs.length+' 种文献'
-    +((q||fc||fr)?('，筛出 '+rows.length+' 种'):'');
-  if(!rows.length){host.innerHTML='<div class="hint">暂无记录。</div>';return;}
-
-  if(grp==='none'){
-    host.innerHTML=rows.map(cardHtml).join('');
-    bindCards(host); return;
-  }
-
-  // grouped — 每本书只归一组，不重复
-  const CAT_ORDER=['艺术理论与艺术史通论','书画','陶瓷','木漆器与金工'];
-  const groups={};
+  // 两级：品类 → 地域（只归第一个）→ 文献
+  const tree={};
   rows.forEach(r=>{
-    let key = grp==='cat'
-      ? (r.fields.category||'（未分类）')
-      : (regList(r.fields)[0]||'（未标地域）');   // 只取第一个地域大类
-    (groups[key]=groups[key]||[]).push(r);
+    const cat=r.fields.category||'（未分类）';
+    const reg=regList(r.fields)[0]||'（未标地域）';
+    (tree[cat]=tree[cat]||{});(tree[cat][reg]=tree[cat][reg]||[]).push(r);
   });
-  let names=Object.keys(groups);
-  if(grp==='cat') names.sort((a,b)=>{const i=CAT_ORDER.indexOf(a),j=CAT_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j);});
-  else names.sort();
-  host.innerHTML=names.map(n=>
-    `<div class="grp-h">${esc(n)}<span class="n">${groups[n].length}</span></div>`
-    + groups[n].map(cardHtml).join('')
-  ).join('');
-  bindCards(host);
+  const cats=Object.keys(tree).sort((a,b)=>{const i=CAT_ORDER.indexOf(a),j=CAT_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j);});
+  if(!cats.length){host.innerHTML='<div class="hint" style="padding:16px">暂无文献。</div>';return;}
+  host.innerHTML=cats.map((cat,ci)=>{
+    const regs=Object.keys(tree[cat]).sort();
+    let cnt=regs.reduce((s,rg)=>s+tree[cat][rg].length,0);
+    const inner=regs.map(rg=>{
+      const items=tree[cat][rg].sort((a,b)=>(a.fields.ref_no||'').localeCompare(b.fields.ref_no||''));
+      return `<div class="tree-reg" data-toggle="reg">${esc(rg)}<span class="n"> ${items.length}</span></div>`
+        + items.map(r=>`<div class="tree-item" data-id="${r.id}"><b>${esc(r.fields.ref_no||'')}</b> ${esc(r.fields.title_cn||r.fields.title_original||'')}</div>`).join('');
+    }).join('');
+    return `<div class="tree-cat" data-toggle="cat">${esc(cat)}<span class="n">${cnt}</span></div>`
+      + `<div class="tree-catbody">${inner}</div>`;
+  }).join('');
+  // wire toggles
+  host.querySelectorAll('.tree-cat').forEach(el=>el.onclick=()=>{
+    const b=el.nextElementSibling; b.classList.toggle('tree-hide');
+  });
+  host.querySelectorAll('.tree-reg').forEach(el=>el.onclick=()=>{
+    let n=el.nextElementSibling;
+    while(n && n.classList.contains('tree-item')){ n.classList.toggle('tree-hide'); n=n.nextElementSibling; }
+  });
+  host.querySelectorAll('.tree-item').forEach(el=>el.onclick=()=>{
+    const r=allRefs.find(x=>x.id===el.dataset.id); if(r) showBook(r);
+  });
+  try{ showDiag && showDiag(); }catch(e){}
 }
-$('q-list').addEventListener('input',renderList);
-$('f-cat').addEventListener('change',renderList);
-$('f-reg').addEventListener('change',renderList);
-$('f-grp').addEventListener('change',renderList);
-$('reload-list').onclick=loadRefs;
+document.getElementById('q-list').addEventListener('input',renderTree);
 </script>
 </body>
 </html>

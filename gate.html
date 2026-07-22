@@ -70,6 +70,20 @@ td.empty{color:#bbb}
 .t-body{padding:0 15px 15px}
 .disc-wrap{margin-top:12px;border-top:1px dashed #ddd;padding-top:10px}
 .disc-title{font-size:11.5px;font-weight:600;letter-spacing:.06em;color:#4a4a7a;margin-bottom:8px}
+.split{display:flex;gap:0;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;min-height:440px}
+.tree{width:280px;flex-shrink:0;border-right:1px solid #e8e6e0;background:#f2f0f9;overflow-y:auto;max-height:70vh}
+.detail{flex:1;overflow-y:auto;max-height:70vh;padding:20px 22px}
+.tree-cat2{font-size:13px;font-weight:600;color:#4a4a7a;padding:11px 14px;cursor:pointer;
+  border-bottom:1px solid #e4e0f2;display:flex;justify-content:space-between;align-items:center}
+.tree-cat2:hover{background:#e8e4f5}
+.tree-cat2 .n{font-size:11px;color:#9a95c0;font-weight:400}
+.tree-item{font-size:12.5px;color:#444;padding:9px 14px 9px 26px;cursor:pointer;border-bottom:1px solid #e9e5f5;line-height:1.5}
+.tree-item:hover{background:#fff}
+.tree-item.sel{background:#e0d8f2;color:#1a1a1a;font-weight:500}
+.tree-item b{color:#4a4a7a;font-weight:600}
+.tree-hide{display:none}
+.dh{font-size:19px;font-weight:500;margin-bottom:4px}
+.dh-sub{font-size:12.5px;color:#888;margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -91,14 +105,12 @@ td.empty{color:#bbb}
 
 <!-- 议题目录 -->
 <section class="panel on" id="p-cat"><div class="box">
-  <h3>议题目录 · 按章展开</h3>
   <div id="diag-g" style="display:none;font-size:12px;padding:9px 12px;border-radius:8px;margin-bottom:12px;line-height:1.7"></div>
-  <div class="btns" style="margin-top:0">
-    <input type="text" id="q-cat" placeholder="搜索编号、章、副题…" style="flex:1;min-width:180px">
-    <button class="btn btn-secondary" id="reload-cat">刷新</button>
+  <input type="text" id="q-cat" placeholder="搜索编号、章、副题…" style="width:100%;margin-bottom:12px">
+  <div class="split">
+    <div class="tree" id="tree-cat"></div>
+    <div class="detail" id="detail-cat"><div class="hint" style="padding:20px">← 从左侧选择一则议题</div></div>
   </div>
-  <div class="hint" id="cnt-cat"></div>
-  <div id="rows-cat"></div>
 </div></section>
 
 <!-- 新建议题 -->
@@ -414,52 +426,48 @@ function renderDiscList(topicId,host){
       <div class="t">${escG(d.fields.content||'')}</div></div>`).join('')
     : '<span class="hint">尚无讨论记录。</span>';
 }
+const GATE_SHOW=['chapter_theme','chapter_sub','civilization_axis','philosophical_context',
+  'original_arguments','predecessors','counter_arguments','concepts_to_redefine',
+  'arthistory_context','academic_refs','related_objects','eye_ref','argument',
+  'connections','distilled_argument','status'];
+function showTopic(r){
+  const f=r.fields;
+  document.querySelectorAll('#tree-cat .tree-item').forEach(x=>x.classList.remove('sel'));
+  const node=document.querySelector('#tree-cat .tree-item[data-id="'+r.id+'"]'); if(node)node.classList.add('sel');
+  const rows=GATE_SHOW.map(k=>{let v=f[k];if(v==null||v==='')return'';
+    if(Array.isArray(v))v=v.join(' · ');
+    return `<tr><th>${k}</th><td>${escG(v)}</td></tr>`;}).join('');
+  document.getElementById('detail-cat').innerHTML=
+    `<div class="dh">${escG(f.fragment_no||'')}　${escG(f.chapter_sub||f.chapter_theme||'')}</div>
+     <div class="dh-sub">${escG(catOf(f))}${f.status?'　·　'+escG(f.status):''}</div>
+     <table class="prev" style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>
+     <div class="disc-wrap"><div class="disc-title">讨论记录</div>
+       <div id="disc-${r.id}"><span class="hint">载入中…</span></div></div>`;
+  renderDiscList(r.id, document.getElementById('disc-'+r.id));
+}
 function renderCat(){
-  const host=document.getElementById('rows-cat'); if(!host) return;
+  const host=document.getElementById('tree-cat'); if(!host) return;
   showDiagG();
   const q=(document.getElementById('q-cat').value||'').trim().toLowerCase();
   let rows=topics.slice();
   if(q) rows=rows.filter(r=>{const f=r.fields;
     return [f.fragment_no,f.chapter_theme,f.chapter_sub,f.distilled_argument]
       .some(v=>String(v||'').toLowerCase().includes(q));});
-  document.getElementById('cnt-cat').textContent='共 '+topics.length+' 则议题'+(q?('，筛出 '+rows.length+' 则'):'');
-  if(!rows.length){host.innerHTML='<div class="hint">暂无议题。</div>';return;}
+  if(!rows.length){host.innerHTML='<div class="hint" style="padding:16px">暂无议题。</div>';return;}
   const groups={};
   rows.forEach(r=>{const k=catOf(r.fields);(groups[k]=groups[k]||[]).push(r);});
   let names=Object.keys(groups).sort((a,b)=>{
     const i=CAT_ORDER.indexOf(a),j=CAT_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j);});
   host.innerHTML=names.map(n=>{
     const items=groups[n].sort((a,b)=>String(a.fields.fragment_no||'').localeCompare(String(b.fields.fragment_no||''),'zh',{numeric:true}));
-    return `<div class="grp-h">${escG(n)}<span class="n">${items.length}</span></div>`+
-      items.map(r=>{
-        const f=r.fields;
-        const detail=SHOW_FIELDS.map(k=>{let v=f[k];if(v==null||v==='')return'';
-          if(Array.isArray(v))v=v.join(' · ');
-          return `<tr><th>${k}</th><td>${escG(v)}</td></tr>`;}).join('');
-        return `<div class="t-card">
-          <div class="t-head" data-id="${r.id}">
-            <div><b>${escG(f.fragment_no||'')}</b>　${escG(f.chapter_sub||f.chapter_theme||'')}
-              <div class="t-sub">${escG(f.distilled_argument||'')}</div></div>
-            <span class="t-x">▸</span>
-          </div>
-          <div class="t-body" id="tb-${r.id}" style="display:none">
-            <table class="prev" style="width:100%;border-collapse:collapse;font-size:13px">${detail}</table>
-            <div class="disc-wrap" id="dw-${r.id}" data-tid="${r.id}" data-loaded="0">
-              <div class="disc-title">讨论记录</div>
-              <div class="disc-list"><span class="hint">展开时载入…</span></div>
-            </div>
-          </div>
-        </div>`;
-      }).join('');
+    return `<div class="tree-cat2">${escG(n)}<span class="n">${items.length}</span></div>`
+      + `<div class="tree-catbody">`+items.map(r=>{const f=r.fields;
+          return `<div class="tree-item" data-id="${r.id}"><b>${escG(f.fragment_no||'')}</b> ${escG(f.chapter_sub||f.chapter_theme||'')}</div>`;
+        }).join('')+`</div>`;
   }).join('');
-  host.querySelectorAll('.t-head').forEach(h=>h.onclick=()=>{
-    const b=document.getElementById('tb-'+h.dataset.id); const x=h.querySelector('.t-x');
-    const open=b.style.display==='none';
-    b.style.display=open?'block':'none'; x.textContent=open?'▾':'▸';
-    if(open){
-      const dw=b.querySelector('.disc-wrap');
-      if(dw && dw.dataset.loaded==='0'){ dw.dataset.loaded='1'; renderDiscList(dw.dataset.tid, dw.querySelector('.disc-list')); }
-    }
+  host.querySelectorAll('.tree-cat2').forEach(el=>el.onclick=()=>{el.nextElementSibling.classList.toggle('tree-hide');});
+  host.querySelectorAll('.tree-item').forEach(el=>el.onclick=()=>{
+    const r=topics.find(x=>x.id===el.dataset.id); if(r) showTopic(r);
   });
 }
 (function(){

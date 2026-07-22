@@ -363,7 +363,7 @@ async function loadRefs(){
     recs.sort((a,b)=>(a.fields.ref_no||'').localeCompare(b.fields.ref_no||''));
     sel.innerHTML='<option value="">— 请选择 —</option>'+recs.map(r=>{
       const f=r.fields;
-      const lbl=(f.ref_no||'?')+'　'+(f.title_cn||f.title_original||'');
+      const lbl=(f.ref_no||'?')+'　'+(f.author?f.author+'《'+(f.title_cn||f.title_original||'')+'》':(f.title_cn||f.title_original||''));
       return `<option value="${r.id}" data-ref="${f.ref_no||''}">${lbl.replace(/</g,'&lt;')}</option>`;
     }).join('');
     renderTree();
@@ -510,7 +510,11 @@ function renderTree(){
     const inner=regs.map(rg=>{
       const items=tree[cat][rg].sort((a,b)=>(a.fields.ref_no||'').localeCompare(b.fields.ref_no||''));
       return `<div class="tree-reg" data-toggle="reg">${esc(rg)}<span class="n"> ${items.length}</span></div>`
-        + items.map(r=>`<div class="tree-item" data-id="${r.id}"><b>${esc(r.fields.ref_no||'')}</b> ${esc(r.fields.title_cn||r.fields.title_original||'')}</div>`).join('');
+        + items.map(r=>{const f=r.fields;
+            const au=esc(f.author||'');
+            const ti=esc(f.title_cn||f.title_original||'');
+            return `<div class="tree-item" data-id="${r.id}"><b>${esc(f.ref_no||'')}</b>${au?' '+au+'《'+ti+'》':' '+ti}</div>`;
+          }).join('');
     }).join('');
     return `<div class="tree-cat" data-toggle="cat">${esc(cat)}<span class="n">${cnt}</span></div>`
       + `<div class="tree-catbody">${inner}</div>`;

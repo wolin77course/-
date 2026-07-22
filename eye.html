@@ -72,6 +72,34 @@ td.empty{color:#bbb}
 .obj-card{background:#f4f7f5;border:1px solid #dfe9e3;border-radius:10px;padding:12px 14px;margin-bottom:10px}
 .obj-card b{color:#3d5c52}
 .obj-box{margin:6px 0 14px}
+/* 二级树：章 > 器物 */
+.tree-chap{font-size:13px;font-weight:600;color:#3d5c52;padding:11px 14px;cursor:pointer;
+  border-bottom:1px solid #e6efe9;display:flex;justify-content:space-between;align-items:center;background:#eaf2ee}
+.tree-chap:hover{background:#e0ece5}
+.tree-chap .n{font-size:11px;color:#7fa694;font-weight:400}
+.tree-obj{font-size:12.5px;color:#444;padding:9px 14px 9px 26px;cursor:pointer;border-bottom:1px solid #eef4f1;line-height:1.5}
+.tree-obj:hover{background:#fff}
+.tree-obj.sel{background:#dcece4;color:#1a1a1a;font-weight:500}
+.tree-obj .no{color:#5c8574;font-weight:600;margin-right:6px}
+.tree-hide{display:none}
+.chap-empty{font-size:12px;color:#aaa;padding:8px 14px 8px 26px}
+/* 字段就地编辑 */
+.fld{border:1px solid #e8e6e0;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.fld-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 13px;background:#faf9f7;border-bottom:1px solid #f0eeea}
+.fld-h .fn{font-size:12.5px;font-weight:600;color:#555}
+.fld-h .fk{font-size:11px;color:#bbb;font-weight:400;margin-left:5px}
+.fld-h .ops{display:flex;gap:6px}
+.fld-op{font-size:11.5px;padding:4px 10px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer;color:#555;font-family:inherit}
+.fld-op:hover{background:#f0eee9}
+.fld-op.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.fld-body{padding:11px 13px;font-size:13px;line-height:1.75;white-space:pre-wrap;word-break:break-word;color:#333}
+.fld-body.empty{color:#bbb}
+.fld-edit{padding:11px 13px;display:none}
+.fld-edit textarea{min-height:110px}
+.fld-edit .row2{display:flex;gap:8px;margin-top:8px;align-items:center}
+.mode-mini{display:flex;gap:6px}
+.mode-mini button{font-size:11.5px;padding:5px 12px;border-radius:16px;border:1px solid #ddd;background:#fff;cursor:pointer;color:#666;font-family:inherit}
+.mode-mini button.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
 </style>
 </head>
 <body>
@@ -83,8 +111,7 @@ td.empty{color:#bbb}
 
 <div class="tabs" role="tablist">
   <button class="tab" role="tab" aria-selected="true"  data-p="p-cat">章节目录</button>
-  <button class="tab" role="tab" aria-selected="false" data-p="p-new">新建章节</button>
-  <button class="tab" role="tab" aria-selected="false" data-p="p-upd">更新已有</button>
+  <button class="tab" role="tab" aria-selected="false" data-p="p-new">新建器物</button>
   <button class="tab" role="tab" aria-selected="false" data-p="p-set">设置</button>
 </div>
 
@@ -115,35 +142,7 @@ td.empty{color:#bbb}
   <div class="btns"><button class="btn btn-primary" id="save-n" style="display:none">写入美之眼</button></div>
 </div></section>
 
-<!-- 更新 -->
-<section class="panel" id="p-upd"><div class="box">
-  <h3>更新 · 替换或添补</h3>
-  <label for="pick-u">选择章节</label>
-  <select id="pick-u"><option value="">— 载入中 —</option></select>
-  <div class="hint" id="meta-u"></div>
-
-  <label for="field-u">要更新的字段</label>
-  <select id="field-u"></select>
-
-  <label>更新方式</label>
-  <div class="mode">
-    <input type="radio" name="m" id="m-app" value="append" checked><label for="m-app">添补 · 追加到末尾并注明日期</label>
-    <input type="radio" name="m" id="m-rep" value="replace"><label for="m-rep">替换 · 清空原内容</label>
-  </div>
-  <div class="hint">添补用于讨论深入后累加；替换用于修正错误信息。替换前请先看下方原内容。</div>
-
-  <label for="cur-u">该栏现有内容</label>
-  <div class="diff" id="cur-u">—</div>
-
-  <label for="new-u">新内容</label>
-  <textarea id="new-u" placeholder="粘贴新增或修正后的内容"></textarea>
-
-  <div class="btns">
-    <button class="btn btn-primary" id="save-u">写入更新</button>
-    <button class="btn btn-secondary" id="reload-u">重新载入列表</button>
-  </div>
-  <div class="msg" id="msg-u"></div>
-</div></section>
+<!-- 更新功能已并入「章节目录」右侧，点开器物即可就地编辑 -->
 
 <!-- 设置 -->
 <section class="panel" id="p-set"><div class="box">
@@ -169,7 +168,8 @@ td.empty{color:#bbb}
 
 <script>
 const CFG='qzj_cfg';
-const EYE_TBL='tblVaaNM9sLWy261G';        // 美之眼新表
+const EYE_TBL='tblVaaNM9sLWy261G';        // 美之眼器物表
+const CHAP_TBL='tblLDPqWRTp7IOqkI';       // 章目表（19章）
 const COL_TBL_DEFAULT='tblDyZzI72Fa6kdxd'; // 藏品表（器物信息来源）
 // 新 8 内容字段 + chapter_no 主键 + 2 系统字段
 const FIELDS=['chapter_no','object_name','accession_no','craft_history','image',
@@ -302,53 +302,18 @@ $('save-n').onclick=async()=>{
   b.disabled=false;
 };
 
-/* 更新 */
-let recs=[];
+/* 载入器物 + 章目 */
+let recs=[], chaps=[];
 async function loadList(){
-  const sel=$('pick-u'), c=cfg();
-  if(!c.pat||!c.base||!c.tbl_eye){sel.innerHTML='<option value="">— 请先完成设置 —</option>';return;}
+  const c=cfg();
+  if(!c.pat||!c.base||!c.tbl_eye){ try{renderTreeE();}catch(e){} return; }
   try{
     recs=await listAll(c.tbl_eye);
-    recs.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||'')));
-    sel.innerHTML='<option value="">— 请选择 —</option>'+recs.map(r=>{
-      const f=r.fields;
-      return `<option value="${r.id}">${((f.chapter_no||'')+'　'+(f.object_name||'')).replace(/</g,'&lt;')}</option>`;
-    }).join('');
-  }catch(e){sel.innerHTML='<option value="">— 读取失败 —</option>'}
-  try{ if(typeof renderTreeE==='function') renderTreeE(); }catch(e){}
+    recs.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||''),'zh',{numeric:true}));
+  }catch(e){recs=[]}
+  try{ chaps=await listAll(CHAP_TBL); chaps.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||''),'zh',{numeric:true})); }catch(e){chaps=[]}
+  try{ renderTreeE(); }catch(e){}
 }
-const UPD_FIELDS=['object_name','accession_no','craft_history','image','historical_bg',
-  'concept_lineage','authentication','arthistory','status'];
-$('field-u').innerHTML=UPD_FIELDS.map(f=>`<option value="${f}">${FLAB[f]||f} · ${f}</option>`).join('');
-function refreshCur(){
-  const r=recs.find(x=>x.id===$('pick-u').value);
-  const f=$('field-u').value;
-  $('cur-u').textContent = r ? (r.fields[f]||'（空）') : '—';
-  $('meta-u').innerHTML = r
-    ? `<span class="pill">${r.fields.accession_no||'无 QZJ 号'}</span><span class="pill">${r.fields.status||'状态未填'}</span>`
-    : '';
-}
-$('pick-u').onchange=refreshCur;
-$('field-u').onchange=refreshCur;
-$('reload-u').onclick=loadList;
-$('save-u').onclick=async()=>{
-  hide($('msg-u'));
-  const id=$('pick-u').value, f=$('field-u').value, txt=$('new-u').value.trim();
-  if(!id){show($('msg-u'),'请先选择章节。',true);return;}
-  if(!txt){show($('msg-u'),'新内容为空。',true);return;}
-  const mode=document.querySelector('input[name=m]:checked').value;
-  const r=recs.find(x=>x.id===id);
-  const old=r.fields[f]||'';
-  const val = mode==='replace' ? txt
-    : (old? old+'\n\n───── '+new Date().toISOString().slice(0,10)+' 补 ─────\n'+txt : txt);
-  const b=$('save-u'); b.disabled=true;
-  try{
-    await api(cfg().tbl_eye,'PATCH',{records:[{id,fields:{[f]:val,last_updated:new Date().toISOString().slice(0,10)}}],typecast:true});
-    show($('msg-u'),(mode==='replace'?'已替换 ':'已添补至 ')+f+'。');
-    $('new-u').value=''; await loadList(); $('pick-u').value=id; refreshCur();
-  }catch(e){show($('msg-u'),'写入失败：'+e.message,true)}
-  b.disabled=false;
-};
 
 /* 设置 */
 (function(){const c=cfg();$('s-pat').value=c.pat||'';$('s-base').value=c.base||'';
@@ -388,36 +353,108 @@ function showDiagE(){
     +'　<a href="#" id="wipeE" style="color:#8b6a2a">清除配置重填</a>';
   const w=document.getElementById('wipeE'); if(w) w.onclick=e=>{e.preventDefault();localStorage.removeItem(CFG);location.reload();};
 }
-function showChapter(r){
+/* 内容字段（就地编辑用；短字段默认只替换，长字段可添补） */
+const CONTENT_FIELDS=['object_name','accession_no','craft_history','image',
+  'historical_bg','concept_lineage','authentication','arthistory','status'];
+const APPENDABLE=['craft_history','historical_bg','concept_lineage','authentication','arthistory'];
+
+/* 器物详情 + 就地编辑 */
+function showObject(r){
   const f=r.fields;
-  document.querySelectorAll('#tree-cat .tree-item').forEach(x=>x.classList.remove('sel'));
-  const node=document.querySelector('#tree-cat .tree-item[data-id="'+r.id+'"]'); if(node)node.classList.add('sel');
-  const rows=EYE_SHOW.map(k=>{let v=f[k];if(v==null||v==='')return'';
-    if(Array.isArray(v))v=v.join(' · ');
-    const lab=(FLAB[k]||k)+' <span style="color:#bbb;font-weight:400">'+k+'</span>';
-    return `<tr><th>${lab}</th><td>${escE(v)}</td></tr>`;}).join('');
+  document.querySelectorAll('#tree-cat .tree-obj').forEach(x=>x.classList.remove('sel'));
+  const node=document.querySelector('#tree-cat .tree-obj[data-id="'+r.id+'"]'); if(node)node.classList.add('sel');
+  const flds=CONTENT_FIELDS.map(k=>{
+    const raw=f[k]; const v=Array.isArray(raw)?raw.join(' · '):(raw==null?'':String(raw));
+    const canApp=APPENDABLE.includes(k);
+    return `<div class="fld" data-k="${k}">
+      <div class="fld-h">
+        <div><span class="fn">${FLAB[k]||k}</span><span class="fk">${k}</span></div>
+        <div class="ops">
+          <button class="fld-op" data-act="edit">编辑</button>
+        </div>
+      </div>
+      <div class="fld-body ${v===''?'empty':''}" data-body>${v===''?'（空）':escE(v)}</div>
+      <div class="fld-edit" data-edit>
+        <textarea data-ta placeholder="粘贴 Claude 输出或手动编辑">${escE(v)}</textarea>
+        ${canApp?`<div class="row2"><span class="hint" style="margin:0">写入方式：</span>
+          <div class="mode-mini"><button data-m="replace" class="on">替换</button><button data-m="append">添补（带日期）</button></div></div>`:''}
+        <div class="btns" style="margin-top:8px">
+          <button class="btn btn-primary" data-save style="padding:6px 16px;font-size:13px">保存</button>
+          <button class="btn btn-secondary" data-cancel style="padding:6px 16px;font-size:13px">取消</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
   document.getElementById('detail-cat').innerHTML=
     `<div class="dh">${escE(f.chapter_no||'')}　${escE(f.object_name||'')}</div>
      <div class="dh-sub">${escE(f.accession_no||'')}${f.last_updated?'　·　更新于 '+escE(f.last_updated):''}</div>
      ${f.accession_no?'<label>器物信息（藏品库实时）</label><div class="obj-box" id="chap-obj"></div>':''}
-     <table class="prev" style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>`;
+     <label style="margin-top:6px">章节字段（点「编辑」就地替换或添补）</label>
+     ${flds}`;
   if(f.accession_no) renderObjInfo(f.accession_no,document.getElementById('chap-obj'));
+  // 绑定每个字段的编辑交互
+  document.querySelectorAll('#detail-cat .fld').forEach(fld=>{
+    const k=fld.dataset.k;
+    const bodyEl=fld.querySelector('[data-body]');
+    const editEl=fld.querySelector('[data-edit]');
+    const ta=fld.querySelector('[data-ta]');
+    let mode='replace';
+    fld.querySelectorAll('.mode-mini button').forEach(b=>b.onclick=()=>{
+      mode=b.dataset.m; fld.querySelectorAll('.mode-mini button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    });
+    fld.querySelector('[data-act="edit"]').onclick=()=>{
+      const open=editEl.style.display==='block';
+      editEl.style.display=open?'none':'block'; bodyEl.style.display=open?'block':'none';
+    };
+    fld.querySelector('[data-cancel]').onclick=()=>{editEl.style.display='none';bodyEl.style.display='block';};
+    fld.querySelector('[data-save]').onclick=async()=>{
+      const txt=ta.value.trim();
+      const old=(()=>{const raw=r.fields[k];return Array.isArray(raw)?raw.join(' · '):(raw==null?'':String(raw));})();
+      let val=txt;
+      if(APPENDABLE.includes(k)&&mode==='append'&&old){
+        val=old+'\n\n───── '+new Date().toISOString().slice(0,10)+' 补 ─────\n'+txt;
+      }
+      const sv=fld.querySelector('[data-save]'); sv.disabled=true;
+      try{
+        await api(cfg().tbl_eye,'PATCH',{records:[{id:r.id,fields:{[k]:val,last_updated:new Date().toISOString().slice(0,10)}}],typecast:true});
+        r.fields[k]=val; r.fields.last_updated=new Date().toISOString().slice(0,10);
+        showObject(r); // 重渲染
+      }catch(e){alert('写入失败：'+e.message); sv.disabled=false;}
+    };
+  });
 }
+/* 两级树：章 > 器物 */
 function renderTreeE(){
   const host=document.getElementById('tree-cat'); if(!host) return;
   showDiagE();
   const q=(document.getElementById('q-cat').value||'').trim().toLowerCase();
-  let rows=recs.slice();
-  if(q) rows=rows.filter(r=>{const f=r.fields;
-    return [f.chapter_no,f.object_name,f.accession_no].some(v=>String(v||'').toLowerCase().includes(q));});
-  rows.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||''),'zh',{numeric:true}));
-  if(!rows.length){host.innerHTML='<div class="hint" style="padding:16px">暂无章节。</div>';return;}
-  host.innerHTML=rows.map(r=>{const f=r.fields;
-    return `<div class="tree-item" data-id="${r.id}">
-      <span class="no">${escE(f.chapter_no||'')}</span>${escE(f.object_name||'')}
-      ${f.accession_no?`<span class="obj">${escE(f.accession_no)}</span>`:''}</div>`;}).join('');
-  host.querySelectorAll('.tree-item').forEach(el=>el.onclick=()=>{
-    const r=recs.find(x=>x.id===el.dataset.id); if(r) showChapter(r);
+  // 章目：优先用章目表；若空则从器物已有 chapter_no 兜底
+  let chapList = chaps.length
+    ? chaps.map(c=>({no:String(c.fields.chapter_no||''),title:String(c.fields.chapter_title||'')}))
+    : [...new Set(recs.map(r=>String(r.fields.chapter_no||'')))].map(no=>({no,title:''}));
+  // 器物按章分组
+  const byChap={};
+  recs.forEach(r=>{const no=String(r.fields.chapter_no||'');(byChap[no]=byChap[no]||[]).push(r);});
+  // 搜索过滤器物
+  function matchObj(r){if(!q)return true;const f=r.fields;
+    return [f.chapter_no,f.object_name,f.accession_no].some(v=>String(v||'').toLowerCase().includes(q));}
+  let html=chapList.map(ch=>{
+    let objs=(byChap[ch.no]||[]).filter(matchObj)
+      .sort((a,b)=>String(a.fields.object_name||'').localeCompare(String(b.fields.object_name||''),'zh'));
+    if(q && !objs.length) return ''; // 搜索时隐藏空章
+    const items = objs.length ? objs.map(r=>{const f=r.fields;
+      return `<div class="tree-obj" data-id="${r.id}">${escE(f.object_name||'(未命名)')}
+        ${f.accession_no?`<span class="obj" style="display:block;font-size:11px;color:#8aa89b;margin-top:2px">${escE(f.accession_no)}</span>`:''}</div>`;
+    }).join('') : '<div class="chap-empty">（本章暂无器物）</div>';
+    return `<div class="tree-chap"><span><span class="no" style="color:#5c8574;margin-right:6px">${escE(ch.no)}</span>${escE(ch.title)}</span><span class="n">${objs.length||''}</span></div>
+      <div class="tree-chapbody">${items}</div>`;
+  }).join('');
+  host.innerHTML = html || '<div class="hint" style="padding:16px">暂无章节，请先在章目表填入或新建器物。</div>';
+  // 章可折叠
+  host.querySelectorAll('.tree-chap').forEach(el=>el.onclick=()=>el.nextElementSibling.classList.toggle('tree-hide'));
+  // 器物点击
+  host.querySelectorAll('.tree-obj').forEach(el=>el.onclick=()=>{
+    const r=recs.find(x=>x.id===el.dataset.id); if(r) showObject(r);
   });
 }
 (function(){const q=document.getElementById('q-cat'); if(q) q.addEventListener('input',renderTreeE);})();

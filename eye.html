@@ -69,6 +69,9 @@ td.empty{color:#bbb}
 .tree-item .obj{display:block;font-size:11px;color:#8aa89b;margin-top:3px}
 .dh{font-size:19px;font-weight:500;margin-bottom:4px}
 .dh-sub{font-size:12.5px;color:#888;margin-bottom:16px}
+.obj-card{background:#f4f7f5;border:1px solid #dfe9e3;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.obj-card b{color:#3d5c52}
+.obj-box{margin:6px 0 14px}
 </style>
 </head>
 <body>
@@ -101,8 +104,8 @@ td.empty{color:#bbb}
 <section class="panel" id="p-new"><div class="box">
   <h3>新建 · 一章多件藏品（平等并列）</h3>
   <label for="paste-n">粘贴 Claude 生成的章节卡片</label>
-  <textarea id="paste-n" placeholder="【fragment_no】E-02&#10;【chapter_no】02&#10;【chapter_title】地中海的风&#10;【core_object】QZJ-066&#10;【period】前2300–前1900&#10;【region】地中海&#10;【craft_context】…"></textarea>
-  <div class="hint">每行一个 <code>【字段名】内容</code>。<code>text</code> 正文不入库，留在 Obsidian 本地。</div>
+  <textarea id="paste-n" placeholder="【chapter_no】01&#10;【object_name】塞浦路斯红磨光三足壶&#10;【accession_no】QZJ-066&#10;【craft_history】…&#10;【image】…&#10;【historical_bg】…&#10;【concept_lineage】…&#10;【authentication】…&#10;【arthistory】…"></textarea>
+  <div class="hint">每行一个 <code>【字段名】内容</code>。<code>accession_no</code> 只填 QZJ 号（多件用逗号分隔），器物信息由藏品库实时调用；<code>image</code> 留空则回退藏品库图。正文不入库，留在 Obsidian。</div>
   <div class="btns">
     <button class="btn btn-primary" id="parse-n">解析预览</button>
     <button class="btn btn-secondary" id="clear-n">清空</button>
@@ -152,8 +155,9 @@ td.empty{color:#bbb}
   <input type="text" class="mono" id="s-base" placeholder="app...">
   <div class="row">
     <div><label for="s-eye">美之眼 TABLE ID</label><input type="text" class="mono" id="s-eye" placeholder="tbl..."></div>
-    <div><label for="s-lit">文献主表 TABLE ID</label><input type="text" class="mono" id="s-lit" placeholder="tbl..."></div>
+    <div><label for="s-col">藏品表 TABLE ID（器物信息来源）</label><input type="text" class="mono" id="s-col" placeholder="tblDyZzI72Fa6kdxd"></div>
   </div>
+  <div class="hint">藏品表 ID 用于按 QZJ 号实时拉取器物信息，留空则用默认 <code>tblDyZzI72Fa6kdxd</code>。</div>
   <div class="btns">
     <button class="btn btn-primary" id="save-set">测试连接并保存</button>
     <button class="btn btn-secondary" id="wipe-set">清除凭证</button>
@@ -165,13 +169,18 @@ td.empty{color:#bbb}
 
 <script>
 const CFG='qzj_cfg';
-const FIELDS=['fragment_no','chapter_no','chapter_title','core_object','object_name','period',
-  'region','civilization','related_objects','craft_context','arthistory_context','academic_refs',
-  'evidence_status','counter_evidence','original_arguments','connections','distilled_argument',
-  'status','last_updated'];
-const LONG=['related_objects','craft_context','arthistory_context','academic_refs',
-  'counter_evidence','original_arguments','connections','distilled_argument'];
-const MULTI=['region','civilization'];
+const EYE_TBL='tblVaaNM9sLWy261G';        // 美之眼新表
+const COL_TBL_DEFAULT='tblDyZzI72Fa6kdxd'; // 藏品表（器物信息来源）
+// 新 8 内容字段 + chapter_no 主键 + 2 系统字段
+const FIELDS=['chapter_no','object_name','accession_no','craft_history','image',
+  'historical_bg','concept_lineage','authentication','arthistory','status','last_updated'];
+const LONG=['craft_history','image','historical_bg','concept_lineage','authentication','arthistory'];
+const MULTI=[];
+// 字段中文名（显示用）
+const FLAB={chapter_no:'章号',object_name:'器物名',accession_no:'器物信息(QZJ号)',
+  craft_history:'器物工艺技术史',image:'图像',historical_bg:'历史背景',
+  concept_lineage:'观念脉络',authentication:'鉴定研究',arthistory:'艺术史研究',
+  status:'状态',last_updated:'更新日期'};
 const $=id=>document.getElementById(id);
 const cfg=()=>{try{return JSON.parse(localStorage.getItem(CFG))||{}}catch(e){return{}}};
 const setCfg=o=>localStorage.setItem(CFG,JSON.stringify(o));
@@ -206,8 +215,11 @@ function coerce(o){
 function preview(obj,host){
   host.innerHTML='<table class="prev">'+FIELDS.map(f=>{
     const v=obj[f]; const d=Array.isArray(v)?v.join(' · '):(v===undefined?'':v);
-    return `<tr><th>${f}</th><td class="${d===''?'empty':''}">${d===''?'（空）':String(d).replace(/</g,'&lt;')}</td></tr>`;
-  }).join('')+'</table>';
+    const lab=(FLAB[f]||f)+' <span style="color:#bbb;font-weight:400">'+f+'</span>';
+    return `<tr><th>${lab}</th><td class="${d===''?'empty':''}">${d===''?'（空）':String(d).replace(/</g,'&lt;')}</td></tr>`;
+  }).join('')+'</table>'
+  + (obj.accession_no?'<label>器物信息（藏品库实时）</label><div class="obj-box" id="prev-obj"></div>':'');
+  if(obj.accession_no) renderObjInfo(obj.accession_no,document.getElementById('prev-obj'));
 }
 async function api(table,method,body,qs){
   const c=cfg();
@@ -227,6 +239,43 @@ async function listAll(table,qs){
      const d=await api(table,'GET',null,p); recs=recs.concat(d.records||[]); offset=d.offset;}while(offset);
   return recs;
 }
+/* ---------- 藏品库实时调用 ---------- */
+const colTbl=()=>cfg().tbl_collection||COL_TBL_DEFAULT;
+const colCache={};   // QZJ号 -> fields | null
+const COL_SHOW=['name','period','kiln','material','dims','region','photo'];
+const COL_LAB={name:'器名',period:'时代',kiln:'窑口',material:'材质',dims:'尺寸',region:'地区',photo:'图'};
+function parseQZJ(s){return String(s||'').split(/[,，、\s]+/).map(x=>x.trim()).filter(Boolean);}
+async function fetchObj(no){
+  if(no in colCache) return colCache[no];
+  try{
+    const esc=no.replace(/'/g,"\\'");
+    const d=await api(colTbl(),'GET',null,{filterByFormula:"{accession_no}='"+esc+"'",pageSize:1});
+    colCache[no]=(d.records&&d.records[0])?d.records[0].fields:null;
+  }catch(e){colCache[no]=null;}
+  return colCache[no];
+}
+function objPhotoURL(f){const p=f&&f.photo;
+  if(Array.isArray(p)&&p[0]&&p[0].url) return p[0].url;
+  if(typeof p==='string'&&/^https?:/.test(p)) return p; return '';}
+async function renderObjInfo(accession,host){
+  const nos=parseQZJ(accession);
+  if(!nos.length){host.innerHTML='<span class="hint">未填 QZJ 号。</span>';return;}
+  host.innerHTML='<span class="hint">从藏品库读取中…</span>';
+  const parts=[];
+  for(const no of nos){
+    const f=await fetchObj(no);
+    if(!f){parts.push(`<div class="obj-card"><b>${escE(no)}</b>　<span class="hint">藏品库未取到</span></div>`);continue;}
+    const rows=COL_SHOW.filter(k=>k!=='photo'&&f[k]!=null&&f[k]!=='')
+      .map(k=>`<span class="pill">${COL_LAB[k]}：${escE(Array.isArray(f[k])?f[k].join('·'):f[k])}</span>`).join('');
+    const img=objPhotoURL(f);
+    parts.push(`<div class="obj-card">
+      <div><b>${escE(no)}</b>　${escE(f.name||'')}</div>
+      <div style="margin-top:6px">${rows}</div>
+      ${img?`<img src="${img}" alt="" style="max-width:160px;max-height:160px;border-radius:8px;margin-top:8px;border:1px solid #e8e6e0">`:''}
+    </div>`);
+  }
+  host.innerHTML=parts.join('');
+}
 
 /* 新建 */
 let objN=null;
@@ -235,7 +284,7 @@ $('parse-n').onclick=()=>{
   const raw=$('paste-n').value.trim();
   if(!raw){show($('msg-n'),'请先粘贴内容。',true);return;}
   objN=coerce(parseBlock(raw,FIELDS));
-  if(!objN.fragment_no){show($('msg-n'),'缺少 fragment_no，无法写入。',true);return;}
+  if(!objN.chapter_no){show($('msg-n'),'缺少 chapter_no，无法写入。',true);return;}
   preview(objN,$('prev-n'));
   $('save-n').style.display='inline-block';
   show($('msg-n'),'已解析 '+Object.keys(objN).length+' 个字段，请核对。');
@@ -247,7 +296,7 @@ $('save-n').onclick=async()=>{
   try{
     objN.last_updated=new Date().toISOString().slice(0,10);
     const d=await api(cfg().tbl_eye,'POST',{records:[{fields:objN}],typecast:true});
-    show($('msg-n'),'已写入 '+(d.records[0].fields.fragment_no||'')+'　（'+d.records[0].id+'）');
+    show($('msg-n'),'已写入 章'+(d.records[0].fields.chapter_no||'')+' '+(d.records[0].fields.object_name||'')+'　（'+d.records[0].id+'）');
     $('save-n').style.display='none'; loadList();
   }catch(e){show($('msg-n'),'写入失败：'+e.message,true)}
   b.disabled=false;
@@ -263,18 +312,20 @@ async function loadList(){
     recs.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||'')));
     sel.innerHTML='<option value="">— 请选择 —</option>'+recs.map(r=>{
       const f=r.fields;
-      return `<option value="${r.id}">${((f.chapter_no||'')+'　'+(f.chapter_title||f.fragment_no||'')).replace(/</g,'&lt;')}</option>`;
+      return `<option value="${r.id}">${((f.chapter_no||'')+'　'+(f.object_name||'')).replace(/</g,'&lt;')}</option>`;
     }).join('');
   }catch(e){sel.innerHTML='<option value="">— 读取失败 —</option>'}
   try{ if(typeof renderTreeE==='function') renderTreeE(); }catch(e){}
 }
-$('field-u').innerHTML=LONG.map(f=>`<option value="${f}">${f}</option>`).join('');
+const UPD_FIELDS=['object_name','accession_no','craft_history','image','historical_bg',
+  'concept_lineage','authentication','arthistory','status'];
+$('field-u').innerHTML=UPD_FIELDS.map(f=>`<option value="${f}">${FLAB[f]||f} · ${f}</option>`).join('');
 function refreshCur(){
   const r=recs.find(x=>x.id===$('pick-u').value);
   const f=$('field-u').value;
   $('cur-u').textContent = r ? (r.fields[f]||'（空）') : '—';
   $('meta-u').innerHTML = r
-    ? `<span class="pill">${r.fields.core_object||'无核心藏品'}</span><span class="pill">${r.fields.evidence_status||'证据状态未填'}</span><span class="pill">${r.fields.status||''}</span>`
+    ? `<span class="pill">${r.fields.accession_no||'无 QZJ 号'}</span><span class="pill">${r.fields.status||'状态未填'}</span>`
     : '';
 }
 $('pick-u').onchange=refreshCur;
@@ -301,11 +352,11 @@ $('save-u').onclick=async()=>{
 
 /* 设置 */
 (function(){const c=cfg();$('s-pat').value=c.pat||'';$('s-base').value=c.base||'';
-  $('s-eye').value=c.tbl_eye||'';$('s-lit').value=c.tbl_literature||''})();
+  $('s-eye').value=c.tbl_eye||'';$('s-col').value=c.tbl_collection||''})();
 $('save-set').onclick=async()=>{
   const c=cfg();
   const o=Object.assign({},c,{pat:$('s-pat').value.trim(),base:$('s-base').value.trim(),
-    tbl_eye:$('s-eye').value.trim(),tbl_literature:$('s-lit').value.trim()});
+    tbl_eye:$('s-eye').value.trim(),tbl_collection:$('s-col').value.trim()});
   if(!o.pat||!o.base||!o.tbl_eye){show($('msg-s'),'TOKEN、BASE ID、美之眼 TABLE ID 为必填。',true);return;}
   setCfg(o);
   try{await api(o.tbl_eye,'GET',null,{pageSize:1});
@@ -313,24 +364,28 @@ $('save-set').onclick=async()=>{
   }catch(e){show($('msg-s'),'连接失败：'+e.message+'\n凭证仍已保存，可修正后重试。',true)}
 };
 $('wipe-set').onclick=()=>{localStorage.removeItem(CFG);
-  ['s-pat','s-base','s-eye','s-lit'].forEach(i=>$(i).value='');
+  ['s-pat','s-base','s-eye','s-col'].forEach(i=>$(i).value='');
   show($('msg-s'),'已清除本机凭证。')};
 
 loadList();
 
 /* ---------- 章节目录（浏览，按章号线性） ---------- */
-const EYE_SHOW=['chapter_no','chapter_title','core_object','period','region','civilization',
-  'related_objects','craft_context','arthistory_context','academic_refs','evidence_status',
-  'counter_evidence','original_arguments','connections','distilled_argument','status','last_updated'];
+const EYE_SHOW=['chapter_no','object_name','accession_no','craft_history','image',
+  'historical_bg','concept_lineage','authentication','arthistory','status','last_updated'];
 function escE(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function showDiagE(){
   const el=document.getElementById('diag-e'); if(!el) return;
   const c=cfg(); const g=c.tbl_eye||'';
-  if(g==='tblxNbcPNKE5CISfn'){ el.style.display='none'; return; }
+  if(g===EYE_TBL){ el.style.display='none'; return; }
   el.style.display='block';
-  el.style.background='#fde8e8';el.style.borderColor='#e8a8a8';el.style.color='#8b2a2a';
-  el.innerHTML='当前美之眼表 ID：<b>'+(g||'（未填）')+'</b>　✗ 应为 tblxNbcPNKE5CISfn，请到「设置」修改。'
-    +'　<a href="#" id="wipeE" style="color:#8b2a2a">清除配置重填</a>';
+  if(!g){
+    el.style.background='#fdf6e8';el.style.borderColor='#e8d8a8';el.style.color='#8b6a2a';
+    el.innerHTML='尚未填写美之眼表 ID，请到「设置」填入 <b>'+EYE_TBL+'</b>。';
+    return;
+  }
+  el.style.background='#fdf6e8';el.style.borderColor='#e8d8a8';el.style.color='#8b6a2a';
+  el.innerHTML='当前美之眼表 ID：<b>'+g+'</b>　（推荐新表 '+EYE_TBL+'）　若为有意使用其他表可忽略此提示。'
+    +'　<a href="#" id="wipeE" style="color:#8b6a2a">清除配置重填</a>';
   const w=document.getElementById('wipeE'); if(w) w.onclick=e=>{e.preventDefault();localStorage.removeItem(CFG);location.reload();};
 }
 function showChapter(r){
@@ -339,11 +394,14 @@ function showChapter(r){
   const node=document.querySelector('#tree-cat .tree-item[data-id="'+r.id+'"]'); if(node)node.classList.add('sel');
   const rows=EYE_SHOW.map(k=>{let v=f[k];if(v==null||v==='')return'';
     if(Array.isArray(v))v=v.join(' · ');
-    return `<tr><th>${k}</th><td>${escE(v)}</td></tr>`;}).join('');
+    const lab=(FLAB[k]||k)+' <span style="color:#bbb;font-weight:400">'+k+'</span>';
+    return `<tr><th>${lab}</th><td>${escE(v)}</td></tr>`;}).join('');
   document.getElementById('detail-cat').innerHTML=
-    `<div class="dh">${escE(f.chapter_no||'')}　${escE(f.chapter_title||f.fragment_no||'')}</div>
-     <div class="dh-sub">${escE(f.core_object||'')}${f.last_updated?'　·　更新于 '+escE(f.last_updated):''}</div>
+    `<div class="dh">${escE(f.chapter_no||'')}　${escE(f.object_name||'')}</div>
+     <div class="dh-sub">${escE(f.accession_no||'')}${f.last_updated?'　·　更新于 '+escE(f.last_updated):''}</div>
+     ${f.accession_no?'<label>器物信息（藏品库实时）</label><div class="obj-box" id="chap-obj"></div>':''}
      <table class="prev" style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>`;
+  if(f.accession_no) renderObjInfo(f.accession_no,document.getElementById('chap-obj'));
 }
 function renderTreeE(){
   const host=document.getElementById('tree-cat'); if(!host) return;
@@ -351,13 +409,13 @@ function renderTreeE(){
   const q=(document.getElementById('q-cat').value||'').trim().toLowerCase();
   let rows=recs.slice();
   if(q) rows=rows.filter(r=>{const f=r.fields;
-    return [f.chapter_no,f.chapter_title,f.fragment_no,f.core_object].some(v=>String(v||'').toLowerCase().includes(q));});
+    return [f.chapter_no,f.object_name,f.accession_no].some(v=>String(v||'').toLowerCase().includes(q));});
   rows.sort((a,b)=>String(a.fields.chapter_no||'').localeCompare(String(b.fields.chapter_no||''),'zh',{numeric:true}));
   if(!rows.length){host.innerHTML='<div class="hint" style="padding:16px">暂无章节。</div>';return;}
   host.innerHTML=rows.map(r=>{const f=r.fields;
     return `<div class="tree-item" data-id="${r.id}">
-      <span class="no">${escE(f.chapter_no||'')}</span>${escE(f.chapter_title||f.fragment_no||'')}
-      ${f.core_object?`<span class="obj">${escE(f.core_object)}</span>`:''}</div>`;}).join('');
+      <span class="no">${escE(f.chapter_no||'')}</span>${escE(f.object_name||'')}
+      ${f.accession_no?`<span class="obj">${escE(f.accession_no)}</span>`:''}</div>`;}).join('');
   host.querySelectorAll('.tree-item').forEach(el=>el.onclick=()=>{
     const r=recs.find(x=>x.id===el.dataset.id); if(r) showChapter(r);
   });

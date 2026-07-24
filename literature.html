@@ -61,8 +61,12 @@ table.prev{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;
   background:#fff;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden}
 table.prev th,table.prev td{border-bottom:1px solid #f0eeea;padding:9px 13px;text-align:left;vertical-align:top}
 table.prev tr:last-child th,table.prev tr:last-child td{border-bottom:none}
-table.prev th{background:#faf9f7;width:180px;font-weight:500;color:#777;font-size:12px;letter-spacing:.03em}
-table.prev td{white-space:pre-wrap;word-break:break-word;line-height:1.75}
+table.prev th{background:#faf9f7;width:150px;font-weight:500;color:#777;font-size:12px;letter-spacing:.03em}
+table.prev td{white-space:pre-wrap;word-break:break-word;line-height:2.0;
+  font-size:13.5px;color:#2f2d29;padding-top:12px;padding-bottom:14px;
+  max-width:0}
+/* 段间留白：pre-wrap 下的空行本身即成段距，此处补强首行缩进感 */
+table.prev td::first-line{line-height:2.0}
 td.empty{color:#bbb}
 .lit-card{background:#fff;border:1px solid #e8e6e0;border-radius:10px;margin-bottom:9px;overflow:hidden}
 .lit-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;cursor:pointer}
@@ -443,6 +447,24 @@ try{ refreshNext(); }catch(e){}
 try{ loadRefs(); }catch(e){}
 const DETAIL_FIELDS=['author','year','publisher','isbn','pages','language','holding','category','subcategory','region','status','date_added','author_background','author_position','author_core_views','book_thesis','academic_dialogue','reception','methodology'];
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+/* 长文本排版：在逻辑断点处插入换行，供 white-space:pre-wrap 渲染 */
+function fmt(v){
+  let s=String(v==null?'':v);
+  // 已有换行则尊重原文，只做轻度补强
+  s=s.replace(/\r\n/g,'\n');
+  // 单遍处理：一个断点单元 = 可选的连续★ + 可选的圈码/（一）/【/⚠️
+  // 用 $1 保留整个标记，避免多条规则互相在已插入的换行上再次触发
+  const M='[①-⑳]|（(?:[一二三四五六七八九十]+|\\d+|[甲乙丙丁戊己庚辛])）|【|⚠️';
+  // 标记与★可前后相邻（★★③ / ③★★ / ★★ / ③ 均视为同一断点单元）
+  const UNIT='(?:★+\\s*)?(?:'+M+')(?:\\s*★+)?|★+';
+  s=s.replace(new RegExp('\\s*('+UNIT+')','g'),'\n$1');
+  // 5) 句号＋后接“作者/本书/其/此/须/但/而”等新句时不强断，避免过碎——仅在分号后且句子较长时断
+  s=s.replace(/；(?=\S{20,})/g,'；\n');
+  // 收尾：合并多余空行、去首尾空白
+  s=s.replace(/\n{3,}/g,'\n\n').replace(/^\n+/,'').replace(/\s+$/,'');
+  return s;
+}
 function regList(f){return Array.isArray(f.region)?f.region:(f.region?[f.region]:[]);}
 const CAT_ORDER=['艺术理论与艺术史通论','书画','陶瓷','木漆器与金工'];
 const CHAP_SHOW=['chapter_no','chapter_title','page_range','question','materials','conclusion','technical_data','key_quotes','objects_discussed','chapter_dialogue'];
@@ -459,7 +481,7 @@ async function loadChapters(refNo,host){
       const cf=ch.fields;
       const rows=CHAP_SHOW.map(k=>{let v=cf[k];if(v==null||v==='')return'';
         if(Array.isArray(v))v=v.join(' · ');
-        return `<tr><th>${k}</th><td>${esc(v)}</td></tr>`;}).join('');
+        return `<tr><th>${k}</th><td>${esc(fmt(v))}</td></tr>`;}).join('');
       return `<div class="ch-item">
         <div class="ch-h" data-cid="${ch.id}"><b>第 ${esc(cf.chapter_no||'')} 章</b>　${esc(cf.chapter_title||'')}<span class="ch-x">▸</span></div>
         <div class="ch-b" id="cb-${ch.id}" style="display:none"><table class="prev">${rows}</table></div>
@@ -479,7 +501,7 @@ function showBook(r){
   const meta=[f.category,f.subcategory,regList(f).join(' / '),f.year,f.language,f.holding,f.status].filter(Boolean).join('　·　');
   const rows=DETAIL_FIELDS.map(k=>{let v=f[k];if(v==null||v==='')return'';
     if(Array.isArray(v))v=v.join(' · ');
-    return `<tr><th>${k}</th><td>${esc(v)}</td></tr>`;}).join('');
+    return `<tr><th>${k}</th><td>${esc(fmt(v))}</td></tr>`;}).join('');
   const host=document.getElementById('detail-list');
   host.innerHTML=`<div class="dh">${esc(f.ref_no||'')}　${esc(f.title_cn||f.title_original||'')}</div>
     <div class="dh-sub">${esc(f.author||'')}${meta?'　·　'+esc(meta):''}</div>

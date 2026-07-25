@@ -84,6 +84,22 @@ td.empty{color:#bbb}
 .tree-hide{display:none}
 .dh{font-size:19px;font-weight:500;margin-bottom:4px}
 .dh-sub{font-size:12.5px;color:#888;margin-bottom:16px}
+.btn-sm{padding:6px 14px;font-size:13px}
+.disc-acts{float:right;font-size:11.5px}
+.disc-acts a{color:#9a95c0;text-decoration:none;margin-left:10px}
+.disc-acts a:hover{color:#4a4a7a;text-decoration:underline}
+.disc-acts a.disc-del:hover{color:#8b2a2a}
+.disc-editbox{width:100%;min-height:90px;padding:9px 11px;border:1px solid #ccc;border-radius:8px;
+  font-family:inherit;font-size:13.5px;line-height:1.7;resize:vertical}
+.quick-add{margin-bottom:14px}
+.qa-box{width:100%;min-height:70px;padding:9px 11px;border:1px solid #ddd;border-radius:8px;
+  font-family:inherit;font-size:13.5px;line-height:1.7;resize:vertical}
+.qa-box:focus{border-color:#1a1a1a;outline:none}
+.qa-kind{width:auto;padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:13px}
+.repo-entry{font-size:13px;font-weight:600;color:#7a5a2a;background:#f5efe4;border:1px solid #e6dcc8;
+  border-bottom:1px solid #e4e0f2;padding:11px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.repo-entry:hover{background:#efe6d4}
+.repo-entry .n{font-size:11px;color:#b09a70;font-weight:400}
 </style>
 </head>
 <body>
@@ -400,7 +416,7 @@ $('wipe-set').onclick=()=>{localStorage.removeItem(CFG);
 loadTopics();
 
 /* ---------- 议题目录（浏览） ---------- */
-const CAT_ORDER=['色彩','线条','光泽','时间','生死','情感','权力','无心','序跋','一般背景'];
+const CAT_ORDER=['色彩','线条','光泽','时间','生死','情感','权力','无心','序跋','一般背景','讨论仓库'];
 const SHOW_FIELDS=['chapter_theme','chapter_sub','civilization_axis','philosophical_context',
   'original_arguments','predecessors','counter_arguments','concepts_to_redefine',
   'arthistory_context','academic_refs','related_objects','eye_ref','argument',
@@ -421,10 +437,44 @@ function showDiagG(){
 function renderDiscList(topicId,host){
   const mine=discs.filter(d=>(d.fields.topic_link||[]).includes(topicId))
     .sort((a,b)=>String(b.fields.date||'').localeCompare(String(a.fields.date||'')));
-  host.innerHTML = mine.length ? mine.map(d=>`<div class="log-item">
-      <div class="d">${escG(d.fields.date||'')}　·　${escG(d.fields.kind||'')}</div>
-      <div class="t">${escG(d.fields.content||'')}</div></div>`).join('')
+  host.innerHTML = mine.length ? mine.map(d=>`<div class="log-item" data-did="${d.id}">
+      <div class="d">${escG(d.fields.date||'')}　·　${escG(d.fields.kind||'')}
+        <span class="disc-acts">
+          <a href="#" class="disc-edit" data-did="${d.id}">编辑</a>
+          <a href="#" class="disc-del" data-did="${d.id}">删除</a>
+        </span></div>
+      <div class="t" data-role="txt">${escG(d.fields.content||'')}</div></div>`).join('')
     : '<span class="hint">尚无讨论记录。</span>';
+  host.querySelectorAll('.disc-edit').forEach(a=>a.onclick=e=>{e.preventDefault();beginEditDisc(a.dataset.did,topicId,host);});
+  host.querySelectorAll('.disc-del').forEach(a=>a.onclick=e=>{e.preventDefault();delDisc(a.dataset.did,topicId,host);});
+}
+function beginEditDisc(did,topicId,host){
+  const d=discs.find(x=>x.id===did); if(!d) return;
+  const item=host.querySelector('.log-item[data-did="'+did+'"]'); if(!item) return;
+  const t=item.querySelector('[data-role="txt"]');
+  t.innerHTML=`<textarea class="disc-editbox">${escG(d.fields.content||'')}</textarea>
+    <div class="btns" style="margin-top:8px">
+      <button class="btn btn-primary btn-sm disc-save">保存</button>
+      <button class="btn btn-secondary btn-sm disc-cancel">取消</button></div>`;
+  item.querySelector('.disc-cancel').onclick=()=>renderDiscList(topicId,host);
+  item.querySelector('.disc-save').onclick=async(ev)=>{
+    const val=item.querySelector('.disc-editbox').value.trim();
+    if(!val){alert('内容不能为空。');return;}
+    ev.target.disabled=true;
+    try{
+      await api(cfg().tbl_gate_disc,'PATCH',{records:[{id:did,fields:{content:val}}],typecast:true});
+      const rec=discs.find(x=>x.id===did); if(rec) rec.fields.content=val;
+      renderDiscList(topicId,host);
+    }catch(e){alert('保存失败：'+e.message);ev.target.disabled=false;}
+  };
+}
+async function delDisc(did,topicId,host){
+  if(!confirm('确定删除这条讨论记录？此操作不可撤销。')) return;
+  try{
+    await api(cfg().tbl_gate_disc,'DELETE',null,{'records[]':did});
+    discs=discs.filter(x=>x.id!==did);
+    renderDiscList(topicId,host);
+  }catch(e){alert('删除失败：'+e.message);}
 }
 const GATE_SHOW=['chapter_theme','chapter_sub','civilization_axis','philosophical_context',
   'original_arguments','predecessors','counter_arguments','concepts_to_redefine',
@@ -442,8 +492,35 @@ function showTopic(r){
      <div class="dh-sub">${escG(catOf(f))}${f.status?'　·　'+escG(f.status):''}</div>
      <table class="prev" style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>
      <div class="disc-wrap"><div class="disc-title">讨论记录</div>
+       <div class="quick-add">
+         <textarea id="qa-${r.id}" class="qa-box" placeholder="直接粘贴讨论内容，追加到本议题下…"></textarea>
+         <div class="btns" style="margin-top:8px">
+           <select id="qk-${r.id}" class="qa-kind">
+             <option>论点推进</option><option>反例</option><option>概念界定</option>
+             <option>前人定位</option><option>材料补充</option><option>自我修正</option>
+           </select>
+           <button class="btn btn-primary btn-sm" id="qb-${r.id}">追加</button>
+         </div>
+       </div>
        <div id="disc-${r.id}"><span class="hint">载入中…</span></div></div>`;
   renderDiscList(r.id, document.getElementById('disc-'+r.id));
+  const qb=document.getElementById('qb-'+r.id);
+  if(qb) qb.onclick=async()=>{
+    const box=document.getElementById('qa-'+r.id);
+    const val=box.value.trim();
+    if(!val){alert('内容为空。');return;}
+    if(!cfg().tbl_gate_disc){alert('尚未填写讨论记录子表 ID，请到「设置」页。');return;}
+    qb.disabled=true;
+    try{
+      const kind=document.getElementById('qk-'+r.id).value;
+      const d=await api(cfg().tbl_gate_disc,'POST',{records:[{fields:{
+        date:today(),kind:kind,content:val,topic_link:[r.id]}}],typecast:true});
+      discs.push(d.records[0]);
+      box.value='';
+      renderDiscList(r.id, document.getElementById('disc-'+r.id));
+    }catch(e){alert('追加失败：'+e.message);}
+    qb.disabled=false;
+  };
 }
 function renderCat(){
   const host=document.getElementById('tree-cat'); if(!host) return;
@@ -453,12 +530,13 @@ function renderCat(){
   if(q) rows=rows.filter(r=>{const f=r.fields;
     return [f.fragment_no,f.chapter_theme,f.chapter_sub,f.distilled_argument]
       .some(v=>String(v||'').toLowerCase().includes(q));});
-  if(!rows.length){host.innerHTML='<div class="hint" style="padding:16px">暂无议题。</div>';return;}
+  const repoBtn='<div class="repo-entry" id="repo-entry">📥 讨论仓库<span class="n">暂存未分类讨论</span></div>';
+  if(!rows.length){host.innerHTML=repoBtn+'<div class="hint" style="padding:16px">暂无议题。</div>';bindRepo();return;}
   const groups={};
   rows.forEach(r=>{const k=catOf(r.fields);(groups[k]=groups[k]||[]).push(r);});
   let names=Object.keys(groups).sort((a,b)=>{
     const i=CAT_ORDER.indexOf(a),j=CAT_ORDER.indexOf(b);return (i<0?99:i)-(j<0?99:j);});
-  host.innerHTML=names.map(n=>{
+  host.innerHTML=repoBtn+names.map(n=>{
     const items=groups[n].sort((a,b)=>String(a.fields.fragment_no||'').localeCompare(String(b.fields.fragment_no||''),'zh',{numeric:true}));
     return `<div class="tree-cat2">${escG(n)}<span class="n">${items.length}</span></div>`
       + `<div class="tree-catbody">`+items.map(r=>{const f=r.fields;
@@ -469,6 +547,30 @@ function renderCat(){
   host.querySelectorAll('.tree-item').forEach(el=>el.onclick=()=>{
     const r=topics.find(x=>x.id===el.dataset.id); if(r) showTopic(r);
   });
+  bindRepo();
+}
+/* 讨论仓库：一个专用议题，零散讨论都归到它下面 */
+function findRepo(){
+  return topics.find(r=>catOf(r.fields)==='讨论仓库' || String(r.fields.fragment_no||'')==='0000');
+}
+function bindRepo(){
+  const el=document.getElementById('repo-entry'); if(!el) return;
+  el.onclick=async()=>{
+    let repo=findRepo();
+    if(!repo){
+      if(!confirm('尚无「讨论仓库」，是否现在创建？')) return;
+      try{
+        const d=await api(cfg().tbl_gate,'POST',{records:[{fields:{
+          fragment_no:'0000', chapter_theme:'讨论仓库', chapter_sub:'暂存未分类讨论',
+          category:['讨论仓库'],
+          philosophical_context:'尚未归入具体章节的零散讨论，先在此累积，日后再拆分到对应议题。'
+        }}],typecast:true});
+        topics.push(d.records[0]); repo=d.records[0];
+        renderCat();
+      }catch(e){alert('创建失败：'+e.message);return;}
+    }
+    showTopic(repo);
+  };
 }
 (function(){
   const qc=document.getElementById('q-cat'); if(qc) qc.addEventListener('input',renderCat);

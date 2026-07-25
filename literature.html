@@ -9,24 +9,24 @@
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
   color:#1a1a1a;background:#f5f4f0;font-size:15px;line-height:1.7}
 
-.hdr{background:#fff;border-bottom:1px solid #e8e6e0;padding:18px 24px;display:flex;
+.hdr{background:#fff;border-bottom:1px solid #e8e6e0;padding:7px 24px;display:flex;
   align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
 .hdr .sub{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#999;margin-bottom:3px}
-.hdr h1{font-size:21px;font-weight:500;letter-spacing:.03em}
+.hdr h1{font-size:18px;font-weight:500;letter-spacing:.03em}
 .back{font-size:13.5px;color:#666;text-decoration:none}
 .back:hover{color:#1a1a1a}
 
 .tabs{display:flex;border-bottom:1px solid #e8e6e0;background:#fff;padding:0 24px;overflow-x:auto}
-.tab{padding:13px 16px;font-size:14px;cursor:pointer;border:none;background:none;color:#888;
+.tab{padding:9px 16px;font-size:14px;cursor:pointer;border:none;background:none;color:#888;
   border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
 .tab[aria-selected="true"]{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
 .tab:focus-visible{outline:2px solid #1a1a1a;outline-offset:-2px}
 
-.body{max-width:1600px;margin:0 auto;padding:24px 36px 80px}
+.body{max-width:1760px;margin:0 auto;padding:8px 28px 60px}
 .panel{display:none}
 .panel.on{display:block}
 
-.box{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:22px 24px;margin-bottom:14px}
+.box{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:14px 18px;margin-bottom:14px}
 .box h3{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#888;
   padding-bottom:7px;border-bottom:1px solid #e8e6e0;margin-bottom:14px}
 
@@ -71,9 +71,12 @@ td.empty{color:#bbb}
 .lit-sub{font-size:12.5px;color:#888;margin-top:4px;line-height:1.6}
 .lit-x{color:#bbb;font-size:13px;flex-shrink:0;padding-top:2px}
 .lit-body{padding:0 16px 16px}
-.split{display:flex;gap:0;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;min-height:440px}
-.tree{width:260px;flex-shrink:0;border-right:1px solid #e8e6e0;background:#faf9f7;overflow-y:auto;max-height:70vh}
-.detail{flex:1;overflow-y:auto;max-height:70vh;padding:22px 26px}
+.split{display:flex;gap:0;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;min-height:620px}
+.box-browse{padding:4px 2px 8px;border:none;background:transparent;margin-bottom:0}
+#p-list.panel{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 16px}
+.box-browse .split{min-height:calc(100vh - 150px);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.tree{width:260px;flex-shrink:0;border-right:1px solid #e8e6e0;background:#faf9f7;overflow-y:auto;max-height:calc(100vh - 150px)}
+.detail{flex:1;overflow-y:auto;max-height:calc(100vh - 150px);padding:12px 26px}
 .tree-cat{font-size:13px;font-weight:600;color:#5c4a2a;padding:11px 14px;cursor:pointer;
   border-bottom:1px solid #efece5;display:flex;justify-content:space-between;align-items:center}
 .tree-cat:hover{background:#f2ede4}
@@ -121,12 +124,12 @@ td.empty{color:#bbb}
 </div>
 
 <div class="body">
-<section class="panel on" id="p-list"><div class="box">
+<section class="panel on" id="p-list"><div class="box box-browse">
   <div id="diag" style="display:none;font-size:12px;padding:9px 12px;border-radius:8px;margin-bottom:12px;line-height:1.7"></div>
-  <input type="text" id="q-list" placeholder="搜索编号、书名、作者…" style="width:100%;margin-bottom:12px">
+  <input type="text" id="q-list" placeholder="搜索编号、书名、作者…" style="width:100%;max-width:300px;margin-bottom:8px;padding:5px 11px;font-size:13.5px">
   <div class="split">
     <div class="tree" id="tree-list"></div>
-    <div class="detail" id="detail-list"><div class="hint" style="padding:20px">← 从左侧选择一本文献</div></div>
+    <div class="detail" id="detail-list"><div class="hint" style="padding:8px 4px">← 从左侧选择一本文献</div></div>
   </div>
 </div></section>
 

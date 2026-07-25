@@ -61,10 +61,12 @@ td.empty{color:#bbb}
   color:#777;border:1px solid #e3e0d8;margin-right:5px}
 .split{display:flex;gap:0;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden;min-height:620px}
 /* 章节目录（浏览）：整栏铺开、上下更贴 */
-.box-browse{padding:8px 10px 10px;border:none;background:transparent;margin-bottom:0}
+.box-browse{padding:4px 2px 8px;border:none;background:transparent;margin-bottom:0}
+/* 章节目录页通栏：跳出 body 居中限宽，铺满窗口 */
+#p-cat.panel{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;padding:0 16px}
 .box-browse .split{min-height:calc(100vh - 150px);box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .tree{width:260px;flex-shrink:0;border-right:1px solid #e8e6e0;background:#f4f7f5;overflow-y:auto;max-height:calc(100vh - 150px)}
-.detail{flex:1;overflow-y:auto;max-height:calc(100vh - 150px);padding:22px 26px}
+.detail{flex:1;overflow-y:auto;max-height:calc(100vh - 150px);padding:12px 26px}
 .tree-item{font-size:13px;color:#3d5c52;padding:11px 14px;cursor:pointer;border-bottom:1px solid #e6efe9;line-height:1.5}
 .tree-item:hover{background:#eaf2ee}
 .tree-item.sel{background:#dcece4;color:#1a1a1a;font-weight:500}
@@ -96,10 +98,10 @@ td.empty{color:#bbb}
 <!-- 章节目录 -->
 <section class="panel on" id="p-cat"><div class="box box-browse">
   <div id="diag-e" style="display:none;font-size:12px;padding:9px 12px;border-radius:8px;margin-bottom:12px;line-height:1.7"></div>
-  <input type="text" id="q-cat" placeholder="搜索章号、章名、藏品编号…" style="width:100%;max-width:420px;margin-bottom:8px">
+  <input type="text" id="q-cat" placeholder="搜索章号、章名、藏品编号…" style="width:100%;max-width:300px;margin-bottom:8px;padding:5px 11px;font-size:13.5px">
   <div class="split">
     <div class="tree" id="tree-cat"></div>
-    <div class="detail" id="detail-cat"><div class="hint" style="padding:20px">← 从左侧选择一章</div></div>
+    <div class="detail" id="detail-cat"><div class="hint" style="padding:8px 4px">← 从左侧选择一章</div></div>
   </div>
 </div></section>
 
